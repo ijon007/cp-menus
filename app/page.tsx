@@ -17,12 +17,6 @@ export default function Home() {
           <Button asChild className="w-full">
             <Link href="/login">Login</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link href="/menus">Menus</Link>
-          </Button>
-          <Button asChild variant="secondary" className="w-full">
-            <Link href="/cafe-luna">Sample menu</Link>
-          </Button>
         </CardContent>
       </Card>
     </div>
