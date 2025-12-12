@@ -134,36 +134,30 @@ function deepMerge<T extends Record<string, unknown>>(base: T, patch?: Partial<T
 export function resolveTheme(presetId: ThemePresetId, overrides?: MenuThemeOverrides): ResolvedMenuTheme {
   const preset = THEME_PRESETS[presetId] ?? THEME_PRESETS.coffeePastel
 
-  const patch: Partial<ResolvedMenuTheme> = {
-    tokens: overrides?.tokens
-      ? {
-          background: overrides.tokens.background,
-          foreground: overrides.tokens.foreground,
-          card: overrides.tokens.card,
-          cardForeground: overrides.tokens.cardForeground,
-          primary: overrides.tokens.primary,
-          primaryForeground: overrides.tokens.primaryForeground,
-          accent: overrides.tokens.accent,
-          accentForeground: overrides.tokens.accentForeground,
-          muted: overrides.tokens.muted,
-          mutedForeground: overrides.tokens.mutedForeground,
-          border: overrides.tokens.border,
-          ring: overrides.tokens.ring,
-          radius: overrides.tokens.radius,
-        }
-      : undefined,
-    layout: overrides?.layout
-      ? {
-          density: overrides.layout.density,
-          layoutId: overrides.layout.layoutId,
-        }
-      : undefined,
-    variants: overrides?.variants
-      ? {
-          item: overrides.variants.item,
-          section: overrides.variants.section,
-        }
-      : undefined,
+  const patch: Record<string, unknown> = {}
+  
+  if (overrides?.tokens) {
+    patch.tokens = Object.fromEntries(
+      Object.entries(overrides.tokens).filter(([_, value]) => value !== undefined)
+    )
+  }
+  
+  if (overrides?.layout) {
+    const layoutPatch: Record<string, unknown> = {}
+    if (overrides.layout.density !== undefined) layoutPatch.density = overrides.layout.density
+    if (overrides.layout.layoutId !== undefined) layoutPatch.layoutId = overrides.layout.layoutId
+    if (Object.keys(layoutPatch).length > 0) {
+      patch.layout = layoutPatch
+    }
+  }
+  
+  if (overrides?.variants) {
+    const variantsPatch: Record<string, unknown> = {}
+    if (overrides.variants.item !== undefined) variantsPatch.item = overrides.variants.item
+    if (overrides.variants.section !== undefined) variantsPatch.section = overrides.variants.section
+    if (Object.keys(variantsPatch).length > 0) {
+      patch.variants = variantsPatch
+    }
   }
 
   const merged = deepMerge(preset, patch)
