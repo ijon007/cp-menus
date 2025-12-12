@@ -76,7 +76,7 @@ export const restaurantSchema = z.object({
   themePresetId: z.string(),
   themeOverrides: menuThemeOverridesSchema.default({}),
   menuIds: z.array(z.string()),
-  currency: z.enum(["ALL", "EUR", "USD", "GBP"]).default("USD"),
+  currency: z.enum(["ALL", "EUR", "USD", "GBP"]).default("ALL"),
 })
 
 export type Restaurant = z.infer<typeof restaurantSchema>

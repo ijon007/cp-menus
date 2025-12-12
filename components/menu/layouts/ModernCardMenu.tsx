@@ -9,7 +9,7 @@ export function ModernCardMenu({
   restaurant,
   menu,
   theme,
-  currency = "USD",
+  currency = "ALL",
   formatPrice = (price: number) => `$${price.toFixed(0)}`,
 }: {
   restaurant: Restaurant

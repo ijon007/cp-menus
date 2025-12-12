@@ -62,7 +62,7 @@ export function convertPrice(
 
 export function formatPrice(price: number, currency: Currency): string {
   if (currency === "ALL") {
-    return price.toFixed(0)
+    return `${price.toFixed(0)} Lek`
   }
 
   const symbols: Record<Currency, string> = {

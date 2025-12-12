@@ -11,7 +11,7 @@ export function seedMenuState(): MenuState {
         themePresetId: "coffeePastel",
         themeOverrides: {},
         menuIds: ["menu_cafe_luna_main"],
-        currency: "USD",
+        currency: "ALL",
       },
     ],
     menus: [

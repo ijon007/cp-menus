@@ -76,7 +76,7 @@ export default function LoginPage() {
           themePresetId: "coffeePastel" as const,
           themeOverrides: {},
           menuIds: [],
-          currency: "USD" as const,
+          currency: "ALL" as const,
         }
         writeMenuState({
           ...state,

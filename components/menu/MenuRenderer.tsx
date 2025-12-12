@@ -106,7 +106,7 @@ export function MenuRenderer({ restaurantSlug }: { restaurantSlug: string }) {
 
   const Layout = theme.layout.layoutId === "modernCard" ? ModernCardMenu : MinimalMenu
 
-  const currency = restaurant?.currency ?? "USD"
+  const currency = restaurant?.currency ?? "ALL"
 
   return (
     <div style={tokenStyle} className="bg-background text-foreground">
