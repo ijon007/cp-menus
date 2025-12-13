@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 
 interface Section {
   id: number;
@@ -161,7 +163,8 @@ function AdminMenuPage() {
                     handleAddSection();
                   }}
                 >
-                  Add Section
+                  <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+                  <span>Add Section</span>
                 </Button>
               </DialogFooter>
             </DialogContent>

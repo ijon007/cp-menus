@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Bookmark02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 interface CategorySelectorProps {
   categories: string[];
@@ -21,7 +23,8 @@ export default function CategorySelector({
         onClick={() => onSelectCategory(null)}
         className="border-border"
       >
-        All
+        <HugeiconsIcon icon={Bookmark02Icon} strokeWidth={2} />
+        <span>All</span>
       </Button>
       {categories.map((category) => (
         <Button

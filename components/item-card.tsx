@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons";
 
 interface ItemCardProps {
   itemName: string;
@@ -74,7 +76,8 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", onEdit, onDelete 
       <div className="flex gap-2">
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogTrigger render={<Button variant="outline" size="sm" />}>
-            Edit
+            <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
+            <span>Edit</span>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -122,16 +125,20 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", onEdit, onDelete 
                   setEditOpen(false);
                 }}
               >
+                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
                 Cancel
               </Button>
-              <Button onClick={handleEdit}>Save Changes</Button>
+              <Button onClick={handleEdit}>
+                Save Changes
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
         <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <DialogTrigger render={<Button variant="destructive" size="sm" />}>
-            Delete
+            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+            <span>Delete</span>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -142,9 +149,11 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", onEdit, onDelete 
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDelete}>
+                <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
                 Delete
               </Button>
             </DialogFooter>

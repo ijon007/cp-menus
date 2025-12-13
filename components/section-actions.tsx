@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, Delete02Icon, Edit02Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
 
 interface SectionActionsProps {
   sectionId: number;
@@ -71,6 +73,7 @@ export default function SectionActions({
     <div className="flex gap-2">
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogTrigger render={<Button variant="outline" size="sm" />}>
+          <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
           Edit
         </DialogTrigger>
         <DialogContent>
@@ -106,6 +109,7 @@ export default function SectionActions({
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogTrigger render={<Button variant="destructive" size="sm" />}>
+         <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
           Delete
         </DialogTrigger>
         <DialogContent>
@@ -117,10 +121,12 @@ export default function SectionActions({
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancel
+              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+              <span>Cancel</span>
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              Delete
+              <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+              <span>Delete</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -128,6 +134,7 @@ export default function SectionActions({
 
       <Dialog open={addItemDialogOpen} onOpenChange={setAddItemDialogOpen}>
         <DialogTrigger render={<Button variant="outline" size="sm" />}>
+          <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
           Add Item
         </DialogTrigger>
         <DialogContent>
@@ -176,7 +183,10 @@ export default function SectionActions({
             >
               Cancel
             </Button>
-            <Button onClick={handleAddItem}>Add Item</Button>
+            <Button onClick={handleAddItem}>
+              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+              Add Item
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
