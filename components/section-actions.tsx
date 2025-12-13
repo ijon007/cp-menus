@@ -170,6 +170,17 @@ export default function SectionActions({
                 placeholder="e.g., Fresh romaine lettuce with Caesar dressing"
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor={`item-image-${sectionId}`}>Image</Label>
+              <Input
+                id={`item-image-${sectionId}`}
+                type="file"
+                accept="image/*"
+                disabled
+                className="cursor-not-allowed opacity-50"
+              />
+              <p className="text-xs text-muted-foreground">Image upload coming soon</p>
+            </div>
           </div>
           <DialogFooter>
             <Button

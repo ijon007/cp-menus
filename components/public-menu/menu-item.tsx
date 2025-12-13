@@ -1,12 +1,15 @@
 "use client";
 
+import Image from "next/image";
+
 interface MenuItemProps {
   name: string;
   price: string;
   description?: string;
+  image?: string;
 }
 
-export default function MenuItem({ name, price, description }: MenuItemProps) {
+export default function MenuItem({ name, price, description, image = "/coffee-cup.webp" }: MenuItemProps) {
   // Format price to Albanian Lek
   const formatPrice = (price: string) => {
     const numPrice = price.replace(/[^0-9.]/g, "");
@@ -15,8 +18,17 @@ export default function MenuItem({ name, price, description }: MenuItemProps) {
   };
 
   return (
-    <div className="flex items-start justify-between py-3 border-b border-border/50 last:border-0">
-      <div className="flex-1 pr-4">
+    <div className="flex items-start justify-between py-3 border-b border-border/50 last:border-0 gap-4">
+      <div>
+        <Image
+          src={image}
+          alt={name}
+          width={64}
+          height={64}
+          className="rounded-md object-cover"
+        />
+      </div>
+      <div className="flex-1 min-w-0 pr-4">
         <h4 className="text-foreground font-semibold mb-1">{name}</h4>
         {description && (
           <p className="text-muted-foreground text-sm mt-1">{description}</p>

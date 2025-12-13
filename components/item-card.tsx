@@ -17,16 +17,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons";
+import Image from "next/image";
 
 interface ItemCardProps {
   itemName: string;
   itemPrice: string;
   itemDescription?: string;
+  itemImage?: string;
   onEdit?: (newName: string, newPrice: string, newDescription: string) => void;
   onDelete?: () => void;
 }
 
-const ItemCard = ({ itemName, itemPrice, itemDescription = "", onEdit, onDelete }: ItemCardProps) => {
+const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/coffee-cup.webp", onEdit, onDelete }: ItemCardProps) => {
   const [editName, setEditName] = useState(itemName);
   const [editPrice, setEditPrice] = useState(itemPrice);
   const [editDescription, setEditDescription] = useState(itemDescription);
@@ -65,8 +67,17 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", onEdit, onDelete 
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 py-2">
-      <div className="flex-1">
+    <div className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 py-2 gap-4">
+      <div>
+        <Image
+          src={itemImage}
+          alt={itemName}
+          width={64}
+          height={64}
+          className="rounded-md object-cover"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
         <p className="text-foreground font-semibold text-sm">{itemName}</p>
         {itemDescription && (
           <p className="text-muted-foreground text-sm font-normal">{itemDescription}</p>
