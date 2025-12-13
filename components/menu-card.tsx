@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Edit02Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 interface MenuCardProps {
   menuName: string;
@@ -23,7 +25,8 @@ const MenuCard = ({ menuName, onEdit, onDelete }: MenuCardProps) => {
             onClick={onEdit}
             className="border-border hover:bg-accent hover:text-accent-foreground"
           >
-            Edit
+            <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} /> 
+            <span>Edit</span>
           </Button>
           <Button 
             variant="destructive" 
@@ -31,7 +34,8 @@ const MenuCard = ({ menuName, onEdit, onDelete }: MenuCardProps) => {
             onClick={onDelete}
             className="hover:opacity-90"
           >
-            Delete
+            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+            <span>Delete</span>
           </Button>
         </div>
       </CardContent>
