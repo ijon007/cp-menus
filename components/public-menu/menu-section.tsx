@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MenuItem from "./menu-item";
 
 interface Item {
-  id: number;
+  id: string | number;
   name: string;
   price: string;
   description?: string;

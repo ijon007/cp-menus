@@ -202,6 +202,7 @@ function AdminPage() {
                   <MenuCard
                     key={menu._id}
                     menuName={menu.name}
+                    businessName={businessInfo?.businessName}
                     onEdit={() => openEditDialog(menu)}
                     onDelete={() => openDeleteDialog(menu)}
                   />
