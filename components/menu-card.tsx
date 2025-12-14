@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit02Icon, Delete02Icon } from "@hugeicons/core-free-icons";
@@ -12,10 +13,17 @@ interface MenuCardProps {
 }
 
 const MenuCard = ({ menuName, onEdit, onDelete }: MenuCardProps) => {
+  const router = useRouter();
+
   return (
     <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle className="text-foreground">{menuName}</CardTitle>
+        <CardTitle 
+          className="text-foreground cursor-pointer hover:underline"
+          onClick={() => router.push(`/menus/${menuName}`)}
+        >
+          {menuName}
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="flex gap-2">
@@ -26,7 +34,7 @@ const MenuCard = ({ menuName, onEdit, onDelete }: MenuCardProps) => {
             className="border-border hover:bg-accent hover:text-accent-foreground"
           >
             <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} /> 
-            <span>Edit</span>
+            <span>Rename</span>
           </Button>
           <Button 
             variant="destructive" 

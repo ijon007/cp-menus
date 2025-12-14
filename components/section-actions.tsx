@@ -18,11 +18,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon, Edit02Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
 
 interface SectionActionsProps {
-  sectionId: number;
+  sectionId: string | number;
   sectionName: string;
-  onEdit: (sectionId: number, newName: string) => void;
-  onDelete: (sectionId: number) => void;
-  onAddItem: (sectionId: number, itemName: string, itemPrice: string, itemDescription: string) => void;
+  onEdit: (sectionId: string | number, newName: string) => void;
+  onDelete: (sectionId: string | number) => void;
+  onAddItem: (sectionId: string | number, itemName: string, itemPrice: string, itemDescription: string) => void;
 }
 
 export default function SectionActions({
