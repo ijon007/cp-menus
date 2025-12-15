@@ -4,8 +4,8 @@ import ConvexClientProvider from "./convex-client";
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider
-      afterSignInUrl="/menus"
-      afterSignUpUrl="/menus"
+      afterSignInUrl="/menu"
+      afterSignUpUrl="/menu"
     >
       <ConvexClientProvider>
         {children}

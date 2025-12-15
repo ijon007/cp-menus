@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useParams } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import TopBar from "@/components/top-bar";
@@ -22,18 +22,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon } from "@hugeicons/core-free-icons";
+import { PlusSignIcon, EyeIcon } from "@hugeicons/core-free-icons";
+import { titleToSlug } from "@/lib/utils";
 
 function AdminMenuPage() {
-  const params = useParams();
-  const menuName = params["menu-name"] as string;
+  const router = useRouter();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
-  const menu = useQuery(api.menus.getByName, { name: menuName });
+  const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
     api.sections.getByMenuId,
     menu ? { menuId: menu._id } : "skip"
   );
 
+  const createBusinessInfo = useMutation(api.businessInfo.create);
   const createSection = useMutation(api.sections.create);
   const updateSection = useMutation(api.sections.update);
   const deleteSection = useMutation(api.sections.remove);
@@ -41,9 +42,40 @@ function AdminMenuPage() {
   const updateItem = useMutation(api.menuItems.update);
   const deleteItem = useMutation(api.menuItems.remove);
 
+  const [businessName, setBusinessName] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Show dialog if business info doesn't exist
+  useEffect(() => {
+    if (businessInfo === null && businessInfo !== undefined) {
+      setIsDialogOpen(true);
+    }
+  }, [businessInfo]);
+
+  const handleSaveBusinessName = async () => {
+    if (!businessName.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      await createBusinessInfo({ businessName: businessName.trim() });
+      setIsDialogOpen(false);
+      setBusinessName("");
+    } catch (error) {
+      console.error("Error saving business name:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewLiveMenu = () => {
+    if (businessInfo?.businessName) {
+      const slug = titleToSlug(businessInfo.businessName);
+      router.push(`/${slug}`);
+    }
+  };
 
   const handleAddSection = async () => {
     if (!menu || !newSectionName.trim()) return;
@@ -131,10 +163,10 @@ function AdminMenuPage() {
     }
   };
 
-  if (!menu) {
+  if (!menu && businessInfo) {
     return (
       <div className="min-h-screen bg-background">
-        <TopBar restaurantName="My Restaurant" />
+        <TopBar restaurantName={businessInfo?.businessName || "My Restaurant"} />
         <div className="container mx-auto p-6">
           <p className="text-muted-foreground">Loading menu...</p>
         </div>
@@ -147,9 +179,21 @@ function AdminMenuPage() {
       <TopBar restaurantName={businessInfo?.businessName || "My Restaurant"} />
       <div className="container mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-foreground">
-            {menu.name}
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-semibold text-foreground">
+              {menu?.name || "Menu"}
+            </h2>
+            {businessInfo?.businessName && (
+              <Button 
+                variant="outline" 
+                onClick={handleViewLiveMenu}
+                className="border-border hover:bg-accent"
+              >
+                <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
+                <span>View Live</span>
+              </Button>
+            )}
+          </div>
           <Dialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen}>
             <DialogTrigger render={<Button variant="default" />}>
               <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
@@ -224,6 +268,41 @@ function AdminMenuPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Welcome! Let's get started</DialogTitle>
+            <DialogDescription>
+              Please enter your business name to continue. This will be used to identify your restaurant.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="business-name">Business Name</Label>
+              <Input
+                id="business-name"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="e.g., Joe's Restaurant"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && businessName.trim()) {
+                    handleSaveBusinessName();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleSaveBusinessName}
+              disabled={!businessName.trim() || isLoading}
+            >
+              {isLoading ? "Saving..." : "Save & Continue"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -288,4 +367,18 @@ function SectionWithItems({
   );
 }
 
-export default AdminMenuPage;
+export default function MenuPage() {
+  return (
+    <>
+      <Unauthenticated>
+        <div className="flex min-h-screen items-center justify-center">
+          <p>Please sign in to continue.</p>
+        </div>
+      </Unauthenticated>
+      <Authenticated>
+        <AdminMenuPage />
+      </Authenticated>
+    </>
+  );
+}
+

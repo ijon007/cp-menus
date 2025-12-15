@@ -68,13 +68,37 @@ export const create = mutation({
         businessName: args.businessName,
         updatedAt: Date.now(),
       });
+      
+      // Auto-create menu if it doesn't exist
+      const existingMenu = await ctx.db
+        .query("menus")
+        .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+        .first();
+
+      if (!existingMenu) {
+        await ctx.db.insert("menus", {
+          userId: identity.subject,
+          name: `${args.businessName} Menu`,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+      }
+      
       return existing._id;
     }
 
-    // Create new
+    // Create new business info
     const businessInfoId = await ctx.db.insert("businessInfo", {
       userId: identity.subject,
       businessName: args.businessName,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    // Auto-create menu with name "{businessName} Menu"
+    await ctx.db.insert("menus", {
+      userId: identity.subject,
+      name: `${args.businessName} Menu`,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });

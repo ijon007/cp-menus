@@ -34,8 +34,8 @@ function SignInContent() {
   const handleGoogleSignIn = () => {
     signIn?.authenticateWithRedirect({
       strategy: "oauth_google",
-      redirectUrl: "/menus",
-      redirectUrlComplete: "/menus",
+      redirectUrl: "/menu",
+      redirectUrlComplete: "/menu",
     });
   };
 
@@ -155,7 +155,7 @@ function SignInContent() {
 function RedirectToMenus() {
   const router = useRouter();
   useEffect(() => {
-    router.push("/menus");
+    router.push("/menu");
   }, [router]);
   return null;
 }

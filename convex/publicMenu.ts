@@ -20,37 +20,25 @@ export const getByBusinessSlug = query({
       return { businessInfo: null, sections: [] };
     }
 
-    // Get all menus for this business
-    const menus = await ctx.db
+    // Get the single menu for this business
+    const menu = await ctx.db
       .query("menus")
       .withIndex("by_userId", (q) => q.eq("userId", business.userId))
-      .collect();
+      .first();
 
-    // Get all sections from all menus
-    const allSections: Array<{
-      _id: Id<"sections">;
-      name: string;
-      menuId: Id<"menus">;
-      order: number;
-    }> = [];
-
-    for (const menu of menus) {
-      const sections = await ctx.db
-        .query("sections")
-        .withIndex("by_menuId", (q) => q.eq("menuId", menu._id))
-        .collect();
-      
-      allSections.push(...sections.map((s) => ({
-        _id: s._id,
-        name: s.name,
-        menuId: menu._id,
-        order: s.order,
-      })));
+    if (!menu) {
+      return { businessInfo: business, sections: [] };
     }
+
+    // Get all sections from the single menu
+    const sections = await ctx.db
+      .query("sections")
+      .withIndex("by_menuId", (q) => q.eq("menuId", menu._id))
+      .collect();
 
     // Get all items for all sections and group by section
     const sectionsWithItems = await Promise.all(
-      allSections.map(async (section) => {
+      sections.map(async (section) => {
         const items = await ctx.db
           .query("menuItems")
           .withIndex("by_sectionId", (q) => q.eq("sectionId", section._id))
@@ -83,8 +71,8 @@ export const getByBusinessSlug = query({
     const sortedSections = sectionsWithItems
       .filter((section) => section.items.length > 0)
       .sort((a, b) => {
-        const aSection = allSections.find((s) => s._id === a.id);
-        const bSection = allSections.find((s) => s._id === b.id);
+        const aSection = sections.find((s) => s._id === a.id);
+        const bSection = sections.find((s) => s._id === b.id);
         return (aSection?.order || 0) - (bSection?.order || 0);
       });
 
