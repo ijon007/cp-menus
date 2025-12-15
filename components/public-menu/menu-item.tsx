@@ -18,8 +18,8 @@ export default function MenuItem({ name, price, description, image = "/coffee-cu
   };
 
   return (
-    <div className="flex items-start justify-between py-3 border-b border-border/50 last:border-0 gap-4">
-      <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
+    <div className="flex items-start justify-between py-3 gap-4">
+      <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-sm">
         <Image
           src={image}
           alt={name}

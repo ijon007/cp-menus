@@ -5,6 +5,14 @@ export default defineSchema({
   businessInfo: defineTable({
     userId: v.string(), // Clerk user ID
     businessName: v.string(),
+    logoStorageId: v.optional(v.id("_storage")),
+    googleReviewUrl: v.optional(v.string()),
+    facebookReviewUrl: v.optional(v.string()),
+    socialLinks: v.optional(v.object({
+      instagram: v.optional(v.string()),
+      facebook: v.optional(v.string()),
+      twitter: v.optional(v.string()),
+    })),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

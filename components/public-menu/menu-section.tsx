@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MenuItem from "./menu-item";
+import MenuItemGrid from "./menu-item-grid";
 
 interface Item {
   id: string | number;
@@ -16,22 +16,54 @@ interface MenuSectionProps {
   items: Item[];
 }
 
+const getLayoutType = (sectionName: string): "grid" | "list" => {
+  const gridSections = ["burritos", "tacos", "quesadillas", "enchiladas", "chimichanga"];
+  return gridSections.includes(sectionName.toLowerCase()) ? "grid" : "list";
+};
+
+// Convert section name to a valid ID slug
+const titleToId = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+};
+
 export default function MenuSection({ title, items }: MenuSectionProps) {
   if (items.length === 0) return null;
 
+  const layoutType = getLayoutType(title);
+  const sectionId = titleToId(title);
+
   return (
-    <Card className="border-border bg-card mb-6">
-      <CardHeader>
-        <CardTitle className="text-foreground text-xl font-bold">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-0">
+    <div id={sectionId} className="mb-8 scroll-mt-20">
+      <h2 className="text-2xl font-bold text-foreground mb-4">{title}</h2>
+      {layoutType === "grid" ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {items.map((item) => (
-            <MenuItem key={item.id} name={item.name} price={item.price} description={item.description} image={item.image || "/coffee-cup.webp"} />
+            <MenuItemGrid
+              key={item.id}
+              name={item.name}
+              price={item.price}
+              description={item.description}
+              image={item.image || "/coffee-cup.webp"}
+            />
           ))}
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="space-y-0">
+          {items.map((item) => (
+            <MenuItem
+              key={item.id}
+              name={item.name}
+              price={item.price}
+              description={item.description}
+              image={item.image || "/coffee-cup.webp"}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

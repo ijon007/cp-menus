@@ -1,6 +1,5 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
 
 export const getByBusinessSlug = query({
   args: { slug: v.string() },
@@ -16,18 +15,44 @@ export const getByBusinessSlug = query({
       return businessSlug === args.slug.toLowerCase();
     });
 
-    if (!business) {
-      return { businessInfo: null, sections: [] };
+    // Get logo URL if available
+    const logoUrl = business?.logoStorageId
+      ? await ctx.storage.getUrl(business.logoStorageId)
+      : null;
+
+    // Get menu by userId if business exists
+    // The menu name is typically "{businessName} Menu"
+    let menu = null;
+    if (business) {
+      menu = await ctx.db
+        .query("menus")
+        .withIndex("by_userId", (q) => q.eq("userId", business.userId))
+        .first();
+    }
+    
+    // If no menu found via business, try to find by matching slug pattern
+    // This handles cases where businessInfo doesn't exist yet
+    if (!menu) {
+      const allMenus = await ctx.db.query("menus").collect();
+      menu = allMenus.find((m) => {
+        // Convert menu name to slug (e.g., "Tacos Bros Menu" -> "tacos-bros")
+        const menuNameSlug = m.name
+          .toLowerCase()
+          .replace(/\s+menu\s*$/i, "") // Remove " Menu" suffix
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        return menuNameSlug === args.slug.toLowerCase();
+      }) || null;
     }
 
-    // Get the single menu for this business
-    const menu = await ctx.db
-      .query("menus")
-      .withIndex("by_userId", (q) => q.eq("userId", business.userId))
-      .first();
-
     if (!menu) {
-      return { businessInfo: business, sections: [] };
+      return { 
+        businessInfo: business ? {
+          ...business,
+          logoUrl,
+        } : null, 
+        sections: [] 
+      };
     }
 
     // Get all sections from the single menu
@@ -77,7 +102,10 @@ export const getByBusinessSlug = query({
       });
 
     return {
-      businessInfo: business,
+      businessInfo: business ? {
+        ...business,
+        logoUrl,
+      } : null,
       sections: sortedSections,
     };
   },

@@ -6,6 +6,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import CategorySelector from "@/components/public-menu/category-selector";
 import MenuSection from "@/components/public-menu/menu-section";
+import RestaurantHeader from "@/components/public-menu/restaurant-header";
+import { formatSlugToTitle } from "@/lib/utils";
 
 interface Item {
   id: string;
@@ -31,7 +33,7 @@ function MenuPage() {
   if (menuData === undefined) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <p className="text-muted-foreground">Loading menu...</p>
           </div>
@@ -40,37 +42,23 @@ function MenuPage() {
     );
   }
 
-  if (!menuData.businessInfo) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Restaurant Not Found
-            </h1>
-            <p className="text-muted-foreground">The restaurant you're looking for doesn't exist.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Format restaurant name from slug (always available)
+  const restaurantName = formatSlugToTitle(restaurantSlug);
 
   const sections: Section[] = menuData.sections;
   const categories = sections.map((section) => section.name);
-  const filteredSections = selectedCategory
-    ? sections.filter((section) => section.name === selectedCategory)
-    : sections;
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            {menuData.businessInfo.businessName}
-          </h1>
-          <p className="text-muted-foreground">Welcome to our menu</p>
-        </div>
-
+      <RestaurantHeader
+        businessName={restaurantName}
+        logoUrl={menuData.businessInfo?.logoUrl}
+        googleReviewUrl={menuData.businessInfo?.googleReviewUrl}
+        facebookReviewUrl={menuData.businessInfo?.facebookReviewUrl}
+        socialLinks={menuData.businessInfo?.socialLinks}
+      />
+      
+      <div className="container mx-auto px-4 py-6 md:py-8">
         {categories.length > 0 && (
           <CategorySelector
             categories={categories}
@@ -80,8 +68,8 @@ function MenuPage() {
         )}
 
         <div>
-          {filteredSections.length > 0 ? (
-            filteredSections.map((section) => (
+          {sections.length > 0 ? (
+            sections.map((section) => (
               <MenuSection key={section.id} title={section.name} items={section.items} />
             ))
           ) : (
