@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,13 +18,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon, Edit02Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import Image from "next/image";
 
 interface SectionActionsProps {
   sectionId: string | number;
   sectionName: string;
   onEdit: (sectionId: string | number, newName: string) => void;
   onDelete: (sectionId: string | number) => void;
-  onAddItem: (sectionId: string | number, itemName: string, itemPrice: string, itemDescription: string) => void;
+  onAddItem: (sectionId: string | number, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => void;
 }
 
 export default function SectionActions({
@@ -32,10 +35,15 @@ export default function SectionActions({
   onDelete,
   onAddItem,
 }: SectionActionsProps) {
+  const generateUploadUrl = useMutation(api.menuItems.generateUploadUrl);
   const [editSectionName, setEditSectionName] = useState(sectionName);
   const [newItemName, setNewItemName] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
@@ -46,6 +54,32 @@ export default function SectionActions({
       setEditSectionName(sectionName);
     }
   }, [editDialogOpen, sectionName]);
+
+  // Reset add item form when dialog opens/closes
+  useEffect(() => {
+    if (!addItemDialogOpen) {
+      setNewItemName("");
+      setNewItemPrice("");
+      setNewItemDescription("");
+      setSelectedImage(null);
+      setImagePreview(null);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+    }
+  }, [addItemDialogOpen]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleEdit = () => {
     if (editSectionName.trim()) {
@@ -59,13 +93,32 @@ export default function SectionActions({
     setDeleteDialogOpen(false);
   };
 
-  const handleAddItem = () => {
-    if (newItemName.trim()) {
-      onAddItem(sectionId, newItemName, newItemPrice, newItemDescription);
-      setNewItemName("");
-      setNewItemPrice("");
-      setNewItemDescription("");
+  const handleAddItem = async () => {
+    if (!newItemName.trim()) return;
+
+    setIsUploading(true);
+    try {
+      let storageId: string | undefined;
+
+      // Step 1: Upload image if selected
+      if (selectedImage) {
+        const postUrl = await generateUploadUrl();
+        const result = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": selectedImage.type },
+          body: selectedImage,
+        });
+        const { storageId: uploadedStorageId } = await result.json();
+        storageId = uploadedStorageId;
+      }
+
+      // Step 2: Save item with storage ID
+      onAddItem(sectionId, newItemName, newItemPrice, newItemDescription, storageId);
       setAddItemDialogOpen(false);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -174,12 +227,23 @@ export default function SectionActions({
               <Label htmlFor={`item-image-${sectionId}`}>Image</Label>
               <Input
                 id={`item-image-${sectionId}`}
+                ref={imageInputRef}
                 type="file"
                 accept="image/*"
-                disabled
-                className="cursor-not-allowed opacity-50"
+                onChange={handleImageChange}
+                disabled={isUploading}
               />
-              <p className="text-xs text-muted-foreground">Image upload coming soon</p>
+              {imagePreview && (
+                <div className="mt-2">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    width={128}
+                    height={128}
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -194,9 +258,9 @@ export default function SectionActions({
             >
               Cancel
             </Button>
-            <Button onClick={handleAddItem}>
+            <Button onClick={handleAddItem} disabled={isUploading}>
               <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
-              Add Item
+              {isUploading ? "Uploading..." : "Add Item"}
             </Button>
           </DialogFooter>
         </DialogContent>

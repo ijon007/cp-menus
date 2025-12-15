@@ -8,6 +8,7 @@ interface Item {
   name: string;
   price: string;
   description?: string;
+  image?: string | null;
 }
 
 interface MenuSectionProps {
@@ -26,7 +27,7 @@ export default function MenuSection({ title, items }: MenuSectionProps) {
       <CardContent>
         <div className="space-y-0">
           {items.map((item) => (
-            <MenuItem key={item.id} name={item.name} price={item.price} description={item.description} />
+            <MenuItem key={item.id} name={item.name} price={item.price} description={item.description} image={item.image || "/coffee-cup.webp"} />
           ))}
         </div>
       </CardContent>

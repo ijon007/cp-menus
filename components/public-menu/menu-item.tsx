@@ -19,13 +19,12 @@ export default function MenuItem({ name, price, description, image = "/coffee-cu
 
   return (
     <div className="flex items-start justify-between py-3 border-b border-border/50 last:border-0 gap-4">
-      <div>
+      <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
         <Image
           src={image}
           alt={name}
-          width={64}
-          height={64}
-          className="rounded-md object-cover"
+          fill
+          className="object-cover"
         />
       </div>
       <div className="flex-1 min-w-0 pr-4">

@@ -60,7 +60,7 @@ function AdminMenuPage() {
     }
   };
 
-  const handleAddItem = async (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string) => {
+  const handleAddItem = async (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => {
     if (!itemName.trim()) return;
     
     setIsLoading(true);
@@ -70,6 +70,7 @@ function AdminMenuPage() {
         name: itemName.trim(),
         price: itemPrice.trim(),
         description: itemDescription.trim() || undefined,
+        storageId: storageId as Id<"_storage"> | undefined,
       });
     } catch (error) {
       console.error("Error creating item:", error);
@@ -78,7 +79,7 @@ function AdminMenuPage() {
     }
   };
 
-  const handleEditItem = async (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string) => {
+  const handleEditItem = async (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => {
     setIsLoading(true);
     try {
       await updateItem({
@@ -86,6 +87,7 @@ function AdminMenuPage() {
         name: newName.trim(),
         price: newPrice.trim(),
         description: newDescription.trim() || undefined,
+        storageId: storageId as Id<"_storage"> | undefined,
       });
     } catch (error) {
       console.error("Error updating item:", error);
@@ -237,8 +239,8 @@ function SectionWithItems({
   section: { _id: Id<"sections">; name: string };
   onEdit: (sectionId: Id<"sections">, newName: string) => void;
   onDelete: (sectionId: Id<"sections">) => void;
-  onAddItem: (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string) => void;
-  onEditItem: (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string) => void;
+  onAddItem: (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => void;
+  onEditItem: (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
   onDeleteItem: (itemId: Id<"menuItems">) => void;
 }) {
   const items = useQuery(api.menuItems.getBySectionId, { sectionId: section._id });
@@ -253,7 +255,7 @@ function SectionWithItems({
             sectionName={section.name}
             onEdit={(id, name) => onEdit(id as Id<"sections">, name)}
             onDelete={(id) => onDelete(id as Id<"sections">)}
-            onAddItem={(id, name, price, desc) => onAddItem(id as Id<"sections">, name, price, desc)}
+            onAddItem={(id, name, price, desc, storageId) => onAddItem(id as Id<"sections">, name, price, desc, storageId)}
           />
         </div>
       </CardHeader>
@@ -266,8 +268,9 @@ function SectionWithItems({
                 itemName={item.name}
                 itemPrice={item.price}
                 itemDescription={item.description}
-                onEdit={(newName, newPrice, newDescription) => {
-                  onEditItem(item._id, newName, newPrice, newDescription);
+                itemImage={item.imageUrl || "/coffee-cup.webp"}
+                onEdit={(newName, newPrice, newDescription, storageId) => {
+                  onEditItem(item._id, newName, newPrice, newDescription, storageId);
                 }}
                 onDelete={() => {
                   onDeleteItem(item._id);

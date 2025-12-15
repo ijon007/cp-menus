@@ -1,6 +1,13 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
 export const getBySectionId = query({
   args: { sectionId: v.id("sections") },
   handler: async (ctx, args) => {
@@ -25,7 +32,19 @@ export const getBySectionId = query({
       .withIndex("by_sectionId", (q) => q.eq("sectionId", args.sectionId))
       .collect();
 
-    return items.sort((a, b) => a.createdAt - b.createdAt);
+    const itemsWithUrls = await Promise.all(
+      items.map(async (item) => {
+        const imageUrl = item.imageStorageId
+          ? await ctx.storage.getUrl(item.imageStorageId)
+          : null;
+        return {
+          ...item,
+          imageUrl,
+        };
+      })
+    );
+
+    return itemsWithUrls.sort((a, b) => a.createdAt - b.createdAt);
   },
 });
 
@@ -35,6 +54,7 @@ export const create = mutation({
     name: v.string(),
     price: v.string(),
     description: v.optional(v.string()),
+    storageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -58,6 +78,7 @@ export const create = mutation({
       name: args.name.trim(),
       price: args.price.trim(),
       description: args.description?.trim() || undefined,
+      imageStorageId: args.storageId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -72,6 +93,7 @@ export const update = mutation({
     name: v.string(),
     price: v.string(),
     description: v.optional(v.string()),
+    storageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -95,10 +117,16 @@ export const update = mutation({
       throw new Error("Unauthorized");
     }
 
+    // Handle image replacement/removal: delete old image if it exists and is being replaced or removed
+    if (item.imageStorageId && item.imageStorageId !== args.storageId) {
+      await ctx.storage.delete(item.imageStorageId);
+    }
+
     await ctx.db.patch(args.itemId, {
       name: args.name.trim(),
       price: args.price.trim(),
       description: args.description?.trim() || undefined,
+      imageStorageId: args.storageId,
       updatedAt: Date.now(),
     });
 
@@ -130,6 +158,11 @@ export const remove = mutation({
     const menu = await ctx.db.get(section.menuId);
     if (!menu || menu.userId !== identity.subject) {
       throw new Error("Unauthorized");
+    }
+
+    // Delete associated image if it exists
+    if (item.imageStorageId) {
+      await ctx.storage.delete(item.imageStorageId);
     }
 
     await ctx.db.delete(args.itemId);

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -34,7 +33,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
 
 function AdminPage() {
-  const router = useRouter();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const menus = useQuery(api.menus.getByUserId);
   const createBusinessInfo = useMutation(api.businessInfo.create);
@@ -85,7 +83,6 @@ function AdminPage() {
       const menuId = await createMenu({ name: newMenuName.trim() });
       setNewMenuName("");
       setCreateMenuDialogOpen(false);
-      router.push(`/menus/${newMenuName.trim()}`);
     } catch (error) {
       console.error("Error creating menu:", error);
     } finally {

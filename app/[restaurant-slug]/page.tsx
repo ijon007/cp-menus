@@ -12,6 +12,7 @@ interface Item {
   name: string;
   price: string;
   description?: string;
+  image?: string | null;
 }
 
 interface Section {

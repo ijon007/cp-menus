@@ -56,15 +56,25 @@ export const getByBusinessSlug = query({
           .withIndex("by_sectionId", (q) => q.eq("sectionId", section._id))
           .collect();
 
+        const itemsWithImages = await Promise.all(
+          items.map(async (item) => {
+            const image = item.imageStorageId
+              ? await ctx.storage.getUrl(item.imageStorageId)
+              : null;
+            return {
+              id: item._id,
+              name: item.name,
+              price: item.price,
+              description: item.description,
+              image,
+            };
+          })
+        );
+
         return {
           id: section._id,
           name: section.name,
-          items: items.map((item) => ({
-            id: item._id,
-            name: item.name,
-            price: item.price,
-            description: item.description,
-          })),
+          items: itemsWithImages,
         };
       })
     );

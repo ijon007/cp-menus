@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,14 +26,19 @@ interface ItemCardProps {
   itemPrice: string;
   itemDescription?: string;
   itemImage?: string;
-  onEdit?: (newName: string, newPrice: string, newDescription: string) => void;
+  onEdit?: (newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
   onDelete?: () => void;
 }
 
 const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/coffee-cup.webp", onEdit, onDelete }: ItemCardProps) => {
+  const generateUploadUrl = useMutation(api.menuItems.generateUploadUrl);
   const [editName, setEditName] = useState(itemName);
   const [editPrice, setEditPrice] = useState(itemPrice);
   const [editDescription, setEditDescription] = useState(itemDescription);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -41,8 +48,25 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
       setEditName(itemName);
       setEditPrice(itemPrice);
       setEditDescription(itemDescription);
+      setSelectedImage(null);
+      setImagePreview(null);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
     }
   }, [editOpen, itemName, itemPrice, itemDescription]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Format price to Albanian Lek
   const formatPrice = (price: string) => {
@@ -52,10 +76,32 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
     return `${numPrice} Lek`;
   };
 
-  const handleEdit = () => {
-    if (onEdit && editName.trim()) {
-      onEdit(editName, editPrice, editDescription);
+  const handleEdit = async () => {
+    if (!onEdit || !editName.trim()) return;
+
+    setIsUploading(true);
+    try {
+      let storageId: string | undefined;
+
+      // Step 1: Upload image if selected
+      if (selectedImage) {
+        const postUrl = await generateUploadUrl();
+        const result = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": selectedImage.type },
+          body: selectedImage,
+        });
+        const { storageId: uploadedStorageId } = await result.json();
+        storageId = uploadedStorageId;
+      }
+
+      // Step 2: Save item with storage ID
+      onEdit(editName, editPrice, editDescription, storageId);
       setEditOpen(false);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -68,15 +114,13 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
 
   return (
     <div className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 py-2 gap-4">
-      <div>
-        <Image
-          src={itemImage}
-          alt={itemName}
-          width={64}
-          height={64}
-          className="rounded-md object-cover"
-        />
-      </div>
+      <Image
+        src={itemImage}
+        alt={itemName}
+        width={64}
+        height={64}
+        className="rounded-md object-cover"
+      />
       <div className="flex-1 min-w-0">
         <p className="text-foreground font-semibold text-sm">{itemName}</p>
         {itemDescription && (
@@ -125,6 +169,41 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
                   placeholder="e.g., Fresh romaine lettuce with Caesar dressing"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-image">Image</Label>
+                {itemImage && itemImage !== "/coffee-cup.webp" && !imagePreview && (
+                  <div className="mb-2">
+                    <p className="text-xs text-muted-foreground mb-1">Current image:</p>
+                    <Image
+                      src={itemImage}
+                      alt="Current"
+                      width={128}
+                      height={128}
+                      className="rounded-md object-cover"
+                    />
+                  </div>
+                )}
+                <Input
+                  id="edit-item-image"
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={isUploading}
+                />
+                {imagePreview && (
+                  <div className="mt-2">
+                    <p className="text-xs text-muted-foreground mb-1">New image preview:</p>
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={128}
+                      height={128}
+                      className="rounded-md object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <DialogFooter>
               <Button
@@ -139,8 +218,8 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
                 <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
                 Cancel
               </Button>
-              <Button onClick={handleEdit}>
-                Save Changes
+              <Button onClick={handleEdit} disabled={isUploading}>
+                {isUploading ? "Uploading..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </DialogContent>
