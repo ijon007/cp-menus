@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 interface TopBarProps {
@@ -9,8 +10,10 @@ interface TopBarProps {
 
 export default function TopBar({ restaurantName }: TopBarProps) {
   const router = useRouter();
+  const { signOut } = useClerk();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     router.push("/");
   };
 

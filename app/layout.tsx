@@ -22,10 +22,28 @@ export const metadata: Metadata = {
     icon: "/cp.svg",
     shortcut: "/cp.svg",
     apple: "/cp.svg",
-    other: {
-      rel: "icon",
-      url: "/cp.svg",
-    },
+    other: [
+      {
+        rel: "icon",
+        url: "/cp-brown.svg",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        rel: "icon",
+        url: "/cp.svg",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        rel: "shortcut icon",
+        url: "/cp-brown.svg",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        rel: "shortcut icon",
+        url: "/cp.svg",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
   },
 };
 

@@ -114,13 +114,14 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
 
   return (
     <div className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 py-2 gap-4">
-      <Image
-        src={itemImage}
-        alt={itemName}
-        width={64}
-        height={64}
-        className="rounded-md object-cover"
-      />
+      <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
+        <Image
+          src={itemImage}
+          alt={itemName}
+          fill
+          className="object-cover"
+        />
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-foreground font-semibold text-sm">{itemName}</p>
         {itemDescription && (
