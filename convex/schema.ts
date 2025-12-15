@@ -6,8 +6,9 @@ export default defineSchema({
     userId: v.string(), // Clerk user ID
     businessName: v.string(),
     logoStorageId: v.optional(v.id("_storage")),
+    bannerStorageId: v.optional(v.id("_storage")),
     googleReviewUrl: v.optional(v.string()),
-    facebookReviewUrl: v.optional(v.string()),
+    tripAdvisorReviewUrl: v.optional(v.string()),
     socialLinks: v.optional(v.object({
       instagram: v.optional(v.string()),
       facebook: v.optional(v.string()),

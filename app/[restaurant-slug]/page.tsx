@@ -42,7 +42,7 @@ function MenuPage() {
     );
   }
 
-  const restaurantName = formatSlugToTitle(restaurantSlug);
+  const restaurantName = menuData.businessInfo?.businessName || formatSlugToTitle(restaurantSlug);
 
   const sections: Section[] = menuData.sections;
   const categories = sections.map((section) => section.name);
@@ -52,8 +52,9 @@ function MenuPage() {
       <RestaurantHeader
         businessName={restaurantName}
         logoUrl={menuData.businessInfo?.logoUrl}
+        bannerUrl={menuData.businessInfo?.bannerUrl}
         googleReviewUrl={menuData.businessInfo?.googleReviewUrl}
-        facebookReviewUrl={menuData.businessInfo?.facebookReviewUrl}
+        tripAdvisorReviewUrl={menuData.businessInfo?.tripAdvisorReviewUrl}
         socialLinks={menuData.businessInfo?.socialLinks}
       />
       

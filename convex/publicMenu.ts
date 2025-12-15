@@ -4,56 +4,52 @@ import { v } from "convex/values";
 export const getByBusinessSlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
-    // Get business info by slug
-    const allBusinesses = await ctx.db.query("businessInfo").collect();
-    
-    const business = allBusinesses.find((b) => {
-      const businessSlug = b.businessName
+    // First, find the menu by slug pattern
+    const allMenus = await ctx.db.query("menus").collect();
+    const menu = allMenus.find((m) => {
+      // Convert menu name to slug (e.g., "Tacos Bros Menu" -> "tacos-bros")
+      const menuNameSlug = m.name
         .toLowerCase()
+        .replace(/\s+menu\s*$/i, "") // Remove " Menu" suffix
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
-      return businessSlug === args.slug.toLowerCase();
+      return menuNameSlug === args.slug.toLowerCase();
     });
+
+    if (!menu) {
+      return {
+        businessInfo: null,
+        sections: [],
+      };
+    }
+
+    // Get business info from menu's userId
+    const business = await ctx.db
+      .query("businessInfo")
+      .withIndex("by_userId", (q) => q.eq("userId", menu.userId))
+      .first();
 
     // Get logo URL if available
     const logoUrl = business?.logoStorageId
       ? await ctx.storage.getUrl(business.logoStorageId)
       : null;
 
-    // Get menu by userId if business exists
-    // The menu name is typically "{businessName} Menu"
-    let menu = null;
-    if (business) {
-      menu = await ctx.db
-        .query("menus")
-        .withIndex("by_userId", (q) => q.eq("userId", business.userId))
-        .first();
-    }
-    
-    // If no menu found via business, try to find by matching slug pattern
-    // This handles cases where businessInfo doesn't exist yet
-    if (!menu) {
-      const allMenus = await ctx.db.query("menus").collect();
-      menu = allMenus.find((m) => {
-        // Convert menu name to slug (e.g., "Tacos Bros Menu" -> "tacos-bros")
-        const menuNameSlug = m.name
-          .toLowerCase()
-          .replace(/\s+menu\s*$/i, "") // Remove " Menu" suffix
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "");
-        return menuNameSlug === args.slug.toLowerCase();
-      }) || null;
-    }
+    // Get banner URL if available
+    const bannerUrl = business?.bannerStorageId
+      ? await ctx.storage.getUrl(business.bannerStorageId)
+      : null;
 
-    if (!menu) {
-      return { 
-        businessInfo: business ? {
-          ...business,
+    // Build businessInfo object
+    const businessInfo = business
+      ? {
+          businessName: business.businessName,
+          googleReviewUrl: business.googleReviewUrl,
+          tripAdvisorReviewUrl: business.tripAdvisorReviewUrl,
+          socialLinks: business.socialLinks,
           logoUrl,
-        } : null, 
-        sections: [] 
-      };
-    }
+          bannerUrl,
+        }
+      : null;
 
     // Get all sections from the single menu
     const sections = await ctx.db
@@ -102,10 +98,7 @@ export const getByBusinessSlug = query({
       });
 
     return {
-      businessInfo: business ? {
-        ...business,
-        logoUrl,
-      } : null,
+      businessInfo,
       sections: sortedSections,
     };
   },

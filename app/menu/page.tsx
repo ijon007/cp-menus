@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import TopBar from "@/components/top-bar";
+import { useClerk } from "@clerk/nextjs";
+import Link from "next/link";
+import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import ItemCard from "@/components/item-card";
 import SectionActions from "@/components/section-actions";
 import { Button } from "@/components/ui/button";
@@ -22,11 +24,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, EyeIcon } from "@hugeicons/core-free-icons";
+import { PlusSignIcon, EyeIcon, SettingsIcon, Logout05Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { titleToSlug } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 function AdminMenuPage() {
   const router = useRouter();
+  const { signOut } = useClerk();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
@@ -47,6 +56,7 @@ function AdminMenuPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Show dialog if business info doesn't exist
   useEffect(() => {
@@ -75,6 +85,12 @@ function AdminMenuPage() {
       const slug = titleToSlug(businessInfo.businessName);
       router.push(`/${slug}`);
     }
+  };
+
+  const handleLogout = async () => {
+    setLogoutDialogOpen(false);
+    await signOut();
+    router.push("/");
   };
 
   const handleAddSection = async () => {
@@ -163,10 +179,129 @@ function AdminMenuPage() {
     }
   };
 
+  const headerActions = (
+    <>
+      {/* Desktop buttons - hidden on mobile */}
+      <div className="hidden md:flex items-center gap-2">
+        {businessInfo?.businessName && (
+          <Button
+            variant="outline"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+            onClick={handleViewLiveMenu}
+          >
+            <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
+            <span>View Live</span>
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+          onClick={() => router.push("/settings")}
+        >
+          <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
+          <span>Settings</span>
+        </Button>
+        <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+          <DialogTrigger render={<Button
+            variant="outline"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+          />}>
+            <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
+            <span>Log Out</span>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Logout</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to log out? You will need to sign in again to access your menu.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setLogoutDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleLogout}
+              >
+                Log Out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Mobile menu - visible only on mobile */}
+      <div className="md:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button
+            variant="outline"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+          />}>
+            <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-popover">
+            {businessInfo?.businessName && (
+              <DropdownMenuItem onClick={handleViewLiveMenu}>
+                <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
+                <span>View Live</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={() => router.push("/settings")}>
+              <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setLogoutDialogOpen(true)}>
+              <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
+              <span>Log Out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Logout confirmation dialog - shared between mobile and desktop */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Logout</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to log out? You will need to sign in again to access your menu.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setLogoutDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleLogout}
+            >
+              Log Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+
   if (!menu && businessInfo) {
     return (
       <div className="min-h-screen bg-background">
-        <TopBar restaurantName={businessInfo?.businessName || "My Restaurant"} />
+        <RestaurantHeader
+          businessName={businessInfo?.businessName || "My Restaurant"}
+          logoUrl={businessInfo?.logoUrl}
+          bannerUrl={businessInfo?.bannerUrl}
+          googleReviewUrl={businessInfo?.googleReviewUrl}
+          tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
+          socialLinks={businessInfo?.socialLinks}
+          actions={headerActions}
+        />
         <div className="container mx-auto p-6">
           <p className="text-muted-foreground">Loading menu...</p>
         </div>
@@ -176,24 +311,20 @@ function AdminMenuPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <TopBar restaurantName={businessInfo?.businessName || "My Restaurant"} />
+      <RestaurantHeader
+        businessName={businessInfo?.businessName || "My Restaurant"}
+        logoUrl={businessInfo?.logoUrl}
+        bannerUrl={businessInfo?.bannerUrl}
+        googleReviewUrl={businessInfo?.googleReviewUrl}
+        tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
+        socialLinks={businessInfo?.socialLinks}
+        actions={headerActions}
+      />
       <div className="container mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-semibold text-foreground">
-              Menu
-            </h2>
-            {businessInfo?.businessName && (
-              <Button 
-                variant="outline" 
-                onClick={handleViewLiveMenu}
-                className="border-border hover:bg-accent"
-              >
-                <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
-                <span>View Live</span>
-              </Button>
-            )}
-          </div>
+          <h2 className="text-2xl font-semibold text-foreground">
+            Menu
+          </h2>
           <Dialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen}>
             <DialogTrigger render={<Button variant="default" />}>
               <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
