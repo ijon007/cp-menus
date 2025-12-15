@@ -42,7 +42,6 @@ function MenuPage() {
     );
   }
 
-  // Format restaurant name from slug (always available)
   const restaurantName = formatSlugToTitle(restaurantSlug);
 
   const sections: Section[] = menuData.sections;
