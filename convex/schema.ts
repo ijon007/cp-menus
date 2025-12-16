@@ -12,7 +12,6 @@ export default defineSchema({
     socialLinks: v.optional(v.object({
       instagram: v.optional(v.string()),
       facebook: v.optional(v.string()),
-      twitter: v.optional(v.string()),
     })),
     createdAt: v.number(),
     updatedAt: v.number(),

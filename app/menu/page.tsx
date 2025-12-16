@@ -35,7 +35,6 @@ import {
 
 function AdminMenuPage() {
   const router = useRouter();
-  const { signOut } = useClerk();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
@@ -56,7 +55,6 @@ function AdminMenuPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   // Show dialog if business info doesn't exist
   useEffect(() => {
@@ -85,12 +83,6 @@ function AdminMenuPage() {
       const slug = titleToSlug(businessInfo.businessName);
       router.push(`/${slug}`);
     }
-  };
-
-  const handleLogout = async () => {
-    setLogoutDialogOpen(false);
-    await signOut();
-    router.push("/");
   };
 
   const handleAddSection = async () => {
@@ -186,7 +178,7 @@ function AdminMenuPage() {
         {businessInfo?.businessName && (
           <Button
             variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+            className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
             onClick={handleViewLiveMenu}
           >
             <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
@@ -195,43 +187,11 @@ function AdminMenuPage() {
         )}
         <Button
           variant="outline"
-          className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+          className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
           onClick={() => router.push("/settings")}
         >
           <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
-          <span>Settings</span>
         </Button>
-        <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-          <DialogTrigger render={<Button
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
-          />}>
-            <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
-            <span>Log Out</span>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Logout</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to log out? You will need to sign in again to access your menu.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setLogoutDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                onClick={handleLogout}
-              >
-                Log Out
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Mobile menu - visible only on mobile */}
@@ -239,7 +199,7 @@ function AdminMenuPage() {
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button
             variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-lg"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
           />}>
             <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
           </DropdownMenuTrigger>
@@ -254,39 +214,9 @@ function AdminMenuPage() {
               <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
               <span>Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLogoutDialogOpen(true)}>
-              <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
-              <span>Log Out</span>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {/* Logout confirmation dialog - shared between mobile and desktop */}
-      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Logout</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to log out? You will need to sign in again to access your menu.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setLogoutDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleLogout}
-            >
-              Log Out
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 

@@ -11,14 +11,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, Logout05Icon } from "@hugeicons/core-free-icons";
 import Image from "next/image";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useClerk } from "@clerk/nextjs";
 
 function SettingsPage() {
   const router = useRouter();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const generateUploadUrl = useMutation(api.businessInfo.generateUploadUrl);
   const updateBusinessInfo = useMutation(api.businessInfo.update);
+  const { signOut } = useClerk();
+
 
   const [businessName, setBusinessName] = useState("");
   const [googleReviewUrl, setGoogleReviewUrl] = useState("");
@@ -31,6 +35,8 @@ function SettingsPage() {
   const [selectedBanner, setSelectedBanner] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,6 +80,12 @@ function SettingsPage() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleLogout = async () => {
+    setLogoutDialogOpen(false);
+    await signOut();
+    router.push("/");
   };
 
   const handleSave = async () => {
@@ -177,16 +189,46 @@ function SettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="hover:bg-accent"
-          >
-            <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
-          </Button>
-          <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              className="hover:bg-accent"
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
+            </Button>
+            <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
+          </div>
+          <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+            <DialogTrigger render={<Button variant="destructive" />}>
+              <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
+              <span>Log Out</span>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Logout</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to log out? You will need to sign in again to access your menu.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setLogoutDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="space-y-8">
@@ -337,17 +379,6 @@ function SettingsPage() {
                   value={facebookUrl}
                   onChange={(e) => setFacebookUrl(e.target.value)}
                   placeholder="https://facebook.com/..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="twitter-url">Twitter URL</Label>
-                <Input
-                  id="twitter-url"
-                  type="url"
-                  value={twitterUrl}
-                  onChange={(e) => setTwitterUrl(e.target.value)}
-                  placeholder="https://twitter.com/..."
                 />
               </div>
             </div>
