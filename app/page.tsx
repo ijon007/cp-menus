@@ -1,11 +1,16 @@
 "use client";
 
-import { SignedIn, SignedOut, useSignIn } from "@clerk/nextjs";
+/* Next */
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
+
+/* Components */
+import { SignedIn, SignedOut, useSignIn } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
+
+/* Constants */
 import { FLOATING_ICONS } from "@/constants/home-page";
 import { DEFAULT_IMAGES } from "@/constants/images";
 

@@ -1,17 +1,23 @@
 "use client";
 
+/* Next */
 import { useState, useEffect } from "react";
+
+/* Convex */
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+
+/* Components */
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import SortableSection from "@/components/menu/sortable-section";
 import BusinessNameDialog from "@/components/menu/business-name-dialog";
 import AddSectionDialog from "@/components/menu/add-section-dialog";
 import MenuHeaderActions from "@/components/menu/menu-header-actions";
 import EmptySectionsMessage from "@/components/menu/empty-sections-message";
+
+/* DnD Kit */
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import SortableSection from "@/components/menu/sortable-section";
 
 function AdminMenuPage() {
   const businessInfo = useQuery(api.businessInfo.getByUserId);

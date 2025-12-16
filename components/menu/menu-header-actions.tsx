@@ -1,6 +1,9 @@
 "use client";
 
+/* Next */
 import { useRouter } from "next/navigation";
+
+/* Components */
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,9 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+/* Utils */
+import { titleToSlug } from "@/lib/utils";
+
+/* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
 import { EyeIcon, SettingsIcon, Menu01Icon } from "@hugeicons/core-free-icons";
-import { titleToSlug } from "@/lib/utils";
 
 interface MenuHeaderActionsProps {
   businessName?: string | null;

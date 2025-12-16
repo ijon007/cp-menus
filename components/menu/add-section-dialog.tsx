@@ -1,8 +1,13 @@
 "use client";
 
+/* Next */
 import { useState } from "react";
+
+/* Convex */
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+/* Components */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,9 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+/* Constants */
+import { PLACEHOLDERS } from "@/constants/placeholders";
+
+/* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSignIcon } from "@hugeicons/core-free-icons";
-import { PLACEHOLDERS } from "@/constants/placeholders";
 
 interface AddSectionDialogProps {
   open: boolean;

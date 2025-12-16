@@ -1,8 +1,14 @@
 "use client";
 
+/* Next */
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+
+/* Convex */
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+/* Components */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,9 +22,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
+/* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon, Edit02Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
-import Image from "next/image";
 
 interface SectionActionsProps {
   sectionId: string | number;

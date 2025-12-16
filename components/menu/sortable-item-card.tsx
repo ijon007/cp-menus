@@ -1,8 +1,13 @@
 "use client";
 
+/* Convex */
 import { Id } from "@/convex/_generated/dataModel";
+
+/* DnD Kit */
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+/* Components */
 import ItemCard from "@/components/item-card";
 
 interface SortableItemCardProps {

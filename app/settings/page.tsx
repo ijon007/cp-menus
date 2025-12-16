@@ -1,10 +1,15 @@
 "use client";
 
+/* Next */
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+
+/* Convex */
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+
+/* Components */
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

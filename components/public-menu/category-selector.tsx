@@ -1,9 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+/* Next */
 import { useEffect, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
+
+/* Components */
+import { Button } from "@/components/ui/button";
+
+/* Utils */
 import { getSectionIcon } from "@/lib/sections";
+
+/* Icons */
+import { HugeiconsIcon } from "@hugeicons/react";
 
 interface CategorySelectorProps {
   categories: string[];

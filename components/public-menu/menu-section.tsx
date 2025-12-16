@@ -1,11 +1,11 @@
 "use client";
 
+/* Next */
 import Image from "next/image";
+
+/* Components */
 import MenuItem from "./menu-item";
 import MenuItemGrid from "./menu-item-grid";
-import { formatPrice } from "@/utils/formatting";
-import { DEFAULT_IMAGES } from "@/constants/images";
-import { titleToSlug } from "@/utils/slug";
 import {
   Carousel,
   CarouselContent,
@@ -13,6 +13,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+
+/* Utils */
+import { formatPrice } from "@/utils/formatting";
+import { titleToSlug } from "@/utils/slug";
+
+/* Constants */
+import { DEFAULT_IMAGES } from "@/constants/images";
 
 interface Item {
   id: string | number;

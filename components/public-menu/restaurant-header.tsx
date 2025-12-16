@@ -1,7 +1,12 @@
 "use client";
 
+/* Next */
 import Image from "next/image";
+
+/* Components */
 import { Button } from "@/components/ui/button";
+
+/* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
 import { COLORS } from "@/constants/colors";
 

@@ -1,12 +1,19 @@
 "use client";
 
+/* Next */
 import { useState } from "react";
 import { useParams } from "next/navigation";
+
+/* Convex */
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+/* Components */
 import CategorySelector from "@/components/public-menu/category-selector";
 import MenuSection from "@/components/public-menu/menu-section";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
+
+/* Utils */
 import { formatSlugToTitle } from "@/lib/utils";
 
 interface Item {

@@ -1,11 +1,18 @@
 "use client";
 
+/* Next */
 import { useState } from "react";
+
+/* Convex */
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+
+/* DnD Kit */
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+/* Components */
 import SectionWithItems from "./section-with-items";
 
 interface SortableSectionProps {

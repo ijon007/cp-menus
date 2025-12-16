@@ -1,7 +1,12 @@
 "use client";
 
+/* Next */
 import Image from "next/image";
+
+/* Utils */
 import { formatPrice } from "@/utils/formatting";
+
+/* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
 
 interface MenuItemGridProps {

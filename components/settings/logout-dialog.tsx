@@ -1,7 +1,12 @@
 "use client";
 
+/* Next */
 import { useRouter } from "next/navigation";
+
+/* Clerk */
 import { useClerk } from "@clerk/nextjs";
+
+/* Components */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +17,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+/* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Logout05Icon } from "@hugeicons/core-free-icons";
 

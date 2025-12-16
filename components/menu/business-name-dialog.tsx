@@ -1,8 +1,13 @@
 "use client";
 
+/* Next */
 import { useState } from "react";
+
+/* Convex */
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+
+/* Components */
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+/* Constants */
 import { PLACEHOLDERS } from "@/constants/placeholders";
 
 interface BusinessNameDialogProps {

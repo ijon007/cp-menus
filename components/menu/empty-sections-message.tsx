@@ -1,5 +1,6 @@
 "use client";
 
+/* Components */
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function EmptySectionsMessage() {

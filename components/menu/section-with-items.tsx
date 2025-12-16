@@ -1,17 +1,26 @@
 "use client";
 
+/* Next */
 import { useState } from "react";
+
+/* Convex */
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+
+/* DnD Kit */
 import { useSensors, useSensor, PointerSensor, KeyboardSensor, DragEndEvent } from "@dnd-kit/core";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
+
+/* Components */
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { CardTitle } from "@/components/ui/card";
 import SectionActions from "@/components/section-actions";
 import SortableItemCard from "./sortable-item-card";
+
+/* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
 
 interface SectionWithItemsProps {
