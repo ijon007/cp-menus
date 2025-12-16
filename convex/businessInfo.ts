@@ -30,6 +30,7 @@ export const getByUserId = query({
 
     return {
       ...businessInfo,
+      socialLinks: businessInfo.socialLinks,
       logoUrl,
       bannerUrl,
     };
@@ -143,7 +144,6 @@ export const update = mutation({
       v.object({
         instagram: v.optional(v.string()),
         facebook: v.optional(v.string()),
-        twitter: v.optional(v.string()),
       })
     ),
   },
@@ -205,7 +205,6 @@ export const update = mutation({
       updateData.socialLinks = {
         instagram: args.socialLinks.instagram?.trim() || undefined,
         facebook: args.socialLinks.facebook?.trim() || undefined,
-        twitter: args.socialLinks.twitter?.trim() || undefined,
       };
     }
 

@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Cancel01Icon, Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Delete02Icon, Edit02Icon, Menu01Icon } from "@hugeicons/core-free-icons";
 import Image from "next/image";
 
 interface ItemCardProps {
@@ -28,9 +28,13 @@ interface ItemCardProps {
   itemImage?: string;
   onEdit?: (newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
   onDelete?: () => void;
+  dragHandleProps?: {
+    [key: string]: unknown;
+  };
+  isDragging?: boolean;
 }
 
-const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/coffee-cup.webp", onEdit, onDelete }: ItemCardProps) => {
+const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/coffee-cup.webp", onEdit, onDelete, dragHandleProps, isDragging }: ItemCardProps) => {
   const generateUploadUrl = useMutation(api.menuItems.generateUploadUrl);
   const [editName, setEditName] = useState(itemName);
   const [editPrice, setEditPrice] = useState(itemPrice);
@@ -113,7 +117,12 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-border/50 pb-2 last:border-0 py-2 gap-4">
+    <div className="flex items-center justify-between pb-2 py-2 gap-4">
+      {dragHandleProps && (
+        <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing touch-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+      </div>
+      )}
       <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
         <Image
           src={itemImage}

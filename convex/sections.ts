@@ -130,3 +130,39 @@ export const remove = mutation({
   },
 });
 
+export const reorderSections = mutation({
+  args: {
+    menuId: v.id("menus"),
+    sectionOrders: v.array(v.object({
+      sectionId: v.id("sections"),
+      newOrder: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Verify menu belongs to user
+    const menu = await ctx.db.get(args.menuId);
+    if (!menu || menu.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    // Update order for each section
+    for (const { sectionId, newOrder } of args.sectionOrders) {
+      const section = await ctx.db.get(sectionId);
+      if (!section || section.menuId !== args.menuId) {
+        continue;
+      }
+      await ctx.db.patch(sectionId, {
+        order: newOrder,
+        updatedAt: Date.now(),
+      });
+    }
+
+    return true;
+  },
+});
+

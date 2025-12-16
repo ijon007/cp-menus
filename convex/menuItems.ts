@@ -44,7 +44,11 @@ export const getBySectionId = query({
       })
     );
 
-    return itemsWithUrls.sort((a, b) => a.createdAt - b.createdAt);
+    return itemsWithUrls.sort((a, b) => {
+      const orderA = a.order ?? a.createdAt;
+      const orderB = b.order ?? b.createdAt;
+      return orderA - orderB;
+    });
   },
 });
 
@@ -73,12 +77,23 @@ export const create = mutation({
       throw new Error("Unauthorized");
     }
 
+    // Get current max order for this section
+    const existingItems = await ctx.db
+      .query("menuItems")
+      .withIndex("by_sectionId", (q) => q.eq("sectionId", args.sectionId))
+      .collect();
+
+    const maxOrder = existingItems.length > 0
+      ? Math.max(...existingItems.map((item) => item.order ?? -1))
+      : -1;
+
     const itemId = await ctx.db.insert("menuItems", {
       sectionId: args.sectionId,
       name: args.name.trim(),
       price: args.price.trim(),
       description: args.description?.trim() || undefined,
       imageStorageId: args.storageId,
+      order: maxOrder + 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -167,6 +182,47 @@ export const remove = mutation({
 
     await ctx.db.delete(args.itemId);
     return args.itemId;
+  },
+});
+
+export const reorderItems = mutation({
+  args: {
+    sectionId: v.id("sections"),
+    itemOrders: v.array(v.object({
+      itemId: v.id("menuItems"),
+      newOrder: v.number(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const section = await ctx.db.get(args.sectionId);
+    if (!section) {
+      throw new Error("Section not found");
+    }
+
+    // Verify menu belongs to user
+    const menu = await ctx.db.get(section.menuId);
+    if (!menu || menu.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    // Update order for each item
+    for (const { itemId, newOrder } of args.itemOrders) {
+      const item = await ctx.db.get(itemId);
+      if (!item || item.sectionId !== args.sectionId) {
+        continue;
+      }
+      await ctx.db.patch(itemId, {
+        order: newOrder,
+        updatedAt: Date.now(),
+      });
+    }
+
+    return true;
   },
 });
 

@@ -38,6 +38,7 @@ export default defineSchema({
     price: v.string(),
     description: v.optional(v.string()),
     imageStorageId: v.optional(v.id("_storage")),
+    order: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
