@@ -69,8 +69,8 @@ function MenuPage() {
 
         <div>
           {sections.length > 0 ? (
-            sections.map((section) => (
-              <MenuSection key={section.id} title={section.name} items={section.items} />
+            sections.map((section, index) => (
+              <MenuSection key={section.id} title={section.name} items={section.items} sectionIndex={index} />
             ))
           ) : (
             <div className="text-center py-8">
