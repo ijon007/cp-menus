@@ -1,0 +1,50 @@
+import {
+  Coffee01Icon,
+  Restaurant01Icon,
+  Menu01Icon,
+  PlateIcon,
+  DrinkIcon,
+  CafeIcon,
+} from "@hugeicons/core-free-icons";
+
+/**
+ * Floating icons configuration for the home page
+ */
+export const FLOATING_ICONS = [
+  { icon: Coffee01Icon, top: "8%", left: "5%", size: "w-8 h-8", delay: "0s" },
+  { icon: Restaurant01Icon, top: "15%", right: "8%", size: "w-10 h-10", delay: "0.5s" },
+  { icon: Menu01Icon, top: "25%", left: "12%", size: "w-7 h-7", delay: "1s" },
+  { icon: PlateIcon, top: "35%", right: "15%", size: "w-9 h-9", delay: "1.5s" },
+  { icon: Coffee01Icon, bottom: "30%", left: "8%", size: "w-8 h-8", delay: "0.3s" },
+  { icon: Restaurant01Icon, bottom: "25%", right: "12%", size: "w-10 h-10", delay: "0.8s" },
+  { icon: DrinkIcon, top: "45%", left: "3%", size: "w-7 h-7", delay: "1.2s" },
+  { icon: CafeIcon, top: "55%", right: "5%", size: "w-9 h-9", delay: "0.6s" },
+  { icon: DrinkIcon, bottom: "40%", left: "18%", size: "w-8 h-8", delay: "1.4s" },
+  { icon: CafeIcon, top: "20%", left: "25%", size: "w-9 h-9", delay: "0.4s" },
+  { icon: PlateIcon, bottom: "15%", right: "20%", size: "w-10 h-10", delay: "1.1s" },
+  { icon: Coffee01Icon, top: "60%", left: "7%", size: "w-8 h-8", delay: "0.7s" },
+  { icon: Menu01Icon, bottom: "50%", right: "8%", size: "w-9 h-9", delay: "1.3s" },
+  { icon: Restaurant01Icon, top: "70%", right: "25%", size: "w-8 h-8", delay: "0.9s" },
+  { icon: DrinkIcon, bottom: "10%", left: "15%", size: "w-7 h-7", delay: "0.2s" },
+  { icon: Coffee01Icon, top: "12%", left: "30%", size: "w-6 h-6", delay: "0.1s" },
+  { icon: Menu01Icon, top: "40%", left: "22%", size: "w-8 h-8", delay: "0.8s" },
+  { icon: PlateIcon, top: "50%", right: "30%", size: "w-7 h-7", delay: "1.6s" },
+  { icon: CafeIcon, bottom: "35%", left: "28%", size: "w-9 h-9", delay: "0.5s" },
+  { icon: DrinkIcon, top: "65%", left: "20%", size: "w-8 h-8", delay: "1.1s" },
+  { icon: Restaurant01Icon, bottom: "45%", right: "35%", size: "w-7 h-7", delay: "0.3s" },
+  { icon: Coffee01Icon, top: "30%", left: "40%", size: "w-6 h-6", delay: "0.9s" },
+  { icon: Menu01Icon, bottom: "20%", left: "35%", size: "w-8 h-8", delay: "1.4s" },
+  { icon: PlateIcon, top: "75%", right: "12%", size: "w-9 h-9", delay: "0.6s" },
+  { icon: CafeIcon, bottom: "60%", left: "12%", size: "w-7 h-7", delay: "1.2s" },
+  { icon: DrinkIcon, top: "18%", right: "35%", size: "w-8 h-8", delay: "0.4s" },
+  { icon: Coffee01Icon, bottom: "55%", right: "28%", size: "w-6 h-6", delay: "1.0s" },
+  { icon: Restaurant01Icon, top: "48%", left: "35%", size: "w-9 h-9", delay: "0.7s" },
+  { icon: Menu01Icon, bottom: "30%", left: "42%", size: "w-7 h-7", delay: "1.3s" },
+  { icon: PlateIcon, top: "85%", left: "25%", size: "w-8 h-8", delay: "0.2s" },
+  { icon: CafeIcon, bottom: "5%", right: "15%", size: "w-9 h-9", delay: "1.5s" },
+  { icon: DrinkIcon, top: "38%", right: "40%", size: "w-7 h-7", delay: "0.8s" },
+  { icon: Coffee01Icon, bottom: "18%", left: "50%", size: "w-6 h-6", delay: "1.1s" },
+  { icon: Restaurant01Icon, top: "52%", left: "50%", size: "w-8 h-8", delay: "0.5s" },
+  { icon: Menu01Icon, bottom: "65%", right: "45%", size: "w-9 h-9", delay: "0.3s" },
+] as const;
+

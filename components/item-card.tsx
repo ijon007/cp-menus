@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/utils/formatting";
+import { DEFAULT_IMAGES } from "@/constants/images";
+import { PLACEHOLDERS } from "@/constants/placeholders";
 import {
   Dialog,
   DialogClose,
@@ -34,7 +37,7 @@ interface ItemCardProps {
   isDragging?: boolean;
 }
 
-const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/coffee-cup.webp", onEdit, onDelete, dragHandleProps, isDragging }: ItemCardProps) => {
+const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = DEFAULT_IMAGES.MENU_ITEM, onEdit, onDelete, dragHandleProps, isDragging }: ItemCardProps) => {
   const generateUploadUrl = useMutation(api.menuItems.generateUploadUrl);
   const [editName, setEditName] = useState(itemName);
   const [editPrice, setEditPrice] = useState(itemPrice);
@@ -72,13 +75,6 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
     }
   };
 
-  // Format price to Albanian Lek
-  const formatPrice = (price: string) => {
-    // Remove any existing currency symbols and extract number
-    const numPrice = price.replace(/[^0-9.]/g, "");
-    if (!numPrice) return "0 Lek";
-    return `${numPrice} Lek`;
-  };
 
   const handleEdit = async () => {
     if (!onEdit || !editName.trim()) return;
@@ -157,7 +153,7 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
                   id="edit-item-name"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="e.g., Caesar Salad"
+                  placeholder={PLACEHOLDERS.ITEM_NAME}
                 />
               </div>
               <div className="space-y-2">
@@ -166,7 +162,7 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
                   id="edit-item-price"
                   value={editPrice}
                   onChange={(e) => setEditPrice(e.target.value)}
-                  placeholder="e.g., 1200"
+                  placeholder={PLACEHOLDERS.ITEM_PRICE}
                 />
               </div>
               <div className="space-y-2">
@@ -175,12 +171,12 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
                   id="edit-item-description"
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  placeholder="e.g., Fresh romaine lettuce with Caesar dressing"
+                  placeholder={PLACEHOLDERS.ITEM_DESCRIPTION}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-item-image">Image</Label>
-                {itemImage && itemImage !== "/coffee-cup.webp" && !imagePreview && (
+                {itemImage && itemImage !== DEFAULT_IMAGES.MENU_ITEM && !imagePreview && (
                   <div className="mb-2">
                     <p className="text-xs text-muted-foreground mb-1">Current image:</p>
                     <Image

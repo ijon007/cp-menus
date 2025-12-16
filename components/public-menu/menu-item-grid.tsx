@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { formatPrice } from "@/utils/formatting";
+import { DEFAULT_IMAGES } from "@/constants/images";
 
 interface MenuItemGridProps {
   name: string;
@@ -13,14 +15,8 @@ export default function MenuItemGrid({
   name,
   price,
   description,
-  image = "/coffee-cup.webp",
+  image = DEFAULT_IMAGES.MENU_ITEM,
 }: MenuItemGridProps) {
-  // Format price to Albanian Lek
-  const formatPrice = (price: string) => {
-    const numPrice = price.replace(/[^0-9.]/g, "");
-    if (!numPrice) return "0 Lek";
-    return `${numPrice} Lek`;
-  };
 
   return (
     <div className="flex flex-col gap-2">

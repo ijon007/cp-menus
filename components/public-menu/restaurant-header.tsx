@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { DEFAULT_IMAGES } from "@/constants/images";
+import { COLORS } from "@/constants/colors";
 
 interface RestaurantHeaderProps {
   businessName: string;
@@ -25,13 +27,13 @@ export default function RestaurantHeader({
   socialLinks,
   actions,
 }: RestaurantHeaderProps) {
-  const displayLogo = logoUrl || "/logo.svg";
-  const displayBanner = bannerUrl || "/cp-brown.svg";
+  const displayLogo = logoUrl || DEFAULT_IMAGES.LOGO;
+  const displayBanner = bannerUrl || DEFAULT_IMAGES.BANNER;
   const hasReviewLinks = googleReviewUrl || tripAdvisorReviewUrl;
   const hasSocialLinks = socialLinks && (socialLinks.instagram || socialLinks.facebook);
 
   return (
-    <div className="relative w-full bg-[#4a3a2a] overflow-hidden">
+    <div className="relative w-full overflow-hidden" style={{ backgroundColor: COLORS.RESTAURANT_HEADER_BG }}>
       <div className="absolute inset-0 flex items-center justify-center">
         <Image
           src={displayBanner}

@@ -1,56 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
-import ItemCard from "@/components/item-card";
-import SectionActions from "@/components/section-actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, EyeIcon, SettingsIcon, Menu01Icon } from "@hugeicons/core-free-icons";
-import { titleToSlug } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import SortableSection from "@/components/menu/sortable-section";
+import BusinessNameDialog from "@/components/menu/business-name-dialog";
+import AddSectionDialog from "@/components/menu/add-section-dialog";
+import MenuHeaderActions from "@/components/menu/menu-header-actions";
+import EmptySectionsMessage from "@/components/menu/empty-sections-message";
 
 function AdminMenuPage() {
-  const router = useRouter();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
@@ -58,15 +21,7 @@ function AdminMenuPage() {
     menu ? { menuId: menu._id } : "skip"
   );
 
-  const createBusinessInfo = useMutation(api.businessInfo.create);
-  const createSection = useMutation(api.sections.create);
-  const updateSection = useMutation(api.sections.update);
-  const deleteSection = useMutation(api.sections.remove);
   const reorderSections = useMutation(api.sections.reorderSections);
-  const createItem = useMutation(api.menuItems.create);
-  const updateItem = useMutation(api.menuItems.update);
-  const deleteItem = useMutation(api.menuItems.remove);
-  const reorderItems = useMutation(api.menuItems.reorderItems);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -75,10 +30,7 @@ function AdminMenuPage() {
     })
   );
 
-  const [businessName, setBusinessName] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [newSectionName, setNewSectionName] = useState("");
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
 
   // Show dialog if business info doesn't exist
@@ -87,114 +39,6 @@ function AdminMenuPage() {
       setIsDialogOpen(true);
     }
   }, [businessInfo]);
-
-  const handleSaveBusinessName = async () => {
-    if (!businessName.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      await createBusinessInfo({ businessName: businessName.trim() });
-      setIsDialogOpen(false);
-      setBusinessName("");
-    } catch (error) {
-      console.error("Error saving business name:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleViewLiveMenu = () => {
-    if (businessInfo?.businessName) {
-      const slug = titleToSlug(businessInfo.businessName);
-      router.push(`/${slug}`);
-    }
-  };
-
-  const handleAddSection = async () => {
-    if (!menu || !newSectionName.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      await createSection({ menuId: menu._id, name: newSectionName.trim() });
-      setNewSectionName("");
-      setSectionDialogOpen(false);
-    } catch (error) {
-      console.error("Error creating section:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddItem = async (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => {
-    if (!itemName.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      await createItem({
-        sectionId,
-        name: itemName.trim(),
-        price: itemPrice.trim(),
-        description: itemDescription.trim() || undefined,
-        storageId: storageId as Id<"_storage"> | undefined,
-      });
-    } catch (error) {
-      console.error("Error creating item:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEditItem = async (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => {
-    setIsLoading(true);
-    try {
-      await updateItem({
-        itemId,
-        name: newName.trim(),
-        price: newPrice.trim(),
-        description: newDescription.trim() || undefined,
-        storageId: storageId as Id<"_storage"> | undefined,
-      });
-    } catch (error) {
-      console.error("Error updating item:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteItem = async (itemId: Id<"menuItems">) => {
-    setIsLoading(true);
-    try {
-      await deleteItem({ itemId });
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEditSection = async (sectionId: Id<"sections">, newName: string) => {
-    if (!newName.trim()) return;
-    
-    setIsLoading(true);
-    try {
-      await updateSection({ sectionId, name: newName.trim() });
-    } catch (error) {
-      console.error("Error updating section:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteSection = async (sectionId: Id<"sections">) => {
-    setIsLoading(true);
-    try {
-      await deleteSection({ sectionId });
-    } catch (error) {
-      console.error("Error deleting section:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSectionsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -226,54 +70,6 @@ function AdminMenuPage() {
     }
   };
 
-  const headerActions = (
-    <>
-      {/* Desktop buttons - hidden on mobile */}
-      <div className="hidden md:flex items-center gap-2">
-        {businessInfo?.businessName && (
-          <Button
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
-            onClick={handleViewLiveMenu}
-          >
-            <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
-            <span>View Live</span>
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
-          onClick={() => router.push("/settings")}
-        >
-          <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
-        </Button>
-      </div>
-
-      {/* Mobile menu - visible only on mobile */}
-      <div className="md:hidden">
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button
-            variant="outline"
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          />}>
-            <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-popover">
-            {businessInfo?.businessName && (
-              <DropdownMenuItem onClick={handleViewLiveMenu}>
-                <HugeiconsIcon icon={EyeIcon} strokeWidth={2} />
-                <span>View Live</span>
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
-              <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} />
-              <span>Settings</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </>
-  );
 
   if (!menu && businessInfo) {
     return (
@@ -285,7 +81,7 @@ function AdminMenuPage() {
           googleReviewUrl={businessInfo?.googleReviewUrl}
           tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
           socialLinks={businessInfo?.socialLinks}
-          actions={headerActions}
+          actions={<MenuHeaderActions businessName={businessInfo?.businessName} />}
         />
         <div className="container mx-auto p-6">
           <p className="text-muted-foreground">Loading menu...</p>
@@ -303,61 +99,17 @@ function AdminMenuPage() {
         googleReviewUrl={businessInfo?.googleReviewUrl}
         tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
         socialLinks={businessInfo?.socialLinks}
-        actions={headerActions}
+        actions={<MenuHeaderActions businessName={businessInfo?.businessName} />}
       />
       <div className="container mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-foreground">
             Menu
           </h2>
-          <Dialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen}>
-            <DialogTrigger render={<Button variant="default" />}>
-              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
-              <span>Add Section</span>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Section</DialogTitle>
-                <DialogDescription>
-                  Create a new section for your menu
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="section-name">Section Name</Label>
-                  <Input
-                    id="section-name"
-                    value={newSectionName}
-                    onChange={(e) => setNewSectionName(e.target.value)}
-                    placeholder="e.g., Main Courses"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && newSectionName.trim()) {
-                        handleAddSection();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setNewSectionName("");
-                    setSectionDialogOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddSection}
-                  disabled={!newSectionName.trim() || isLoading}
-                >
-                  <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
-                  <span>{isLoading ? "Adding..." : "Add Section"}</span>
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AddSectionDialog
+            open={sectionDialogOpen}
+            onOpenChange={setSectionDialogOpen}
+          />
         </div>
 
         <DndContext
@@ -372,278 +124,24 @@ function AdminMenuPage() {
                   <SortableSection
                     key={section._id}
                     section={section}
-                    onEdit={handleEditSection}
-                    onDelete={handleDeleteSection}
-                    onAddItem={handleAddItem}
-                    onEditItem={handleEditItem}
-                    onDeleteItem={handleDeleteItem}
-                    onReorderItems={reorderItems}
                   />
                 ))
               ) : (
-                <Card className="border-border bg-card">
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground text-sm">
-                      No sections yet. Click "Add Section" to get started.
-                    </p>
-                  </CardContent>
-                </Card>
+                <EmptySectionsMessage />
               )}
             </div>
           </SortableContext>
         </DndContext>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>Welcome! Let's get started</DialogTitle>
-            <DialogDescription>
-              Please enter your business name to continue. This will be used to identify your restaurant.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="business-name">Business Name</Label>
-              <Input
-                id="business-name"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="e.g., Joe's Restaurant"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && businessName.trim()) {
-                    handleSaveBusinessName();
-                  }
-                }}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={handleSaveBusinessName}
-              disabled={!businessName.trim() || isLoading}
-            >
-              {isLoading ? "Saving..." : "Save & Continue"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-function SortableSection({
-  section,
-  onEdit,
-  onDelete,
-  onAddItem,
-  onEditItem,
-  onDeleteItem,
-  onReorderItems,
-}: {
-  section: { _id: Id<"sections">; name: string };
-  onEdit: (sectionId: Id<"sections">, newName: string) => void;
-  onDelete: (sectionId: Id<"sections">) => void;
-  onAddItem: (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => void;
-  onEditItem: (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
-  onDeleteItem: (itemId: Id<"menuItems">) => void;
-  onReorderItems: (args: { sectionId: Id<"sections">; itemOrders: Array<{ itemId: Id<"menuItems">; newOrder: number }> }) => Promise<boolean>;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section._id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <SectionWithItems
-        section={section}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onAddItem={onAddItem}
-        onEditItem={onEditItem}
-        onDeleteItem={onDeleteItem}
-        onReorderItems={onReorderItems}
-        dragHandleProps={{ ...attributes, ...listeners }}
+      <BusinessNameDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
       />
     </div>
   );
 }
 
-function SectionWithItems({
-  section,
-  onEdit,
-  onDelete,
-  onAddItem,
-  onEditItem,
-  onDeleteItem,
-  onReorderItems,
-  dragHandleProps,
-}: {
-  section: { _id: Id<"sections">; name: string };
-  onEdit: (sectionId: Id<"sections">, newName: string) => void;
-  onDelete: (sectionId: Id<"sections">) => void;
-  onAddItem: (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => void;
-  onEditItem: (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
-  onDeleteItem: (itemId: Id<"menuItems">) => void;
-  onReorderItems: (args: { sectionId: Id<"sections">; itemOrders: Array<{ itemId: Id<"menuItems">; newOrder: number }> }) => Promise<boolean>;
-  dragHandleProps?: React.HTMLAttributes<HTMLElement>;
-}) {
-  const items = useQuery(api.menuItems.getBySectionId, { sectionId: section._id });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleItemsDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || !items) return;
-
-    const activeId = active.id as string;
-    const overId = over.id as string;
-
-    if (activeId === overId) return;
-
-    const oldIndex = items.findIndex((item) => item._id === activeId);
-    const newIndex = items.findIndex((item) => item._id === overId);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const newItems = arrayMove(items, oldIndex, newIndex);
-    const itemOrders = newItems.map((item, index) => ({
-      itemId: item._id,
-      newOrder: index,
-    }));
-
-    try {
-      await onReorderItems({
-        sectionId: section._id,
-        itemOrders,
-      });
-    } catch (error) {
-      console.error("Error reordering items:", error);
-    }
-  };
-
-  return (
-    <Accordion className="border-border bg-card rounded-lg">
-      <AccordionItem className="data-open:bg-card">
-        <div className="flex items-center justify-between gap-2 px-2">
-          <AccordionTrigger className="hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer flex-1 px-0">
-            <div className="flex items-center gap-2 flex-1 p-0">
-              <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing touch-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
-              </div>
-              <CardTitle className="text-foreground text-base">{section.name}</CardTitle>
-            </div>
-          </AccordionTrigger>
-          <SectionActions
-            sectionId={section._id}
-            sectionName={section.name}
-            onEdit={(id, name) => onEdit(id as Id<"sections">, name)}
-            onDelete={(id) => onDelete(id as Id<"sections">)}
-            onAddItem={(id, name, price, desc, storageId) => onAddItem(id as Id<"sections">, name, price, desc, storageId)}
-          />
-        </div>
-        <AccordionContent className="[&_p:not(:last-child)]:mb-0 px-4">
-          {items && items.length > 0 ? (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleItemsDragEnd}
-            >
-              <SortableContext items={items.map((item) => item._id)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-2">
-                  {items.map((item) => (
-                    <SortableItemCard
-                      key={item._id}
-                      itemId={item._id}
-                      itemName={item.name}
-                      itemPrice={item.price}
-                      itemDescription={item.description}
-                      itemImage={item.imageUrl || "/coffee-cup.webp"}
-                      onEdit={(newName, newPrice, newDescription, storageId) => {
-                        onEditItem(item._id, newName, newPrice, newDescription, storageId);
-                      }}
-                      onDelete={() => {
-                        onDeleteItem(item._id);
-                      }}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          ) : (
-            <p className="text-muted-foreground text-sm">
-              No items yet. Click "Add Item" to get started.
-            </p>
-          )}
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  );
-}
-
-function SortableItemCard({
-  itemId,
-  itemName,
-  itemPrice,
-  itemDescription,
-  itemImage,
-  onEdit,
-  onDelete,
-}: {
-  itemId: Id<"menuItems">;
-  itemName: string;
-  itemPrice: string;
-  itemDescription?: string;
-  itemImage?: string;
-  onEdit?: (newName: string, newPrice: string, newDescription: string, storageId?: string) => void;
-  onDelete?: () => void;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: itemId });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className="border-b border-border/50 last:border-0">
-      <ItemCard
-        itemName={itemName}
-        itemPrice={itemPrice}
-        itemDescription={itemDescription}
-        itemImage={itemImage}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        dragHandleProps={{ ...attributes, ...listeners }}
-        isDragging={isDragging}
-      />
-    </div>
-  );
-}
 
 export default function MenuPage() {
   return (

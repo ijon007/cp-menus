@@ -8,32 +8,30 @@ import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, Logout05Icon } from "@hugeicons/core-free-icons";
-import Image from "next/image";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useClerk } from "@clerk/nextjs";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import LogoutDialog from "@/components/settings/logout-dialog";
+import BasicInformationSection from "@/components/settings/basic-information-section";
+import ReviewLinksSection from "@/components/settings/review-links-section";
+import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
 
 function SettingsPage() {
   const router = useRouter();
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const generateUploadUrl = useMutation(api.businessInfo.generateUploadUrl);
   const updateBusinessInfo = useMutation(api.businessInfo.update);
-  const { signOut } = useClerk();
-
 
   const [businessName, setBusinessName] = useState("");
   const [googleReviewUrl, setGoogleReviewUrl] = useState("");
   const [tripAdvisorReviewUrl, setTripAdvisorReviewUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
-  const [twitterUrl, setTwitterUrl] = useState("");
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [selectedBanner, setSelectedBanner] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -48,7 +46,6 @@ function SettingsPage() {
       setTripAdvisorReviewUrl(businessInfo.tripAdvisorReviewUrl || "");
       setInstagramUrl(businessInfo.socialLinks?.instagram || "");
       setFacebookUrl(businessInfo.socialLinks?.facebook || "");
-      setTwitterUrl(businessInfo.socialLinks?.twitter || "");
       if (businessInfo.logoUrl) {
         setLogoPreview(businessInfo.logoUrl);
       }
@@ -58,35 +55,6 @@ function SettingsPage() {
     }
   }, [businessInfo]);
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedLogo(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedBanner(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBannerPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleLogout = async () => {
-    setLogoutDialogOpen(false);
-    await signOut();
-    router.push("/");
-  };
 
   const handleSave = async () => {
     if (!businessInfo) return;
@@ -137,7 +105,6 @@ function SettingsPage() {
         socialLinks: {
           instagram: instagramUrl.trim() || undefined,
           facebook: facebookUrl.trim() || undefined,
-          twitter: twitterUrl.trim() || undefined,
         },
       });
 
@@ -201,188 +168,41 @@ function SettingsPage() {
             </Button>
             <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
           </div>
-          <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-            <DialogTrigger render={<Button variant="destructive" />}>
-              <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
-              <span>Log Out</span>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Confirm Logout</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to log out? You will need to sign in again to access your menu.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setLogoutDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={handleLogout}
-                >
-                  Log Out
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
         </div>
 
         <div className="space-y-8">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Basic Information</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="business-name">Business Name</Label>
-                <Input
-                  id="business-name"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  placeholder="e.g., Joe's Restaurant"
-                />
-              </div>
+          <BasicInformationSection
+            businessName={businessName}
+            onBusinessNameChange={setBusinessName}
+            logoPreview={logoPreview}
+            selectedLogo={selectedLogo}
+            setSelectedLogo={setSelectedLogo}
+            logoPreviewUrl={logoPreviewUrl}
+            setLogoPreviewUrl={setLogoPreviewUrl}
+            logoInputRef={logoInputRef}
+            bannerPreview={bannerPreview}
+            selectedBanner={selectedBanner}
+            setSelectedBanner={setSelectedBanner}
+            bannerPreviewUrl={bannerPreviewUrl}
+            setBannerPreviewUrl={setBannerPreviewUrl}
+            bannerInputRef={bannerInputRef}
+            isSaving={isSaving}
+          />
 
-              <div className="space-y-2">
-                <Label htmlFor="logo">Logo</Label>
-                {logoPreview && !selectedLogo && (
-                  <div className="mb-2">
-                    <p className="text-xs text-muted-foreground mb-1">Current logo:</p>
-                    <div className="relative w-32 h-32 border border-border rounded-lg overflow-hidden bg-background">
-                      <Image
-                        src={logoPreview}
-                        alt="Current logo"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  </div>
-                )}
-                <Input
-                  id="logo"
-                  ref={logoInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  disabled={isSaving}
-                />
-                {logoPreview && selectedLogo && (
-                  <div className="mt-2">
-                    <p className="text-xs text-muted-foreground mb-1">New logo preview:</p>
-                    <div className="relative w-32 h-32 border border-border rounded-lg overflow-hidden bg-background">
-                      <Image
-                        src={logoPreview}
-                        alt="Preview"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+          <ReviewLinksSection
+            googleReviewUrl={googleReviewUrl}
+            onGoogleReviewUrlChange={setGoogleReviewUrl}
+            tripAdvisorReviewUrl={tripAdvisorReviewUrl}
+            onTripAdvisorReviewUrlChange={setTripAdvisorReviewUrl}
+          />
 
-              <div className="space-y-2">
-                <Label htmlFor="banner">Banner</Label>
-                {bannerPreview && !selectedBanner && (
-                  <div className="mb-2">
-                    <p className="text-xs text-muted-foreground mb-1">Current banner:</p>
-                    <div className="relative w-full h-48 border border-border rounded-lg overflow-hidden bg-background">
-                      <Image
-                        src={bannerPreview}
-                        alt="Current banner"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
-                <Input
-                  id="banner"
-                  ref={bannerInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerChange}
-                  disabled={isSaving}
-                />
-                {bannerPreview && selectedBanner && (
-                  <div className="mt-2">
-                    <p className="text-xs text-muted-foreground mb-1">New banner preview:</p>
-                    <div className="relative w-full h-48 border border-border rounded-lg overflow-hidden bg-background">
-                      <Image
-                        src={bannerPreview}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Review Links</h3>
-              <p className="text-sm text-muted-foreground">Add links to your Google and TripAdvisor review pages</p>
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="google-review-url">Google Review URL</Label>
-                <Input
-                  id="google-review-url"
-                  type="url"
-                  value={googleReviewUrl}
-                  onChange={(e) => setGoogleReviewUrl(e.target.value)}
-                  placeholder="https://g.page/r/..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tripadvisor-review-url">TripAdvisor Review URL</Label>
-                <Input
-                  id="tripadvisor-review-url"
-                  type="url"
-                  value={tripAdvisorReviewUrl}
-                  onChange={(e) => setTripAdvisorReviewUrl(e.target.value)}
-                  placeholder="https://www.tripadvisor.com/..."
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">Social Media Links</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="instagram-url">Instagram URL</Label>
-                <Input
-                  id="instagram-url"
-                  type="url"
-                  value={instagramUrl}
-                  onChange={(e) => setInstagramUrl(e.target.value)}
-                  placeholder="https://instagram.com/..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="facebook-social-url">Facebook URL</Label>
-                <Input
-                  id="facebook-social-url"
-                  type="url"
-                  value={facebookUrl}
-                  onChange={(e) => setFacebookUrl(e.target.value)}
-                  placeholder="https://facebook.com/..."
-                />
-              </div>
-            </div>
-          </div>
+          <SocialMediaLinksSection
+            instagramUrl={instagramUrl}
+            onInstagramUrlChange={setInstagramUrl}
+            facebookUrl={facebookUrl}
+            onFacebookUrlChange={setFacebookUrl}
+          />
 
           <div className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving || !businessName.trim()}>

@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { formatPrice } from "@/utils/formatting";
+import { DEFAULT_IMAGES } from "@/constants/images";
 
 interface MenuItemProps {
   name: string;
@@ -9,13 +11,7 @@ interface MenuItemProps {
   image?: string;
 }
 
-export default function MenuItem({ name, price, description, image = "/coffee-cup.webp" }: MenuItemProps) {
-  // Format price to Albanian Lek
-  const formatPrice = (price: string) => {
-    const numPrice = price.replace(/[^0-9.]/g, "");
-    if (!numPrice) return "0 Lek";
-    return `${numPrice} Lek`;
-  };
+export default function MenuItem({ name, price, description, image = DEFAULT_IMAGES.MENU_ITEM }: MenuItemProps) {
 
   return (
     <div className="flex items-start justify-between py-3 gap-4">

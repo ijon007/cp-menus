@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/providers";
+import { DEFAULT_IMAGES } from "@/constants/images";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     other: [
       {
         rel: "icon",
-        url: "/cp-brown.svg",
+        url: DEFAULT_IMAGES.BANNER,
         media: "(prefers-color-scheme: light)",
       },
       {
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
       },
       {
         rel: "shortcut icon",
-        url: "/cp-brown.svg",
+        url: DEFAULT_IMAGES.BANNER,
         media: "(prefers-color-scheme: light)",
       },
       {

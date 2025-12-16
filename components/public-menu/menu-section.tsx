@@ -3,6 +3,9 @@
 import Image from "next/image";
 import MenuItem from "./menu-item";
 import MenuItemGrid from "./menu-item-grid";
+import { formatPrice } from "@/utils/formatting";
+import { DEFAULT_IMAGES } from "@/constants/images";
+import { titleToSlug } from "@/utils/slug";
 import {
   Carousel,
   CarouselContent,
@@ -25,19 +28,9 @@ interface MenuSectionProps {
   sectionIndex: number;
 }
 
-// Format price to Albanian Lek
-const formatPrice = (price: string) => {
-  const numPrice = price.replace(/[^0-9.]/g, "");
-  if (!numPrice) return "0 Lek";
-  return `${numPrice} Lek`;
-};
-
 // Convert section name to a valid ID slug
 const titleToId = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  return titleToSlug(title);
 };
 
 export default function MenuSection({ title, items, sectionIndex }: MenuSectionProps) {
@@ -51,7 +44,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
       <div className="flex flex-col gap-2">
         <div className="relative w-full aspect-square overflow-hidden rounded-sm">
           <Image
-            src={item.image || "/coffee-cup.webp"}
+            src={item.image || DEFAULT_IMAGES.MENU_ITEM}
             alt={item.name}
             fill
             className="object-cover"
