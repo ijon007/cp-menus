@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useClerk } from "@clerk/nextjs";
-import Link from "next/link";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import ItemCard from "@/components/item-card";
 import SectionActions from "@/components/section-actions";
@@ -24,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlusSignIcon, EyeIcon, SettingsIcon, Logout05Icon, Menu01Icon } from "@hugeicons/core-free-icons";
+import { PlusSignIcon, EyeIcon, SettingsIcon, Menu01Icon } from "@hugeicons/core-free-icons";
 import { titleToSlug } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -32,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 function AdminMenuPage() {
   const router = useRouter();
@@ -386,45 +385,47 @@ function SectionWithItems({
   const items = useQuery(api.menuItems.getBySectionId, { sectionId: section._id });
 
   return (
-    <Card className="border-border bg-card">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-foreground text-base">{section.name}</CardTitle>
-          <SectionActions
-            sectionId={section._id}
-            sectionName={section.name}
-            onEdit={(id, name) => onEdit(id as Id<"sections">, name)}
-            onDelete={(id) => onDelete(id as Id<"sections">)}
-            onAddItem={(id, name, price, desc, storageId) => onAddItem(id as Id<"sections">, name, price, desc, storageId)}
-          />
-        </div>
-      </CardHeader>
-      <CardContent>
-        {items && items.length > 0 ? (
-          <div className="space-y-2">
-            {items.map((item) => (
-              <ItemCard
-                key={item._id}
-                itemName={item.name}
-                itemPrice={item.price}
-                itemDescription={item.description}
-                itemImage={item.imageUrl || "/coffee-cup.webp"}
-                onEdit={(newName, newPrice, newDescription, storageId) => {
-                  onEditItem(item._id, newName, newPrice, newDescription, storageId);
-                }}
-                onDelete={() => {
-                  onDeleteItem(item._id);
-                }}
-              />
-            ))}
+    <Accordion className="border-border bg-card rounded-lg">
+      <AccordionItem className="data-open:bg-card">
+        <AccordionTrigger className="hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer">
+          <div className="flex w-full items-center justify-between px-2">
+            <CardTitle className="text-foreground text-base">{section.name}</CardTitle>
+            <SectionActions
+              sectionId={section._id}
+              sectionName={section.name}
+              onEdit={(id, name) => onEdit(id as Id<"sections">, name)}
+              onDelete={(id) => onDelete(id as Id<"sections">)}
+              onAddItem={(id, name, price, desc, storageId) => onAddItem(id as Id<"sections">, name, price, desc, storageId)}
+            />
           </div>
-        ) : (
-          <p className="text-muted-foreground text-sm">
-            No items yet. Click "Add Item" to get started.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+        </AccordionTrigger>
+        <AccordionContent className="[&_p:not(:last-child)]:mb-0 px-4">
+          {items && items.length > 0 ? (
+            <div className="space-y-2">
+              {items.map((item) => (
+                <ItemCard
+                  key={item._id}
+                  itemName={item.name}
+                  itemPrice={item.price}
+                  itemDescription={item.description}
+                  itemImage={item.imageUrl || "/coffee-cup.webp"}
+                  onEdit={(newName, newPrice, newDescription, storageId) => {
+                    onEditItem(item._id, newName, newPrice, newDescription, storageId);
+                  }}
+                  onDelete={() => {
+                    onDeleteItem(item._id);
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              No items yet. Click "Add Item" to get started.
+            </p>
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
 

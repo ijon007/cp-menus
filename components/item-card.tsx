@@ -133,7 +133,6 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
         <Dialog open={editOpen} onOpenChange={setEditOpen}>
           <DialogTrigger render={<Button variant="outline" size="sm" />}>
             <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-            <span>Edit</span>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -229,7 +228,6 @@ const ItemCard = ({ itemName, itemPrice, itemDescription = "", itemImage = "/cof
         <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <DialogTrigger render={<Button variant="destructive" size="sm" />}>
             <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-            <span>Delete</span>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
