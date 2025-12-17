@@ -22,6 +22,7 @@ interface RestaurantHeaderProps {
   } | null;
   actions?: React.ReactNode;
   template?: string | null;
+  primaryColor?: string | null;
 }
 
 export default function RestaurantHeader({
@@ -33,12 +34,29 @@ export default function RestaurantHeader({
   socialLinks,
   actions,
   template,
+  primaryColor,
 }: RestaurantHeaderProps) {
   const displayLogo = logoUrl || DEFAULT_IMAGES.LOGO;
   const displayBanner = bannerUrl || DEFAULT_IMAGES.BANNER;
   const hasReviewLinks = googleReviewUrl || tripAdvisorReviewUrl;
   const hasSocialLinks = socialLinks && (socialLinks.instagram || socialLinks.facebook);
   const isModern = template === "modern";
+  
+  // Convert hex color to rgba with 60% opacity
+  const getOverlayColor = (color: string): string => {
+    if (color.startsWith("#")) {
+      const hex = color.slice(1);
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, 0.6)`;
+    }
+    return color;
+  };
+  
+  const overlayColor = primaryColor 
+    ? getOverlayColor(primaryColor)
+    : "rgba(74, 58, 42, 0.6)";
 
   return (
     <div className="relative w-full overflow-hidden" style={{ backgroundColor: COLORS.RESTAURANT_HEADER_BG }}>
@@ -52,7 +70,10 @@ export default function RestaurantHeader({
         />
       </div>
 
-      <div className="absolute inset-0 bg-[#4a3a2a]/60 pointer-events-none" />
+      <div 
+        className="absolute inset-0 pointer-events-none" 
+        style={{ backgroundColor: overlayColor }}
+      />
 
       <div className="relative container mx-auto px-4 py-8 md:py-12">
         <div className="flex items-center gap-4 md:gap-6 mb-6">

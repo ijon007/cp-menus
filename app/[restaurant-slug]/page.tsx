@@ -73,6 +73,7 @@ function MenuPage() {
         tripAdvisorReviewUrl={menuData.businessInfo?.tripAdvisorReviewUrl}
         socialLinks={menuData.businessInfo?.socialLinks}
         template={menuTemplate}
+        primaryColor={menuData.businessInfo?.primaryColor}
       />
       
       <div className="container mx-auto px-4 py-6 md:py-8">

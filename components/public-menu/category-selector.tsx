@@ -71,7 +71,7 @@ export default function CategorySelector({
   const isModern = template === "modern";
 
   return (
-    <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="sticky top-0 z-10 bg-background flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2">
       {categories.map((category) => {
         const Icon = getSectionIcon(category);
         const isActive = activeCategory === category;

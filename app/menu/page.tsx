@@ -88,6 +88,7 @@ function AdminMenuPage() {
           tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
           socialLinks={businessInfo?.socialLinks}
           actions={<MenuHeaderActions businessName={businessInfo?.businessName} />}
+          primaryColor={businessInfo?.primaryColor}
         />
         <div className="container mx-auto p-6">
           <p className="text-muted-foreground">Loading menu...</p>
