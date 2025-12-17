@@ -28,7 +28,9 @@ export default function TemplateSelectionSection({
   disabled = false,
 }: TemplateSelectionSectionProps) {
   const currentTemplate = selectedTemplate || DEFAULT_TEMPLATE;
-  const selectedTemplateName = TEMPLATES[currentTemplate as keyof typeof TEMPLATES]?.name || TEMPLATES[DEFAULT_TEMPLATE].name;
+  const currentTemplateConfig = TEMPLATES[currentTemplate as keyof typeof TEMPLATES] || TEMPLATES[DEFAULT_TEMPLATE];
+  const selectedTemplateName = currentTemplateConfig.name;
+  const selectedTemplateIcon = currentTemplateConfig.icon;
 
   return (
     <div className="space-y-4">
@@ -43,22 +45,26 @@ export default function TemplateSelectionSection({
               <Button
                 id="menu-template"
                 variant="outline"
-                className="w-full justify-between"
+                className="w-full justify-between bg-input/20 dark:bg-input/30 border-input hover:bg-input/30 dark:hover:bg-input/40"
                 disabled={disabled}
               />
             }
           >
-            <span>{selectedTemplateName}</span>
+            <div className="flex items-center gap-2">
+              <HugeiconsIcon icon={selectedTemplateIcon} strokeWidth={2} className="size-4" />
+              <span>{selectedTemplateName}</span>
+            </div>
             <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-full">
+          <DropdownMenuContent align="start" className="gap-1">
             {TEMPLATE_LIST.map((template) => (
               <DropdownMenuItem
                 key={template.id}
                 onClick={() => onTemplateChange(template.id)}
-                className={cn("cursor-pointer mb-1", currentTemplate === template.id ? "bg-accent" : "")}
+                className={cn("cursor-pointer mb-1 last:mb-0", currentTemplate === template.id ? "bg-accent" : "")}
               >
-                {template.name}
+                <HugeiconsIcon icon={template.icon} strokeWidth={2} className="size-4" />
+                <span>{template.name}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

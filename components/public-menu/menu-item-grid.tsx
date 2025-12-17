@@ -14,6 +14,9 @@ interface MenuItemGridProps {
   price: string;
   description?: string;
   image?: string;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
 }
 
 export default function MenuItemGrid({
@@ -21,11 +24,17 @@ export default function MenuItemGrid({
   price,
   description,
   image = DEFAULT_IMAGES.MENU_ITEM,
+  primaryColor,
+  secondaryColor,
+  accentColor,
 }: MenuItemGridProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative w-full aspect-square overflow-hidden rounded-sm">
+      <div 
+        className="relative w-full aspect-square overflow-hidden rounded-sm border-2"
+        style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
+      >
         <Image
           src={image}
           alt={name}
@@ -34,11 +43,19 @@ export default function MenuItemGrid({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <h4 className="text-foreground font-semibold">{name}</h4>
+        <h4 
+          className="font-semibold"
+          style={primaryColor ? { color: primaryColor } : undefined}
+        >
+          {name}
+        </h4>
         {description && (
           <p className="text-muted-foreground text-sm line-clamp-2">{description}</p>
         )}
-        <div className="text-muted-foreground font-medium mt-1">
+        <div 
+          className="font-medium mt-1"
+          style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+        >
           {formatPrice(price)}
         </div>
       </div>

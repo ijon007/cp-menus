@@ -38,10 +38,18 @@ interface Section {
 interface ClassicTemplateProps {
   sections: Section[];
   selectedCategory: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
 }
 
-export default function ClassicTemplate({ sections, selectedCategory }: ClassicTemplateProps) {
-  // Filter sections by selected category if applicable
+export default function ClassicTemplate({
+  sections,
+  selectedCategory,
+  primaryColor,
+  secondaryColor,
+  accentColor,
+}: ClassicTemplateProps) {
   const filteredSections = selectedCategory
     ? sections.filter((section) => section.name === selectedCategory)
     : sections;
@@ -53,11 +61,13 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
 
         const sectionId = titleToSlug(section.name);
 
-        // First section: horizontal scrollable list (mobile) / carousel (desktop)
         if (index === 0) {
           const ItemCard = ({ item }: { item: Item }) => (
             <div className="flex flex-col gap-2">
-              <div className="relative w-full aspect-square overflow-hidden rounded-sm">
+              <div 
+                className="relative w-full aspect-square overflow-hidden rounded-sm border-2"
+                style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
+              >
                 <Image
                   src={item.image || DEFAULT_IMAGES.MENU_ITEM}
                   alt={item.name}
@@ -66,22 +76,36 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <h4 className="text-foreground font-semibold">{item.name}</h4>
+                <h4 
+                  className="font-semibold"
+                  style={primaryColor ? { color: primaryColor } : undefined}
+                >
+                  {item.name}
+                </h4>
                 {item.description && (
                   <p className="text-muted-foreground text-sm line-clamp-2">{item.description}</p>
                 )}
-                <div className="text-muted-foreground font-medium mt-1">
+                <div 
+                  className="font-medium mt-1"
+                  style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+                >
                   {formatPrice(item.price)}
                 </div>
               </div>
             </div>
           );
 
+          const sectionTitleColor = primaryColor || undefined;
+          
           return (
             <div key={section.id} id={sectionId} className="mb-8 scroll-mt-20">
-              {/* Mobile: touch scrollable, no scrollbar */}
               <div className="md:hidden">
-                <h2 className="text-2xl font-bold text-foreground mb-4">{section.name}</h2>
+                <h2
+                  className="text-2xl font-bold text-foreground mb-4"
+                  style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
+                >
+                  {section.name}
+                </h2>
                 <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
                   <div className="flex gap-4 pb-4">
                     {section.items.map((item) => (
@@ -93,7 +117,6 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                 </div>
               </div>
 
-              {/* Desktop: carousel with navigation buttons next to title */}
               <div className="hidden md:block">
                 <Carousel
                   opts={{
@@ -103,10 +126,27 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                   className="w-full"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-foreground">{section.name}</h2>
+                    <h2
+                      className="text-2xl font-bold text-foreground"
+                      style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
+                    >
+                      {section.name}
+                    </h2>
                     <div className="flex items-center gap-2">
-                      <CarouselPrevious className="relative top-0 left-0 right-0 translate-x-0 translate-y-0" />
-                      <CarouselNext className="relative top-0 left-0 right-0 translate-x-0 translate-y-0" />
+                      <CarouselPrevious 
+                        className="relative top-0 left-0 right-0 translate-x-0 translate-y-0"
+                        style={primaryColor ? { 
+                          borderColor: primaryColor,
+                          color: primaryColor 
+                        } : undefined}
+                      />
+                      <CarouselNext 
+                        className="relative top-0 left-0 right-0 translate-x-0 translate-y-0"
+                        style={primaryColor ? { 
+                          borderColor: primaryColor,
+                          color: primaryColor 
+                        } : undefined}
+                      />
                     </div>
                   </div>
                   <CarouselContent className="-ml-4">
@@ -122,14 +162,18 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
           );
         }
 
-        // Second section: grid with first item full-width, rest in grid
         if (index === 1) {
           const [firstItem, ...restItems] = section.items;
+          const sectionTitleColor = primaryColor || undefined;
           return (
             <div key={section.id} id={sectionId} className="mb-8 scroll-mt-20">
-              <h2 className="text-2xl font-bold text-foreground mb-4">{section.name}</h2>
+              <h2
+                className="text-2xl font-bold text-foreground mb-4"
+                style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
+              >
+                {section.name}
+              </h2>
               <div className="space-y-4">
-                {/* First item full-width */}
                 {firstItem && (
                   <div className="w-full">
                     <div className="flex flex-col gap-2">
@@ -142,18 +186,25 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                         />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <h4 className="text-foreground font-semibold">{firstItem.name}</h4>
+                        <h4 
+                          className="font-semibold"
+                          style={primaryColor ? { color: primaryColor } : undefined}
+                        >
+                          {firstItem.name}
+                        </h4>
                         {firstItem.description && (
                           <p className="text-muted-foreground text-sm line-clamp-2">{firstItem.description}</p>
                         )}
-                        <div className="text-muted-foreground font-medium mt-1">
+                        <div 
+                          className="font-medium mt-1"
+                          style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+                        >
                           {formatPrice(firstItem.price)}
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
-                {/* Rest of items in grid */}
                 {restItems.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {restItems.map((item) => (
@@ -163,6 +214,9 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                         price={item.price}
                         description={item.description}
                         image={item.image || DEFAULT_IMAGES.MENU_ITEM}
+                        primaryColor={primaryColor}
+                        secondaryColor={secondaryColor}
+                        accentColor={accentColor}
                       />
                     ))}
                   </div>
@@ -172,10 +226,15 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
           );
         }
 
-        // All other sections: regular list
+        const sectionTitleColor = primaryColor || undefined;
         return (
           <div key={section.id} id={sectionId} className="mb-8 scroll-mt-20">
-            <h2 className="text-2xl font-bold text-foreground mb-4">{section.name}</h2>
+            <h2
+              className="text-2xl font-bold text-foreground mb-4"
+              style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
+            >
+              {section.name}
+            </h2>
             <div className="space-y-0">
               {section.items.map((item) => (
                 <MenuItem
@@ -184,6 +243,9 @@ export default function ClassicTemplate({ sections, selectedCategory }: ClassicT
                   price={item.price}
                   description={item.description}
                   image={item.image || DEFAULT_IMAGES.MENU_ITEM}
+                  primaryColor={primaryColor}
+                  secondaryColor={secondaryColor}
+                  accentColor={accentColor}
                 />
               ))}
             </div>

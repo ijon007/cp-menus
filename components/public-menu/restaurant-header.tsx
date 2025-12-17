@@ -21,6 +21,7 @@ interface RestaurantHeaderProps {
     facebook?: string | null;
   } | null;
   actions?: React.ReactNode;
+  template?: string | null;
 }
 
 export default function RestaurantHeader({
@@ -31,11 +32,13 @@ export default function RestaurantHeader({
   tripAdvisorReviewUrl,
   socialLinks,
   actions,
+  template,
 }: RestaurantHeaderProps) {
   const displayLogo = logoUrl || DEFAULT_IMAGES.LOGO;
   const displayBanner = bannerUrl || DEFAULT_IMAGES.BANNER;
   const hasReviewLinks = googleReviewUrl || tripAdvisorReviewUrl;
   const hasSocialLinks = socialLinks && (socialLinks.instagram || socialLinks.facebook);
+  const isModern = template === "modern";
 
   return (
     <div className="relative w-full overflow-hidden" style={{ backgroundColor: COLORS.RESTAURANT_HEADER_BG }}>
@@ -87,7 +90,7 @@ export default function RestaurantHeader({
                   {googleReviewUrl && (
                     <Button
                       variant="outline"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      className={`bg-white/10 border-white/20 text-white hover:bg-white/20 ${isModern ? "rounded-full p-4" : ""}`}
                       onClick={() => window.open(googleReviewUrl, "_blank")}
                     >
                       <svg
@@ -120,7 +123,7 @@ export default function RestaurantHeader({
                   {tripAdvisorReviewUrl && (
                     <Button
                       variant="outline"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      className={`bg-white/10 border-white/20 text-white hover:bg-white/20 ${isModern ? "rounded-full p-4" : ""}`}
                       onClick={() => window.open(tripAdvisorReviewUrl, "_blank")}
                     >
                       <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2" className="w-5 h-5 mr-2"><path d="M175.335 281.334c0 24.483-19.853 44.336-44.336 44.336-24.484 0-44.337-19.853-44.337-44.336 0-24.484 19.853-44.337 44.337-44.337 24.483 0 44.336 19.853 44.336 44.337zm205.554-44.337c-24.48 0-44.336 19.853-44.336 44.337 0 24.483 19.855 44.336 44.336 44.336 24.481 0 44.334-19.853 44.334-44.336-.006-24.47-19.839-44.31-44.309-44.323l-.025-.01v-.004zm125.002 44.337c0 68.997-55.985 124.933-124.999 124.933a124.466 124.466 0 01-84.883-33.252l-40.006 43.527-40.025-43.576a124.45 124.45 0 01-84.908 33.3c-68.968 0-124.933-55.937-124.933-124.932A124.586 124.586 0 0146.889 189L6 144.517h90.839c96.116-65.411 222.447-65.411 318.557 0H506l-40.878 44.484a124.574 124.574 0 0140.769 92.333zm-290.31 0c0-46.695-37.858-84.55-84.55-84.55-46.691 0-84.55 37.858-84.55 84.55 0 46.691 37.859 84.55 84.55 84.55 46.692 0 84.545-37.845 84.55-84.54v-.013.003zM349.818 155.1a244.01 244.01 0 00-187.666 0C215.532 175.533 256 223.254 256 278.893c0-55.634 40.463-103.362 93.826-123.786l-.005-.006h-.003zm115.64 126.224c0-46.694-37.858-84.55-84.55-84.55-46.691 0-84.552 37.859-84.552 84.55 0 46.692 37.855 84.55 84.553 84.55 46.697 0 84.55-37.858 84.55-84.55z" fill="#00AF87" fillRule="nonzero"/></svg>
@@ -140,7 +143,7 @@ export default function RestaurantHeader({
                   {socialLinks.instagram && (
                     <Button
                       variant="outline"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      className={`bg-white/10 border-white/20 text-white hover:bg-white/20 ${isModern ? "rounded-full p-4" : ""}`}
                       onClick={() => window.open(socialLinks.instagram!, "_blank")}
                     >
                       <svg
@@ -164,7 +167,7 @@ export default function RestaurantHeader({
                   {socialLinks.facebook && (
                     <Button
                       variant="outline"
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      className={`bg-white/10 border-white/20 text-white hover:bg-white/20 ${isModern ? "rounded-full p-4" : ""}`}
                       onClick={() => window.open(socialLinks.facebook!, "_blank")}
                     >
                       <svg

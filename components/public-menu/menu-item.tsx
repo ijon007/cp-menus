@@ -14,13 +14,30 @@ interface MenuItemProps {
   price: string;
   description?: string;
   image?: string;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
 }
 
-export default function MenuItem({ name, price, description, image = DEFAULT_IMAGES.MENU_ITEM }: MenuItemProps) {
+export default function MenuItem({ 
+  name, 
+  price, 
+  description, 
+  image = DEFAULT_IMAGES.MENU_ITEM,
+  primaryColor,
+  secondaryColor,
+  accentColor,
+}: MenuItemProps) {
 
   return (
-    <div className="flex items-start justify-between py-3 gap-4">
-      <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-sm">
+    <div 
+      className="flex items-start justify-between py-3 gap-4 border-b border-border/50 last:border-b-0"
+      style={secondaryColor ? { borderColor: `${secondaryColor}20` } : undefined}
+    >
+      <div 
+        className="w-16 h-16 shrink-0 relative overflow-hidden rounded-sm border"
+        style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
+      >
         <Image
           src={image}
           alt={name}
@@ -29,12 +46,20 @@ export default function MenuItem({ name, price, description, image = DEFAULT_IMA
         />
       </div>
       <div className="flex-1 min-w-0 pr-4">
-        <h4 className="text-foreground font-semibold mb-1">{name}</h4>
+        <h4 
+          className="font-semibold mb-1"
+          style={primaryColor ? { color: primaryColor } : undefined}
+        >
+          {name}
+        </h4>
         {description && (
           <p className="text-muted-foreground text-sm mt-1">{description}</p>
         )}
       </div>
-      <div className="text-muted-foreground font-medium whitespace-nowrap">
+      <div 
+        className="font-medium whitespace-nowrap"
+        style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+      >
         {formatPrice(price)}
       </div>
     </div>

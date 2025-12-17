@@ -47,6 +47,10 @@ export const getByBusinessSlug = query({
           tripAdvisorReviewUrl: business.tripAdvisorReviewUrl,
           socialLinks: business.socialLinks,
           menuTemplate: business.menuTemplate,
+          primaryColor: business.primaryColor,
+          secondaryColor: business.secondaryColor,
+          accentColor: business.accentColor,
+          backgroundColor: business.backgroundColor,
           logoUrl,
           bannerUrl,
         }

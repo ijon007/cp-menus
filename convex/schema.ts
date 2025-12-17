@@ -14,6 +14,10 @@ export default defineSchema({
       facebook: v.optional(v.string()),
     })),
     menuTemplate: v.optional(v.string()),
+    primaryColor: v.optional(v.string()),
+    secondaryColor: v.optional(v.string()),
+    accentColor: v.optional(v.string()),
+    backgroundColor: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

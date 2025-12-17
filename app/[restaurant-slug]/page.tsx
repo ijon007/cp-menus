@@ -59,7 +59,12 @@ function MenuPage() {
   const categories = sections.map((section) => section.name);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background"
+      style={menuData.businessInfo?.backgroundColor ? { 
+        backgroundColor: menuData.businessInfo.backgroundColor 
+      } : undefined}
+    >
       <RestaurantHeader
         businessName={restaurantName}
         logoUrl={menuData.businessInfo?.logoUrl}
@@ -67,6 +72,7 @@ function MenuPage() {
         googleReviewUrl={menuData.businessInfo?.googleReviewUrl}
         tripAdvisorReviewUrl={menuData.businessInfo?.tripAdvisorReviewUrl}
         socialLinks={menuData.businessInfo?.socialLinks}
+        template={menuTemplate}
       />
       
       <div className="container mx-auto px-4 py-6 md:py-8">
@@ -75,6 +81,10 @@ function MenuPage() {
             categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
+            primaryColor={menuData.businessInfo?.primaryColor}
+            secondaryColor={menuData.businessInfo?.secondaryColor}
+            accentColor={menuData.businessInfo?.accentColor}
+            template={menuTemplate}
           />
         )}
 
@@ -84,6 +94,9 @@ function MenuPage() {
               template={menuTemplate}
               sections={sections}
               selectedCategory={selectedCategory}
+              primaryColor={menuData.businessInfo?.primaryColor}
+              secondaryColor={menuData.businessInfo?.secondaryColor}
+              accentColor={menuData.businessInfo?.accentColor}
             />
           ) : (
             <div className="text-center py-8">

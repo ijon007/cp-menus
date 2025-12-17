@@ -20,6 +20,7 @@ import BasicInformationSection from "@/components/settings/basic-information-sec
 import ReviewLinksSection from "@/components/settings/review-links-section";
 import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
 import TemplateSelectionSection from "@/components/settings/template-selection-section";
+import ColorPickerSection from "@/components/settings/color-picker-section";
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
 
 function SettingsPage() {
@@ -40,6 +41,10 @@ function SettingsPage() {
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
   const [menuTemplate, setMenuTemplate] = useState<string>(DEFAULT_TEMPLATE);
+  const [primaryColor, setPrimaryColor] = useState<string | null>(null);
+  const [secondaryColor, setSecondaryColor] = useState<string | null>(null);
+  const [accentColor, setAccentColor] = useState<string | null>(null);
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -55,6 +60,10 @@ function SettingsPage() {
       setInstagramUrl(businessInfo.socialLinks?.instagram || "");
       setFacebookUrl(businessInfo.socialLinks?.facebook || "");
       setMenuTemplate(businessInfo.menuTemplate || DEFAULT_TEMPLATE);
+      setPrimaryColor(businessInfo.primaryColor || null);
+      setSecondaryColor(businessInfo.secondaryColor || null);
+      setAccentColor(businessInfo.accentColor || null);
+      setBackgroundColor(businessInfo.backgroundColor || null);
       if (businessInfo.logoUrl) {
         setLogoPreview(businessInfo.logoUrl);
       }
@@ -116,6 +125,10 @@ function SettingsPage() {
           facebook: facebookUrl.trim() || undefined,
         },
         menuTemplate: menuTemplate || undefined,
+        primaryColor: primaryColor || undefined,
+        secondaryColor: secondaryColor || undefined,
+        accentColor: accentColor || undefined,
+        backgroundColor: backgroundColor || undefined,
       });
 
       toast.success("Settings saved successfully!");
@@ -217,6 +230,18 @@ function SettingsPage() {
           <TemplateSelectionSection
             selectedTemplate={menuTemplate}
             onTemplateChange={setMenuTemplate}
+            disabled={isSaving}
+          />
+
+          <ColorPickerSection
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            accentColor={accentColor}
+            backgroundColor={backgroundColor}
+            onPrimaryColorChange={setPrimaryColor}
+            onSecondaryColorChange={setSecondaryColor}
+            onAccentColorChange={setAccentColor}
+            onBackgroundColorChange={setBackgroundColor}
             disabled={isSaving}
           />
 

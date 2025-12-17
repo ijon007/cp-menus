@@ -147,6 +147,10 @@ export const update = mutation({
       })
     ),
     menuTemplate: v.optional(v.string()),
+    primaryColor: v.optional(v.string()),
+    secondaryColor: v.optional(v.string()),
+    accentColor: v.optional(v.string()),
+    backgroundColor: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -183,6 +187,10 @@ export const update = mutation({
       tripAdvisorReviewUrl?: string;
       socialLinks?: typeof args.socialLinks;
       menuTemplate?: string;
+      primaryColor?: string;
+      secondaryColor?: string;
+      accentColor?: string;
+      backgroundColor?: string;
       updatedAt: number;
     } = {
       updatedAt: Date.now(),
@@ -211,6 +219,18 @@ export const update = mutation({
     }
     if (args.menuTemplate !== undefined) {
       updateData.menuTemplate = args.menuTemplate;
+    }
+    if (args.primaryColor !== undefined) {
+      updateData.primaryColor = args.primaryColor.trim() || undefined;
+    }
+    if (args.secondaryColor !== undefined) {
+      updateData.secondaryColor = args.secondaryColor.trim() || undefined;
+    }
+    if (args.accentColor !== undefined) {
+      updateData.accentColor = args.accentColor.trim() || undefined;
+    }
+    if (args.backgroundColor !== undefined) {
+      updateData.backgroundColor = args.backgroundColor.trim() || undefined;
     }
 
     await ctx.db.patch(businessInfo._id, updateData);

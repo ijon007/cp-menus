@@ -27,10 +27,18 @@ interface Section {
 interface MinimalTemplateProps {
   sections: Section[];
   selectedCategory: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
 }
 
-export default function MinimalTemplate({ sections, selectedCategory }: MinimalTemplateProps) {
-  // Filter sections by selected category if applicable
+export default function MinimalTemplate({
+  sections,
+  selectedCategory,
+  primaryColor,
+  secondaryColor,
+  accentColor,
+}: MinimalTemplateProps) {
   const filteredSections = selectedCategory
     ? sections.filter((section) => section.name === selectedCategory)
     : sections;
@@ -42,25 +50,35 @@ export default function MinimalTemplate({ sections, selectedCategory }: MinimalT
 
         const sectionId = titleToSlug(section.name);
 
+        const titleColor = primaryColor || undefined;
+        const dividerColor = secondaryColor || primaryColor || undefined;
+        const priceColor = accentColor || secondaryColor || undefined;
+        
         return (
           <div key={section.id} id={sectionId} className="mb-16 scroll-mt-20">
-            {/* Minimal section header */}
             <div className="mb-8 text-center">
-              <h2 className="text-2xl font-light text-foreground tracking-wider uppercase">
+              <h2
+                className="text-2xl font-light text-foreground tracking-wider uppercase"
+                style={titleColor ? { color: titleColor } : undefined}
+              >
                 {section.name}
               </h2>
-              <div className="w-16 h-px bg-border mx-auto mt-4" />
+              <div
+                className="w-16 h-px mx-auto mt-4"
+                style={dividerColor ? { backgroundColor: dividerColor } : undefined}
+              />
             </div>
             
-            {/* Minimal vertical list layout */}
             <div className="max-w-2xl mx-auto space-y-8">
               {section.items.map((item) => (
                 <div
                   key={item.id}
                   className="flex flex-col md:flex-row gap-6 items-start md:items-center"
                 >
-                  {/* Image - minimal square */}
-                  <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 relative overflow-hidden rounded-sm bg-muted">
+                  <div 
+                    className="w-24 h-24 md:w-32 md:h-32 shrink-0 relative overflow-hidden rounded-sm bg-muted border"
+                    style={secondaryColor ? { borderColor: `${secondaryColor}30` } : undefined}
+                  >
                     <Image
                       src={item.image || DEFAULT_IMAGES.MENU_ITEM}
                       alt={item.name}
@@ -69,13 +87,18 @@ export default function MinimalTemplate({ sections, selectedCategory }: MinimalT
                     />
                   </div>
                   
-                  {/* Content */}
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
-                      <h3 className="text-lg font-normal text-foreground tracking-wide">
+                      <h3 
+                        className="text-lg font-normal tracking-wide"
+                        style={primaryColor ? { color: primaryColor } : undefined}
+                      >
                         {item.name}
                       </h3>
-                      <div className="text-foreground font-light text-lg">
+                      <div 
+                        className="font-light text-lg"
+                        style={priceColor ? { color: priceColor } : undefined}
+                      >
                         {formatPrice(item.price)}
                       </div>
                     </div>

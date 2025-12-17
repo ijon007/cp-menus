@@ -23,24 +23,62 @@ interface TemplateRendererProps {
   template: string | null | undefined;
   sections: Section[];
   selectedCategory: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  accentColor?: string | null;
 }
 
 export default function TemplateRenderer({
   template,
   sections,
   selectedCategory,
+  primaryColor,
+  secondaryColor,
+  accentColor,
 }: TemplateRendererProps) {
   const selectedTemplate = template || DEFAULT_TEMPLATE;
 
   switch (selectedTemplate) {
     case TEMPLATE_IDS.CLASSIC:
-      return <ClassicTemplate sections={sections} selectedCategory={selectedCategory} />;
+      return (
+        <ClassicTemplate
+          sections={sections}
+          selectedCategory={selectedCategory}
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          accentColor={accentColor}
+        />
+      );
     case TEMPLATE_IDS.MODERN:
-      return <ModernTemplate sections={sections} selectedCategory={selectedCategory} />;
+      return (
+        <ModernTemplate
+          sections={sections}
+          selectedCategory={selectedCategory}
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          accentColor={accentColor}
+        />
+      );
     case TEMPLATE_IDS.MINIMAL:
-      return <MinimalTemplate sections={sections} selectedCategory={selectedCategory} />;
+      return (
+        <MinimalTemplate
+          sections={sections}
+          selectedCategory={selectedCategory}
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          accentColor={accentColor}
+        />
+      );
     default:
-      return <ClassicTemplate sections={sections} selectedCategory={selectedCategory} />;
+      return (
+        <ClassicTemplate
+          sections={sections}
+          selectedCategory={selectedCategory}
+          primaryColor={primaryColor}
+          secondaryColor={secondaryColor}
+          accentColor={accentColor}
+        />
+      );
   }
 }
 
