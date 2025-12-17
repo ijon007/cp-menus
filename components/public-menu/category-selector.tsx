@@ -49,13 +49,13 @@ export default function CategorySelector({
     } else {
       setActiveCategory(category);
       onSelectCategory(category);
-      
-      // Scroll to the section
-      const sectionId = titleToId(category);
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+    }
+    
+    // Always scroll to the section when clicking a category
+    const sectionId = titleToId(category);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 

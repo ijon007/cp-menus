@@ -39,13 +39,9 @@ export default function ModernTemplate({
   secondaryColor,
   accentColor,
 }: ModernTemplateProps) {
-  const filteredSections = selectedCategory
-    ? sections.filter((section) => section.name === selectedCategory)
-    : sections;
-
   return (
     <>
-      {filteredSections.map((section) => {
+      {sections.map((section) => {
         if (section.items.length === 0) return null;
 
         const sectionId = titleToSlug(section.name);

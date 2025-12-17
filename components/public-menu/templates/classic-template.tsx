@@ -50,13 +50,9 @@ export default function ClassicTemplate({
   secondaryColor,
   accentColor,
 }: ClassicTemplateProps) {
-  const filteredSections = selectedCategory
-    ? sections.filter((section) => section.name === selectedCategory)
-    : sections;
-
   return (
     <>
-      {filteredSections.map((section, index) => {
+      {sections.map((section, index) => {
         if (section.items.length === 0) return null;
 
         const sectionId = titleToSlug(section.name);
@@ -87,7 +83,7 @@ export default function ClassicTemplate({
                 )}
                 <div 
                   className="font-medium mt-1"
-                  style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+                  style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
                 >
                   {formatPrice(item.price)}
                 </div>
@@ -127,7 +123,7 @@ export default function ClassicTemplate({
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h2
-                      className="text-2xl font-bold text-foreground"
+                      className="text-2xl font-semibold text-foreground"
                       style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
                     >
                       {section.name}
@@ -168,7 +164,7 @@ export default function ClassicTemplate({
           return (
             <div key={section.id} id={sectionId} className="mb-8 scroll-mt-20">
               <h2
-                className="text-2xl font-bold text-foreground mb-4"
+                className="text-2xl font-semibold text-foreground mb-4"
                 style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
               >
                 {section.name}
@@ -197,7 +193,7 @@ export default function ClassicTemplate({
                         )}
                         <div 
                           className="font-medium mt-1"
-                          style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+                          style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
                         >
                           {formatPrice(firstItem.price)}
                         </div>
@@ -230,7 +226,7 @@ export default function ClassicTemplate({
         return (
           <div key={section.id} id={sectionId} className="mb-8 scroll-mt-20">
             <h2
-              className="text-2xl font-bold text-foreground mb-4"
+              className="text-2xl font-semibold text-foreground mb-4"
               style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
             >
               {section.name}
