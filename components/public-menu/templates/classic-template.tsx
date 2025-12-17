@@ -64,7 +64,7 @@ export default function ClassicTemplate({
               style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
             >
               <div 
-                className="relative w-full aspect-square overflow-hidden border-2"
+                className={`relative w-full aspect-square overflow-hidden ${secondaryColor ? 'border-2' : ''}`}
                 style={secondaryColor ? { borderColor: `${secondaryColor}10`} : undefined}
               >
                 <Image
@@ -180,7 +180,7 @@ export default function ClassicTemplate({
                       style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
                     >
                       <div 
-                        className="relative w-full aspect-video overflow-hidden border-2"
+                        className={`relative w-full aspect-video overflow-hidden ${secondaryColor ? 'border-2' : ''}`}
                         style={secondaryColor ? { borderColor: `${secondaryColor}10` } : undefined}
                       >
                         <Image

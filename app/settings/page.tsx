@@ -125,10 +125,10 @@ function SettingsPage() {
           facebook: facebookUrl.trim() || undefined,
         },
         menuTemplate: menuTemplate || undefined,
-        primaryColor: primaryColor || undefined,
-        secondaryColor: secondaryColor || undefined,
-        accentColor: accentColor || undefined,
-        backgroundColor: backgroundColor || undefined,
+        primaryColor: primaryColor ?? "",
+        secondaryColor: secondaryColor ?? "",
+        accentColor: accentColor ?? "",
+        backgroundColor: backgroundColor ?? "",
       });
 
       toast.success("Settings saved successfully!");

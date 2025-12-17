@@ -35,7 +35,7 @@ export default function MenuItemGrid({
       style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
     >
       <div 
-        className="relative w-full aspect-square overflow-hidden border-2"
+        className={`relative w-full aspect-square overflow-hidden ${secondaryColor ? 'border-2' : ''}`}
         style={secondaryColor ? { borderColor: `${secondaryColor}10` } : undefined}
       >
         <Image
@@ -57,7 +57,7 @@ export default function MenuItemGrid({
         )}
         <div 
           className="font-medium mt-1"
-          style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+          style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
         >
           {formatPrice(price)}
         </div>

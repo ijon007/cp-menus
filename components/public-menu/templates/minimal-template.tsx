@@ -60,7 +60,7 @@ export default function MinimalTemplate({
                 {section.name}
               </h2>
               <div
-                className="w-16 h-px mx-auto mt-4"
+                className="w-16 h-px mx-auto mt-1 bg-primary"
                 style={dividerColor ? { backgroundColor: dividerColor } : undefined}
               />
             </div>

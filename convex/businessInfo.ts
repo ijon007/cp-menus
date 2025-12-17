@@ -221,16 +221,20 @@ export const update = mutation({
       updateData.menuTemplate = args.menuTemplate;
     }
     if (args.primaryColor !== undefined) {
-      updateData.primaryColor = args.primaryColor.trim() || undefined;
+      const trimmed = args.primaryColor.trim();
+      updateData.primaryColor = trimmed || undefined;
     }
     if (args.secondaryColor !== undefined) {
-      updateData.secondaryColor = args.secondaryColor.trim() || undefined;
+      const trimmed = args.secondaryColor.trim();
+      updateData.secondaryColor = trimmed || undefined;
     }
     if (args.accentColor !== undefined) {
-      updateData.accentColor = args.accentColor.trim() || undefined;
+      const trimmed = args.accentColor.trim();
+      updateData.accentColor = trimmed || undefined;
     }
     if (args.backgroundColor !== undefined) {
-      updateData.backgroundColor = args.backgroundColor.trim() || undefined;
+      const trimmed = args.backgroundColor.trim();
+      updateData.backgroundColor = trimmed || undefined;
     }
 
     await ctx.db.patch(businessInfo._id, updateData);

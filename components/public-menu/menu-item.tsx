@@ -37,7 +37,7 @@ export default function MenuItem({
       } : undefined}
     >
       <div 
-        className="w-16 h-16 shrink-0 relative overflow-hidden rounded-sm border"
+        className={`w-16 h-16 shrink-0 relative overflow-hidden rounded-sm ${secondaryColor ? 'border' : ''}`}
         style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
       >
         <Image
