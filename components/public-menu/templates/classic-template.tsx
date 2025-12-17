@@ -59,10 +59,13 @@ export default function ClassicTemplate({
 
         if (index === 0) {
           const ItemCard = ({ item }: { item: Item }) => (
-            <div className="flex flex-col gap-2">
+            <div 
+              className="flex flex-col gap-2 overflow-hidden rounded-sm"
+              style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
+            >
               <div 
-                className="relative w-full aspect-square overflow-hidden rounded-sm border-2"
-                style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
+                className="relative w-full aspect-square overflow-hidden border-2"
+                style={secondaryColor ? { borderColor: `${secondaryColor}10`} : undefined}
               >
                 <Image
                   src={item.image || DEFAULT_IMAGES.MENU_ITEM}
@@ -172,8 +175,14 @@ export default function ClassicTemplate({
               <div className="space-y-4">
                 {firstItem && (
                   <div className="w-full">
-                    <div className="flex flex-col gap-2">
-                      <div className="relative w-full aspect-video overflow-hidden rounded-sm">
+                    <div 
+                      className="flex flex-col gap-2 overflow-hidden rounded-sm"
+                      style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
+                    >
+                      <div 
+                        className="relative w-full aspect-video overflow-hidden border-2"
+                        style={secondaryColor ? { borderColor: `${secondaryColor}10` } : undefined}
+                      >
                         <Image
                           src={firstItem.image || DEFAULT_IMAGES.MENU_ITEM}
                           alt={firstItem.name}

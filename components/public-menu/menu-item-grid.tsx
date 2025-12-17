@@ -30,10 +30,13 @@ export default function MenuItemGrid({
 }: MenuItemGridProps) {
 
   return (
-    <div className="flex flex-col gap-2">
+    <div 
+      className="flex flex-col gap-2 overflow-hidden rounded-sm"
+      style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
+    >
       <div 
-        className="relative w-full aspect-square overflow-hidden rounded-sm border-2"
-        style={secondaryColor ? { borderColor: `${secondaryColor}40` } : undefined}
+        className="relative w-full aspect-square overflow-hidden border-2"
+        style={secondaryColor ? { borderColor: `${secondaryColor}10` } : undefined}
       >
         <Image
           src={image}

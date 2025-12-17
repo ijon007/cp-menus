@@ -32,7 +32,9 @@ export default function MenuItem({
   return (
     <div 
       className="flex items-start justify-between py-3 gap-4 border-b border-border/50 last:border-b-0"
-      style={secondaryColor ? { borderColor: `${secondaryColor}20` } : undefined}
+      style={secondaryColor ? { 
+        borderColor: `${secondaryColor}20`
+      } : undefined}
     >
       <div 
         className="w-16 h-16 shrink-0 relative overflow-hidden rounded-sm border"
@@ -58,7 +60,7 @@ export default function MenuItem({
       </div>
       <div 
         className="font-medium whitespace-nowrap"
-        style={accentColor || secondaryColor ? { color: accentColor || secondaryColor } : undefined}
+        style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
       >
         {formatPrice(price)}
       </div>
