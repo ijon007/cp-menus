@@ -19,6 +19,8 @@ import LogoutDialog from "@/components/settings/logout-dialog";
 import BasicInformationSection from "@/components/settings/basic-information-section";
 import ReviewLinksSection from "@/components/settings/review-links-section";
 import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
+import TemplateSelectionSection from "@/components/settings/template-selection-section";
+import { DEFAULT_TEMPLATE } from "@/constants/templates";
 
 function SettingsPage() {
   const router = useRouter();
@@ -37,6 +39,7 @@ function SettingsPage() {
   const [selectedBanner, setSelectedBanner] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
+  const [menuTemplate, setMenuTemplate] = useState<string>(DEFAULT_TEMPLATE);
   const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -51,6 +54,7 @@ function SettingsPage() {
       setTripAdvisorReviewUrl(businessInfo.tripAdvisorReviewUrl || "");
       setInstagramUrl(businessInfo.socialLinks?.instagram || "");
       setFacebookUrl(businessInfo.socialLinks?.facebook || "");
+      setMenuTemplate(businessInfo.menuTemplate || DEFAULT_TEMPLATE);
       if (businessInfo.logoUrl) {
         setLogoPreview(businessInfo.logoUrl);
       }
@@ -111,6 +115,7 @@ function SettingsPage() {
           instagram: instagramUrl.trim() || undefined,
           facebook: facebookUrl.trim() || undefined,
         },
+        menuTemplate: menuTemplate || undefined,
       });
 
       toast.success("Settings saved successfully!");
@@ -207,6 +212,12 @@ function SettingsPage() {
             onInstagramUrlChange={setInstagramUrl}
             facebookUrl={facebookUrl}
             onFacebookUrlChange={setFacebookUrl}
+          />
+
+          <TemplateSelectionSection
+            selectedTemplate={menuTemplate}
+            onTemplateChange={setMenuTemplate}
+            disabled={isSaving}
           />
 
           <div className="flex justify-end">

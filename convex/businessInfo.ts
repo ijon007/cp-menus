@@ -146,6 +146,7 @@ export const update = mutation({
         facebook: v.optional(v.string()),
       })
     ),
+    menuTemplate: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -181,6 +182,7 @@ export const update = mutation({
       googleReviewUrl?: string;
       tripAdvisorReviewUrl?: string;
       socialLinks?: typeof args.socialLinks;
+      menuTemplate?: string;
       updatedAt: number;
     } = {
       updatedAt: Date.now(),
@@ -206,6 +208,9 @@ export const update = mutation({
         instagram: args.socialLinks.instagram?.trim() || undefined,
         facebook: args.socialLinks.facebook?.trim() || undefined,
       };
+    }
+    if (args.menuTemplate !== undefined) {
+      updateData.menuTemplate = args.menuTemplate;
     }
 
     await ctx.db.patch(businessInfo._id, updateData);

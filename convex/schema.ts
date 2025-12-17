@@ -13,6 +13,7 @@ export default defineSchema({
       instagram: v.optional(v.string()),
       facebook: v.optional(v.string()),
     })),
+    menuTemplate: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

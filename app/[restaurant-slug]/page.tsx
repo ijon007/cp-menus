@@ -10,11 +10,14 @@ import { api } from "@/convex/_generated/api";
 
 /* Components */
 import CategorySelector from "@/components/public-menu/category-selector";
-import MenuSection from "@/components/public-menu/menu-section";
+import TemplateRenderer from "@/components/public-menu/template-renderer";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 
 /* Utils */
 import { formatSlugToTitle } from "@/lib/utils";
+
+/* Constants */
+import { DEFAULT_TEMPLATE } from "@/constants/templates";
 
 interface Item {
   id: string;
@@ -50,6 +53,7 @@ function MenuPage() {
   }
 
   const restaurantName = menuData.businessInfo?.businessName || formatSlugToTitle(restaurantSlug);
+  const menuTemplate = menuData.businessInfo?.menuTemplate || DEFAULT_TEMPLATE;
 
   const sections: Section[] = menuData.sections;
   const categories = sections.map((section) => section.name);
@@ -76,9 +80,11 @@ function MenuPage() {
 
         <div>
           {sections.length > 0 ? (
-            sections.map((section, index) => (
-              <MenuSection key={section.id} title={section.name} items={section.items} sectionIndex={index} />
-            ))
+            <TemplateRenderer
+              template={menuTemplate}
+              sections={sections}
+              selectedCategory={selectedCategory}
+            />
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">No menu items available yet.</p>

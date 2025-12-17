@@ -46,6 +46,7 @@ export const getByBusinessSlug = query({
           googleReviewUrl: business.googleReviewUrl,
           tripAdvisorReviewUrl: business.tripAdvisorReviewUrl,
           socialLinks: business.socialLinks,
+          menuTemplate: business.menuTemplate,
           logoUrl,
           bannerUrl,
         }
