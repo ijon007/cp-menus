@@ -48,5 +48,16 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_sectionId", ["sectionId"]),
+  userAccess: defineTable({
+    userId: v.string(), // Clerk user ID
+    email: v.optional(v.string()), // User email from Clerk
+    name: v.optional(v.string()), // User name from Clerk
+    status: v.string(), // "pending" | "approved" | "rejected"
+    requestedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()), // Admin user ID
+  })
+    .index("by_userId", ["userId"])
+    .index("by_status", ["status"]),
 });
 

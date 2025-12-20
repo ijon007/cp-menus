@@ -20,6 +20,8 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import SortableSection from "@/components/menu/sortable-section";
 
 function AdminMenuPage() {
+  const accessStatus = useQuery(api.userAccess.checkAccess);
+  const requestAccess = useMutation(api.userAccess.requestAccess);
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
@@ -45,6 +47,39 @@ function AdminMenuPage() {
       setIsDialogOpen(true);
     }
   }, [businessInfo]);
+
+  // Auto-request access if no record exists
+  useEffect(() => {
+    if (accessStatus && accessStatus.status === null && accessStatus.accessRecord === null) {
+      requestAccess().catch(console.error);
+    }
+  }, [accessStatus, requestAccess]);
+
+  // Show waiting message if access is not approved
+  if (accessStatus && accessStatus.status !== "approved" && accessStatus.status !== null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <div className="mx-auto max-w-md space-y-4">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold text-foreground">
+                Waiting for Approval
+              </h1>
+              <p className="text-muted-foreground">
+                Your access request is {accessStatus.status === "pending" ? "pending" : "rejected"}. 
+                Please wait for an administrator to review your request.
+              </p>
+            </div>
+            {accessStatus.status === "rejected" && (
+              <p className="text-sm text-muted-foreground">
+                If you believe this is an error, please contact support.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSectionsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;

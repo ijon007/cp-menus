@@ -13,6 +13,7 @@ import type * as menuItems from "../menuItems.js";
 import type * as menus from "../menus.js";
 import type * as publicMenu from "../publicMenu.js";
 import type * as sections from "../sections.js";
+import type * as userAccess from "../userAccess.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   menus: typeof menus;
   publicMenu: typeof publicMenu;
   sections: typeof sections;
+  userAccess: typeof userAccess;
 }>;
 
 /**
