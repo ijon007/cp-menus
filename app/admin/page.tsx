@@ -160,20 +160,7 @@ function AdminDashboard() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/menu")}
-            >
-              <HugeiconsIcon icon={ArrowLeftIcon} className="mr-2" />
-              Back to Menu
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage user access requests</p>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
         </div>
 
         <div className="grid gap-6">
@@ -190,7 +177,7 @@ function AdminDashboard() {
                   <TabsTrigger value="pending">
                     Pending
                     {pendingUsers.length > 0 && (
-                      <Badge variant="secondary" className="ml-2">
+                      <Badge variant="secondary" className="ml-2 size-5 p-0">
                         {pendingUsers.length}
                       </Badge>
                     )}
@@ -198,7 +185,7 @@ function AdminDashboard() {
                   <TabsTrigger value="approved">
                     Approved
                     {approvedUsers.length > 0 && (
-                      <Badge variant="default" className="ml-2">
+                      <Badge variant="default" className="ml-2 size-5 p-0">
                         {approvedUsers.length}
                       </Badge>
                     )}
@@ -206,7 +193,7 @@ function AdminDashboard() {
                   <TabsTrigger value="rejected">
                     Rejected
                     {rejectedUsers.length > 0 && (
-                      <Badge variant="destructive" className="ml-2">
+                      <Badge variant="destructive" className="ml-2 size-5 p-0">
                         {rejectedUsers.length}
                       </Badge>
                     )}

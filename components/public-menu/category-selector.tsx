@@ -20,6 +20,7 @@ interface CategorySelectorProps {
   secondaryColor?: string | null;
   accentColor?: string | null;
   template?: string | null;
+  backgroundColor?: string | null;
 }
 
 // Convert category name to a valid ID slug
@@ -38,6 +39,7 @@ export default function CategorySelector({
   secondaryColor,
   accentColor,
   template,
+  backgroundColor,
 }: CategorySelectorProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(selectedCategory);
 
@@ -71,7 +73,10 @@ export default function CategorySelector({
   const isModern = template === "modern";
 
   return (
-    <div className="sticky top-0 z-10 bg-background flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2">
+    <div 
+      className="sticky top-0 z-10 flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2"
+      {...(backgroundColor ? { style: { backgroundColor } } : {})}
+    >
       {categories.map((category) => {
         const Icon = getSectionIcon(category);
         const isActive = activeCategory === category;

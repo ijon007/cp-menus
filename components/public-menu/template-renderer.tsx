@@ -26,6 +26,7 @@ interface TemplateRendererProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  backgroundColor?: string | null;
 }
 
 export default function TemplateRenderer({
@@ -35,6 +36,7 @@ export default function TemplateRenderer({
   primaryColor,
   secondaryColor,
   accentColor,
+  backgroundColor,
 }: TemplateRendererProps) {
   const selectedTemplate = template || DEFAULT_TEMPLATE;
 
@@ -67,6 +69,7 @@ export default function TemplateRenderer({
           primaryColor={primaryColor}
           secondaryColor={secondaryColor}
           accentColor={accentColor}
+          backgroundColor={backgroundColor}
         />
       );
     default:

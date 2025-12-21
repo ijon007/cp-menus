@@ -30,6 +30,7 @@ interface MinimalTemplateProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  backgroundColor?: string | null;
 }
 
 export default function MinimalTemplate({
@@ -38,6 +39,7 @@ export default function MinimalTemplate({
   primaryColor,
   secondaryColor,
   accentColor,
+  backgroundColor,
 }: MinimalTemplateProps) {
   return (
     <>
@@ -51,7 +53,12 @@ export default function MinimalTemplate({
         const priceColor = accentColor || secondaryColor || undefined;
         
         return (
-          <div key={section.id} id={sectionId} className="mb-16 scroll-mt-20">
+          <div 
+            key={section.id} 
+            id={sectionId} 
+            className="mb-16 scroll-mt-20"
+            {...(backgroundColor ? { style: { backgroundColor } } : {})}
+          >
             <div className="mb-8 text-center">
               <h2
                 className="text-2xl font-light text-foreground tracking-wider uppercase"
@@ -69,7 +76,7 @@ export default function MinimalTemplate({
               {section.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col md:flex-row gap-6 items-start md:items-center"
+                  className="flex flex-row gap-6 items-center"
                 >
                   <div 
                     className="w-24 h-24 md:w-32 md:h-32 shrink-0 relative overflow-hidden rounded-sm bg-muted border"
@@ -84,7 +91,7 @@ export default function MinimalTemplate({
                   </div>
                   
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2">
+                    <div className="flex flex-row items-baseline justify-between gap-2">
                       <h3 
                         className="text-lg font-normal tracking-wide"
                         style={primaryColor ? { color: primaryColor } : undefined}
