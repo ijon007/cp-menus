@@ -74,7 +74,7 @@ export default function CategorySelector({
 
   return (
     <div 
-      className="sticky top-0 z-10 flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2"
+      className="sticky top-0 z-10 flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2 bg-background -mx-4 px-4"
       {...(backgroundColor ? { style: { backgroundColor } } : {})}
     >
       {categories.map((category) => {

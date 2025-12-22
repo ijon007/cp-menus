@@ -86,7 +86,7 @@ function MenuPage() {
             secondaryColor={menuData.businessInfo?.secondaryColor}
             accentColor={menuData.businessInfo?.accentColor}
             template={menuTemplate}
-            backgroundColor={menuData.businessInfo?.backgroundColor}
+            backgroundColor={menuData.businessInfo?.backgroundColor }
           />
         )}
 
