@@ -37,17 +37,17 @@ export default function AddSectionDialog({
   open,
   onOpenChange,
 }: AddSectionDialogProps) {
-  const menu = useQuery(api.menus.getByUserId);
+  const businessInfo = useQuery(api.businessInfo.getByUserId);
   const createSection = useMutation(api.sections.create);
   const [sectionName, setSectionName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAdd = async () => {
-    if (!menu || !sectionName.trim()) return;
+    if (!businessInfo || !sectionName.trim()) return;
     
     setIsLoading(true);
     try {
-      await createSection({ menuId: menu._id, name: sectionName.trim() });
+      await createSection({ businessInfoId: businessInfo._id, name: sectionName.trim() });
       setSectionName("");
       onOpenChange(false);
     } catch (error) {

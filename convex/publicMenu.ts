@@ -4,62 +4,53 @@ import { v } from "convex/values";
 export const getByBusinessSlug = query({
   args: { slug: v.string() },
   handler: async (ctx, args) => {
-    // First, find the menu by slug pattern
-    const allMenus = await ctx.db.query("menus").collect();
-    const menu = allMenus.find((m) => {
-      // Convert menu name to slug (e.g., "Tacos Bros Menu" -> "tacos-bros")
-      const menuNameSlug = m.name
+    // First, find the business info by business name slug
+    const allBusinesses = await ctx.db.query("businessInfo").collect();
+    const business = allBusinesses.find((b) => {
+      // Convert business name to slug (same logic as titleToSlug)
+      const businessSlug = b.businessName
         .toLowerCase()
-        .replace(/\s+menu\s*$/i, "") // Remove " Menu" suffix
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
-      return menuNameSlug === args.slug.toLowerCase();
+      return businessSlug === args.slug.toLowerCase();
     });
 
-    if (!menu) {
+    if (!business) {
       return {
         businessInfo: null,
         sections: [],
       };
     }
 
-    // Get business info from menu's userId
-    const business = await ctx.db
-      .query("businessInfo")
-      .withIndex("by_userId", (q) => q.eq("userId", menu.userId))
-      .first();
-
     // Get logo URL if available
-    const logoUrl = business?.logoStorageId
+    const logoUrl = business.logoStorageId
       ? await ctx.storage.getUrl(business.logoStorageId)
       : null;
 
     // Get banner URL if available
-    const bannerUrl = business?.bannerStorageId
+    const bannerUrl = business.bannerStorageId
       ? await ctx.storage.getUrl(business.bannerStorageId)
       : null;
 
     // Build businessInfo object
-    const businessInfo = business
-      ? {
-          businessName: business.businessName,
-          googleReviewUrl: business.googleReviewUrl,
-          tripAdvisorReviewUrl: business.tripAdvisorReviewUrl,
-          socialLinks: business.socialLinks,
-          menuTemplate: business.menuTemplate,
-          primaryColor: business.primaryColor,
-          secondaryColor: business.secondaryColor,
-          accentColor: business.accentColor,
-          backgroundColor: business.backgroundColor,
-          logoUrl,
-          bannerUrl,
-        }
-      : null;
+    const businessInfo = {
+      businessName: business.businessName,
+      googleReviewUrl: business.googleReviewUrl,
+      tripAdvisorReviewUrl: business.tripAdvisorReviewUrl,
+      socialLinks: business.socialLinks,
+      menuTemplate: business.menuTemplate,
+      primaryColor: business.primaryColor,
+      secondaryColor: business.secondaryColor,
+      accentColor: business.accentColor,
+      backgroundColor: business.backgroundColor,
+      logoUrl,
+      bannerUrl,
+    };
 
-    // Get all sections from the single menu
+    // Get all sections for this businessInfo
     const sections = await ctx.db
       .query("sections")
-      .withIndex("by_menuId", (q) => q.eq("menuId", menu._id))
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", business._id))
       .collect();
 
     // Get all items for all sections and group by section

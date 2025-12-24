@@ -88,21 +88,6 @@ export const create = mutation({
         updatedAt: Date.now(),
       });
       
-      // Auto-create menu if it doesn't exist
-      const existingMenu = await ctx.db
-        .query("menus")
-        .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
-        .first();
-
-      if (!existingMenu) {
-        await ctx.db.insert("menus", {
-          userId: identity.subject,
-          name: `${args.businessName} Menu`,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        });
-      }
-      
       return existing._id;
     }
 
@@ -110,14 +95,6 @@ export const create = mutation({
     const businessInfoId = await ctx.db.insert("businessInfo", {
       userId: identity.subject,
       businessName: args.businessName,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
-    // Auto-create menu with name "{businessName} Menu"
-    await ctx.db.insert("menus", {
-      userId: identity.subject,
-      name: `${args.businessName} Menu`,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -239,26 +216,6 @@ export const update = mutation({
 
     await ctx.db.patch(businessInfo._id, updateData);
 
-    // Update menu name if business name was provided
-    if (args.businessName !== undefined) {
-      const trimmedBusinessName = args.businessName.trim();
-      if (trimmedBusinessName) {
-        const menu = await ctx.db
-          .query("menus")
-          .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
-          .first();
-
-        if (menu) {
-          const newMenuName = `${trimmedBusinessName} Menu`;
-          // Always update the menu name to match the business name
-          await ctx.db.patch(menu._id, {
-            name: newMenuName,
-            updatedAt: Date.now(),
-          });
-        }
-      }
-    }
-
     return businessInfo._id;
   },
 });
@@ -291,41 +248,29 @@ export const remove = mutation({
       await ctx.storage.delete(businessInfo.bannerStorageId);
     }
 
-    // Get all menus for this user
-    const menus = await ctx.db
-      .query("menus")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+    // Get all sections for this businessInfo
+    const sections = await ctx.db
+      .query("sections")
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", businessInfo._id))
       .collect();
 
-    // For each menu, delete sections and their items
-    for (const menu of menus) {
-      // Get all sections for this menu
-      const sections = await ctx.db
-        .query("sections")
-        .withIndex("by_menuId", (q) => q.eq("menuId", menu._id))
+    // For each section, delete menu items and their images
+    for (const section of sections) {
+      const menuItems = await ctx.db
+        .query("menuItems")
+        .withIndex("by_sectionId", (q) => q.eq("sectionId", section._id))
         .collect();
 
-      // For each section, delete menu items and their images
-      for (const section of sections) {
-        const menuItems = await ctx.db
-          .query("menuItems")
-          .withIndex("by_sectionId", (q) => q.eq("sectionId", section._id))
-          .collect();
-
-        // Delete menu items and their associated images
-        for (const item of menuItems) {
-          if (item.imageStorageId) {
-            await ctx.storage.delete(item.imageStorageId);
-          }
-          await ctx.db.delete(item._id);
+      // Delete menu items and their associated images
+      for (const item of menuItems) {
+        if (item.imageStorageId) {
+          await ctx.storage.delete(item.imageStorageId);
         }
-
-        // Delete the section
-        await ctx.db.delete(section._id);
+        await ctx.db.delete(item._id);
       }
 
-      // Delete the menu
-      await ctx.db.delete(menu._id);
+      // Delete the section
+      await ctx.db.delete(section._id);
     }
 
     // Finally, delete the businessInfo

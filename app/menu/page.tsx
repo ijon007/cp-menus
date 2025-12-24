@@ -23,10 +23,9 @@ function AdminMenuPage() {
   const accessStatus = useQuery(api.userAccess.checkAccess);
   const requestAccess = useMutation(api.userAccess.requestAccess);
   const businessInfo = useQuery(api.businessInfo.getByUserId);
-  const menu = useQuery(api.menus.getByUserId);
   const sections = useQuery(
-    api.sections.getByMenuId,
-    menu ? { menuId: menu._id } : "skip"
+    api.sections.getByBusinessInfoId,
+    businessInfo ? { businessInfoId: businessInfo._id } : "skip"
   );
 
   const reorderSections = useMutation(api.sections.reorderSections);
@@ -83,7 +82,7 @@ function AdminMenuPage() {
 
   const handleSectionsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || !menu || !sections) return;
+    if (!over || !businessInfo || !sections) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -103,7 +102,7 @@ function AdminMenuPage() {
 
     try {
       await reorderSections({
-        menuId: menu._id,
+        businessInfoId: businessInfo._id,
         sectionOrders,
       });
     } catch (error) {
@@ -112,25 +111,6 @@ function AdminMenuPage() {
   };
 
 
-  if (!menu && businessInfo) {
-    return (
-      <div className="min-h-screen bg-background">
-        <RestaurantHeader
-          businessName={businessInfo?.businessName || "My Restaurant"}
-          logoUrl={businessInfo?.logoUrl}
-          bannerUrl={businessInfo?.bannerUrl}
-          googleReviewUrl={businessInfo?.googleReviewUrl}
-          tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
-          socialLinks={businessInfo?.socialLinks}
-          actions={<MenuHeaderActions businessName={businessInfo?.businessName} />}
-          primaryColor={businessInfo?.primaryColor}
-        />
-        <div className="container mx-auto p-6">
-          <p className="text-muted-foreground">Loading menu...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

@@ -22,21 +22,14 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"]),
-  menus: defineTable({
-    userId: v.string(), // Clerk user ID
-    name: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_userId", ["userId"]),
   sections: defineTable({
-    menuId: v.id("menus"),
+    businessInfoId: v.id("businessInfo"),
     name: v.string(),
     order: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_menuId", ["menuId"]),
+    .index("by_businessInfoId", ["businessInfoId"]),
   menuItems: defineTable({
     sectionId: v.id("sections"),
     name: v.string(),

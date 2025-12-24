@@ -1,23 +1,23 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const getByMenuId = query({
-  args: { menuId: v.id("menus") },
+export const getByBusinessInfoId = query({
+  args: { businessInfoId: v.id("businessInfo") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       return [];
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(args.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(args.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       return [];
     }
 
     const sections = await ctx.db
       .query("sections")
-      .withIndex("by_menuId", (q) => q.eq("menuId", args.menuId))
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
       .collect();
 
     return sections.sort((a, b) => a.order - b.order);
@@ -26,7 +26,7 @@ export const getByMenuId = query({
 
 export const create = mutation({
   args: {
-    menuId: v.id("menus"),
+    businessInfoId: v.id("businessInfo"),
     name: v.string(),
   },
   handler: async (ctx, args) => {
@@ -35,16 +35,16 @@ export const create = mutation({
       throw new Error("Not authenticated");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(args.menuId);
-    if (!menu || menu.userId !== identity.subject) {
-      throw new Error("Menu not found or unauthorized");
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(args.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Business info not found or unauthorized");
     }
 
     // Get current max order
     const sections = await ctx.db
       .query("sections")
-      .withIndex("by_menuId", (q) => q.eq("menuId", args.menuId))
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
       .collect();
 
     const maxOrder = sections.length > 0 
@@ -52,7 +52,7 @@ export const create = mutation({
       : -1;
 
     const sectionId = await ctx.db.insert("sections", {
-      menuId: args.menuId,
+      businessInfoId: args.businessInfoId,
       name: args.name.trim(),
       order: maxOrder + 1,
       createdAt: Date.now(),
@@ -79,9 +79,9 @@ export const update = mutation({
       throw new Error("Section not found");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(section.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(section.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       throw new Error("Unauthorized");
     }
 
@@ -109,9 +109,9 @@ export const remove = mutation({
       throw new Error("Section not found");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(section.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(section.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       throw new Error("Unauthorized");
     }
 
@@ -132,7 +132,7 @@ export const remove = mutation({
 
 export const reorderSections = mutation({
   args: {
-    menuId: v.id("menus"),
+    businessInfoId: v.id("businessInfo"),
     sectionOrders: v.array(v.object({
       sectionId: v.id("sections"),
       newOrder: v.number(),
@@ -144,16 +144,16 @@ export const reorderSections = mutation({
       throw new Error("Not authenticated");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(args.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(args.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       throw new Error("Unauthorized");
     }
 
     // Update order for each section
     for (const { sectionId, newOrder } of args.sectionOrders) {
       const section = await ctx.db.get(sectionId);
-      if (!section || section.menuId !== args.menuId) {
+      if (!section || section.businessInfoId !== args.businessInfoId) {
         continue;
       }
       await ctx.db.patch(sectionId, {
