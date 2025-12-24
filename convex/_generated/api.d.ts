@@ -10,7 +10,6 @@
 
 import type * as businessInfo from "../businessInfo.js";
 import type * as menuItems from "../menuItems.js";
-import type * as migrate from "../migrate.js";
 import type * as publicMenu from "../publicMenu.js";
 import type * as sections from "../sections.js";
 import type * as userAccess from "../userAccess.js";
@@ -24,7 +23,6 @@ import type {
 declare const fullApi: ApiFromModules<{
   businessInfo: typeof businessInfo;
   menuItems: typeof menuItems;
-  migrate: typeof migrate;
   publicMenu: typeof publicMenu;
   sections: typeof sections;
   userAccess: typeof userAccess;
