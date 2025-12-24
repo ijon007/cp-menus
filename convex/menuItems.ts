@@ -126,9 +126,9 @@ export const update = mutation({
       throw new Error("Section not found");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(section.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(section.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       throw new Error("Unauthorized");
     }
 
@@ -169,9 +169,9 @@ export const remove = mutation({
       throw new Error("Section not found");
     }
 
-    // Verify menu belongs to user
-    const menu = await ctx.db.get(section.menuId);
-    if (!menu || menu.userId !== identity.subject) {
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(section.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
       throw new Error("Unauthorized");
     }
 
