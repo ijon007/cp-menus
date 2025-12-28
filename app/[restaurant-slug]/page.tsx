@@ -12,12 +12,17 @@ import { api } from "@/convex/_generated/api";
 import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
+import Cart from "@/components/public-menu/cart";
+import { CartProvider, useCart } from "@/components/public-menu/cart-context";
 
 /* Utils */
 import { formatSlugToTitle } from "@/lib/utils";
 
 /* Constants */
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
+
+/* Toast */
+import { toast } from "sonner";
 
 interface Item {
   id: string;
@@ -33,12 +38,18 @@ interface Section {
   items: Item[];
 }
 
-function MenuPage() {
+function MenuPageContent() {
   const params = useParams();
   const restaurantSlug = params["restaurant-slug"] as string;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { addItem } = useCart();
 
   const menuData = useQuery(api.publicMenu.getByBusinessSlug, { slug: restaurantSlug });
+
+  const handleAddToCart = (itemId: string, name: string, price: string) => {
+    addItem({ itemId, name, price });
+    toast.success(`${name} added to cart`);
+  };
 
   if (menuData === undefined) {
     return (
@@ -100,6 +111,7 @@ function MenuPage() {
               secondaryColor={menuData.businessInfo?.secondaryColor}
               accentColor={menuData.businessInfo?.accentColor}
               backgroundColor={menuData.businessInfo?.backgroundColor}
+              onAddToCart={handleAddToCart}
             />
           ) : (
             <div className="text-center py-8">
@@ -108,7 +120,22 @@ function MenuPage() {
           )}
         </div>
       </div>
+
+      <Cart
+        businessSlug={restaurantSlug}
+        primaryColor={menuData.businessInfo?.primaryColor}
+        accentColor={menuData.businessInfo?.accentColor}
+        secondaryColor={menuData.businessInfo?.secondaryColor}
+      />
     </div>
+  );
+}
+
+function MenuPage() {
+  return (
+    <CartProvider>
+      <MenuPageContent />
+    </CartProvider>
   );
 }
 

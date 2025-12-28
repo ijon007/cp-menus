@@ -27,6 +27,7 @@ interface TemplateRendererProps {
   secondaryColor?: string | null;
   accentColor?: string | null;
   backgroundColor?: string | null;
+  onAddToCart?: (itemId: string, name: string, price: string) => void;
 }
 
 export default function TemplateRenderer({
@@ -37,6 +38,7 @@ export default function TemplateRenderer({
   secondaryColor,
   accentColor,
   backgroundColor,
+  onAddToCart,
 }: TemplateRendererProps) {
   const selectedTemplate = template || DEFAULT_TEMPLATE;
 
@@ -49,6 +51,7 @@ export default function TemplateRenderer({
           primaryColor={primaryColor}
           secondaryColor={secondaryColor}
           accentColor={accentColor}
+          onAddToCart={onAddToCart}
         />
       );
     case TEMPLATE_IDS.MODERN:
@@ -80,6 +83,7 @@ export default function TemplateRenderer({
           primaryColor={primaryColor}
           secondaryColor={secondaryColor}
           accentColor={accentColor}
+          onAddToCart={onAddToCart}
         />
       );
   }

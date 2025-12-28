@@ -11,7 +11,7 @@ import { titleToSlug } from "@/lib/utils";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
-import { SettingsIcon, LiveStreaming02Icon } from "@hugeicons/core-free-icons";
+import { SettingsIcon, LiveStreaming02Icon, ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 
 interface MenuHeaderActionsProps {
   businessName?: string | null;
@@ -29,6 +29,14 @@ export default function MenuHeaderActions({ businessName }: MenuHeaderActionsPro
 
   return (
     <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
+        onClick={() => router.push("/orders")}
+      >
+        <HugeiconsIcon icon={ShoppingCart01Icon} strokeWidth={2} />
+        <span className="hidden md:block">View Orders</span>
+      </Button>
       {businessName && (
         <Button
           variant="outline"

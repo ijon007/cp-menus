@@ -52,5 +52,18 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_status", ["status"]),
+  orders: defineTable({
+    businessInfoId: v.id("businessInfo"),
+    items: v.array(v.object({
+      itemId: v.id("menuItems"),
+      name: v.string(),
+      price: v.string(),
+      quantity: v.number(),
+    })),
+    totalPrice: v.string(),
+    customerName: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_businessInfoId", ["businessInfoId"]),
 });
 

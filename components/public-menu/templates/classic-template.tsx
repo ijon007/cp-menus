@@ -13,6 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 
 /* Utils */
 import { formatPrice } from "@/utils/formatting";
@@ -20,6 +21,10 @@ import { titleToSlug } from "@/utils/slug";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
+
+/* Icons */
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 
 interface Item {
   id: string | number;
@@ -41,6 +46,7 @@ interface ClassicTemplateProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  onAddToCart?: (itemId: string, name: string, price: string) => void;
 }
 
 export default function ClassicTemplate({
@@ -49,6 +55,7 @@ export default function ClassicTemplate({
   primaryColor,
   secondaryColor,
   accentColor,
+  onAddToCart,
 }: ClassicTemplateProps) {
   return (
     <>
@@ -84,11 +91,26 @@ export default function ClassicTemplate({
                 {item.description && (
                   <p className="text-muted-foreground text-sm line-clamp-2">{item.description}</p>
                 )}
-                <div 
-                  className="font-medium mt-1"
-                  style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
-                >
-                  {formatPrice(item.price)}
+                <div className="flex items-center justify-between mt-1">
+                  <div 
+                    className="font-medium"
+                    style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
+                  >
+                    {formatPrice(item.price)}
+                  </div>
+                  {onAddToCart && (
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={() => onAddToCart(String(item.id), item.name, item.price)}
+                      style={primaryColor ? { 
+                        borderColor: primaryColor,
+                        color: primaryColor 
+                      } : undefined}
+                    >
+                      <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -200,11 +222,26 @@ export default function ClassicTemplate({
                         {firstItem.description && (
                           <p className="text-muted-foreground text-sm line-clamp-2">{firstItem.description}</p>
                         )}
-                        <div 
-                          className="font-medium mt-1"
-                          style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
-                        >
-                          {formatPrice(firstItem.price)}
+                        <div className="flex items-center justify-between mt-1">
+                          <div 
+                            className="font-medium"
+                            style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
+                          >
+                            {formatPrice(firstItem.price)}
+                          </div>
+                          {onAddToCart && (
+                            <Button
+                              variant="outline"
+                              size="icon-sm"
+                              onClick={() => onAddToCart(String(firstItem.id), firstItem.name, firstItem.price)}
+                              style={primaryColor ? { 
+                                borderColor: primaryColor,
+                                color: primaryColor 
+                              } : undefined}
+                            >
+                              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -215,6 +252,7 @@ export default function ClassicTemplate({
                     {restItems.map((item) => (
                       <MenuItemGrid
                         key={item.id}
+                        itemId={String(item.id)}
                         name={item.name}
                         price={item.price}
                         description={item.description}
@@ -222,6 +260,7 @@ export default function ClassicTemplate({
                         primaryColor={primaryColor}
                         secondaryColor={secondaryColor}
                         accentColor={accentColor}
+                        onAddToCart={onAddToCart ? () => onAddToCart(String(item.id), item.name, item.price) : undefined}
                       />
                     ))}
                   </div>
@@ -244,6 +283,7 @@ export default function ClassicTemplate({
               {section.items.map((item) => (
                 <MenuItem
                   key={item.id}
+                  itemId={String(item.id)}
                   name={item.name}
                   price={item.price}
                   description={item.description}
@@ -251,6 +291,7 @@ export default function ClassicTemplate({
                   primaryColor={primaryColor}
                   secondaryColor={secondaryColor}
                   accentColor={accentColor}
+                  onAddToCart={onAddToCart ? () => onAddToCart(String(item.id), item.name, item.price) : undefined}
                 />
               ))}
             </div>

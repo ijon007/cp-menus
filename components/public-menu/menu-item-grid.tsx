@@ -3,13 +3,21 @@
 /* Next */
 import Image from "next/image";
 
+/* Components */
+import { Button } from "@/components/ui/button";
+
 /* Utils */
 import { formatPrice } from "@/utils/formatting";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
 
+/* Icons */
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
+
 interface MenuItemGridProps {
+  itemId: string;
   name: string;
   price: string;
   description?: string;
@@ -17,9 +25,11 @@ interface MenuItemGridProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  onAddToCart?: () => void;
 }
 
 export default function MenuItemGrid({
+  itemId,
   name,
   price,
   description,
@@ -27,6 +37,7 @@ export default function MenuItemGrid({
   primaryColor,
   secondaryColor,
   accentColor,
+  onAddToCart,
 }: MenuItemGridProps) {
 
   return (
@@ -55,11 +66,26 @@ export default function MenuItemGrid({
         {description && (
           <p className="text-muted-foreground text-sm line-clamp-2">{description}</p>
         )}
-        <div 
-          className="font-medium mt-1"
-          style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
-        >
-          {formatPrice(price)}
+        <div className="flex items-center justify-between mt-1">
+          <div 
+            className="font-medium"
+            style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
+          >
+            {formatPrice(price)}
+          </div>
+          {onAddToCart && (
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={onAddToCart}
+              style={primaryColor ? { 
+                borderColor: primaryColor,
+                color: primaryColor 
+              } : undefined}
+            >
+              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
+            </Button>
+          )}
         </div>
       </div>
     </div>
