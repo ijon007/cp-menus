@@ -151,6 +151,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
               {restItems.map((item) => (
                 <MenuItemGrid
                   key={item.id}
+                  itemId={String(item.id)}
                   name={item.name}
                   price={item.price}
                   description={item.description}
@@ -172,6 +173,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
         {items.map((item) => (
           <MenuItem
             key={item.id}
+            itemId={String(item.id)}
             name={item.name}
             price={item.price}
             description={item.description}
