@@ -24,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { formatPrice } from "@/utils/formatting";
+import { formatPrice, formatOrderDateMobile, formatOrderDateDesktop } from "@/utils/formatting";
 import { toast } from "sonner";
 
 /* Constants */
@@ -99,15 +99,6 @@ function OrdersPageContent() {
     );
   }
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleToggleComplete = async (orderId: Id<"orders">, currentStatus: string) => {
     try {
@@ -174,7 +165,7 @@ function OrdersPageContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-3">
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -187,23 +178,49 @@ function OrdersPageContent() {
                   <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
                 </Button>
               </Link>
-              <h2 className="text-2xl font-semibold text-foreground">Orders</h2>
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground">Orders</h2>
             </div>
             {todayOrdersCount > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 md:gap-2">
+                <Tooltip>
+                  <TooltipTrigger render={
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="md:hidden size-7"
+                      onClick={handleCompleteToday}
+                    >
+                      <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
+                    </Button>
+                  } />
+                  <TooltipContent>Complete All</TooltipContent>
+                </Tooltip>
                 <Button 
                   variant="outline" 
                   size="sm"
+                  className="hidden md:flex"
                   onClick={handleCompleteToday}
                 >
                   <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
                   Complete All
                 </Button>
                 <AlertDialog open={clearTodayDialogOpen} onOpenChange={setClearTodayDialogOpen}>
-                  <AlertDialogTrigger render={<Button variant="outline" size="sm" />}>
-                    <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                    Clear Today ({todayOrdersCount})
-                  </AlertDialogTrigger>
+                  <Tooltip>
+                    <TooltipTrigger render={
+                      <AlertDialogTrigger render={
+                        <Button variant="outline" size="icon" className="md:hidden size-7">
+                          <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                        </Button>
+                      } />
+                    } />
+                    <TooltipContent>Clear Today ({todayOrdersCount})</TooltipContent>
+                  </Tooltip>
+                  <AlertDialogTrigger render={
+                    <Button variant="outline" size="sm" className="hidden md:flex">
+                      <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                      Clear Today ({todayOrdersCount})
+                    </Button>
+                  } />
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Clear Today's Orders</AlertDialogTitle>
@@ -223,7 +240,7 @@ function OrdersPageContent() {
               </div>
             )}
           </div>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">
             View all orders placed by your customers
           </p>
         </div>
@@ -256,7 +273,8 @@ function OrdersPageContent() {
                       >
                         <div className="flex items-center gap-2 flex-1 p-0">
                           <CardTitle className="text-foreground text-base">
-                            {formatDate(order.createdAt)}
+                            <span className="md:hidden">{formatOrderDateMobile(order.createdAt)}</span>
+                            <span className="hidden md:inline">{formatOrderDateDesktop(order.createdAt)}</span>
                           </CardTitle>
                           
                           <span className="text-sm text-muted-foreground">
@@ -264,7 +282,7 @@ function OrdersPageContent() {
                           </span>
                           <Badge 
                             variant={"outline"}
-                            className={cn("text-xs", order.status === "completed" ? "text-green-600 bg-green-600/10 border-green-600" : "")}
+                            className={cn("text-xs hidden md:inline-flex", order.status === "completed" ? "text-green-600 bg-green-600/10 border-green-600" : "")}
                           >
                             {order.status === "completed" ? "Completed" : "Pending"}
                           </Badge>
@@ -311,7 +329,7 @@ function OrdersPageContent() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Order</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete this order from {formatDate(order.createdAt)}? This action cannot be undone.
+                                Are you sure you want to delete this order from {formatOrderDateDesktop(order.createdAt)}? This action cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -328,7 +346,7 @@ function OrdersPageContent() {
                           </AlertDialogContent>
                         </AlertDialog>
                         <div className="text-base font-semibold pl-2">
-                          {formatPrice(order.totalPrice)}
+                          {Math.round(Number(order.totalPrice))} Lek
                         </div>
                       </div>
                     </div>
@@ -341,7 +359,7 @@ function OrdersPageContent() {
                             return (
                               <div
                                 key={index}
-                                className="flex items-center justify-between pb-2 py-2 gap-4 border-b border-border/50 last:border-b-0"
+                                className="flex items-center justify-between pb-2 [&_p:not(:last-child)]:pb-0 py-2 gap-4 border-b border-border/50 last:border-b-0"
                               >
                                 <div className="flex flex-row items-center gap-3">
                                   <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
@@ -362,7 +380,7 @@ function OrdersPageContent() {
                                   </div>
                                 </div>
                                 <p className="text-foreground text-sm font-medium text-right">
-                                  {formatPrice(itemTotal.toFixed(2))}
+                                  {Math.round(itemTotal)}
                                 </p>
                               </div>
                             );

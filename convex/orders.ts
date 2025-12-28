@@ -44,7 +44,6 @@ export const createOrder = mutation({
       price: v.string(),
       quantity: v.number(),
     })),
-    customerName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Validate business exists
@@ -78,8 +77,7 @@ export const createOrder = mutation({
     const orderId = await ctx.db.insert("orders", {
       businessInfoId: business._id,
       items: args.items,
-      totalPrice: totalPrice.toFixed(2),
-      customerName: args.customerName,
+      totalPrice: totalPrice.toString(),
       status: "pending",
       createdAt: now,
       updatedAt: now,
