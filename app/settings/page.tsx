@@ -191,7 +191,14 @@ function SettingsPage() {
             </Button>
             <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
           </div>
-          <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+          <div className="flex flex-row gap-2"> 
+            <div className="flex justify-end">
+              <Button onClick={handleSave} disabled={isSaving || !businessName.trim()}>
+                {isSaving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+            <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -244,12 +251,6 @@ function SettingsPage() {
             onBackgroundColorChange={setBackgroundColor}
             disabled={isSaving}
           />
-
-          <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={isSaving || !businessName.trim()}>
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
         </div>
       </div>
     </div>

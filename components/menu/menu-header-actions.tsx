@@ -41,6 +41,7 @@ export default function MenuHeaderActions({ businessName }: MenuHeaderActionsPro
       )}
       <Button
         variant="outline"
+        size="icon"
         className="bg-white/10 border-white/20 text-white hover:text-white hover:bg-white/20"
         onClick={() => router.push("/settings")}
       >

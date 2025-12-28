@@ -59,7 +59,7 @@ export default function AddSectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger render={<Button variant="default" />}>
+      <DialogTrigger render={<Button variant="default" size="sm" className="py-3" />}>
         <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
         <span>Add Section</span>
       </DialogTrigger>
