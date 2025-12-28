@@ -6,7 +6,7 @@ import { v } from "convex/values";
  */
 async function findBusinessBySlug(ctx: any, slug: string) {
   const allBusinesses = await ctx.db.query("businessInfo").collect();
-  return allBusinesses.find((b) => {
+  return allBusinesses.find((b: any) => {
     const businessSlug = b.businessName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -79,6 +79,7 @@ export const createOrder = mutation({
       items: args.items,
       totalPrice: totalPrice.toFixed(2),
       customerName: args.customerName,
+      status: "pending",
       createdAt: Date.now(),
     });
 
@@ -103,7 +104,7 @@ export const getByBusinessInfoId = query({
       throw new Error("Unauthorized");
     }
 
-    // Get all orders for this business
+    // Get all orders for this business (without images for lazy loading)
     const orders = await ctx.db
       .query("orders")
       .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
@@ -111,6 +112,156 @@ export const getByBusinessInfoId = query({
 
     // Sort by creation date (newest first)
     return orders.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+/**
+ * Query to get order details with images (for lazy loading when expanded)
+ */
+export const getOrderDetails = query({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const order = await ctx.db.get(args.orderId);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(order.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    // Enrich order with item images
+    const itemsWithImages = await Promise.all(
+      order.items.map(async (item) => {
+        const menuItem = await ctx.db.get(item.itemId);
+        const imageUrl = menuItem?.imageStorageId
+          ? await ctx.storage.getUrl(menuItem.imageStorageId)
+          : null;
+        return {
+          ...item,
+          imageUrl,
+        };
+      })
+    );
+
+    return {
+      ...order,
+      items: itemsWithImages,
+    };
+  },
+});
+
+/**
+ * Mutation to update order status
+ */
+export const updateStatus = mutation({
+  args: {
+    orderId: v.id("orders"),
+    status: v.string(), // "pending" | "completed"
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const order = await ctx.db.get(args.orderId);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(order.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    if (args.status !== "pending" && args.status !== "completed") {
+      throw new Error("Invalid status");
+    }
+
+    await ctx.db.patch(args.orderId, {
+      status: args.status,
+    });
+
+    return args.orderId;
+  },
+});
+
+/**
+ * Mutation to delete an order
+ */
+export const deleteOrder = mutation({
+  args: {
+    orderId: v.id("orders"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const order = await ctx.db.get(args.orderId);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(order.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.db.delete(args.orderId);
+    return args.orderId;
+  },
+});
+
+/**
+ * Mutation to clear all orders for today
+ */
+export const clearTodayOrders = mutation({
+  args: {
+    businessInfoId: v.id("businessInfo"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(args.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    // Get start of today in milliseconds
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStart = today.getTime();
+
+    // Get all orders for this business created today
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
+      .collect();
+
+    const todayOrders = orders.filter((order) => order.createdAt >= todayStart);
+
+    // Delete all today's orders
+    for (const order of todayOrders) {
+      await ctx.db.delete(order._id);
+    }
+
+    return todayOrders.length;
   },
 });
 

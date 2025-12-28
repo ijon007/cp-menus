@@ -62,8 +62,10 @@ export default defineSchema({
     })),
     totalPrice: v.string(),
     customerName: v.optional(v.string()),
+    status: v.string(), // "pending" | "completed"
     createdAt: v.number(),
   })
-    .index("by_businessInfoId", ["businessInfoId"]),
+    .index("by_businessInfoId", ["businessInfoId"])
+    .index("by_status", ["status"]),
 });
 

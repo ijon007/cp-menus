@@ -26,7 +26,7 @@ import { toast } from "sonner";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ShoppingCart01Icon, PlusSignIcon, MinusSignIcon, Delete01Icon } from "@hugeicons/core-free-icons";
+import { ShoppingCart01Icon, PlusSignIcon, MinusSignIcon, Delete01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 
 interface CartProps {
   businessSlug: string;
@@ -74,28 +74,27 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
       <Button
         variant="default"
         size="icon-lg"
-        className="fixed bottom-6 right-6 z-40 rounded-full shadow-lg"
+        className="fixed bottom-6 right-6 z-40 rounded-full shadow-lg group"
         style={primaryColor ? { backgroundColor: primaryColor } : undefined}
         onClick={() => setIsOpen(true)}
       >
         <HugeiconsIcon icon={ShoppingCart01Icon} strokeWidth={2} />
         {itemCount > 0 && (
           <Badge
-            variant="destructive"
-            className="absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center"
+            className="absolute -top-2 -right-2 min-w-6 h-6 p-0 flex items-center justify-center text-xs font-light bg-destructive text-destructive-foreground group-hover:bg-destructive/80"
           >
-            {itemCount}
+            {itemCount > 99 ? "99+" : itemCount}
           </Badge>
         )}
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Your Cart</SheetTitle>
+          <SheetHeader className="px-2">
+            <SheetTitle className="font-semibold text-base">Your Cart</SheetTitle>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto py-6">
+          <div className="flex-1 overflow-y-auto py-6 px-2">
             {items.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">Your cart is empty</p>
@@ -105,7 +104,7 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
                 {items.map((item) => (
                   <div
                     key={item.itemId}
-                    className="flex items-center gap-4 p-4 border border-border rounded-lg"
+                    className="flex items-center gap-4 p-2 border border-border rounded-lg"
                     style={secondaryColor ? { borderColor: `${secondaryColor}30` } : undefined}
                   >
                     <div className="flex-1 min-w-0">
@@ -128,7 +127,7 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
                       >
                         <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} />
                       </Button>
-                      <span className="w-8 text-center font-medium">{item.quantity}</span>
+                      <span className="w-5 text-center font-medium">{item.quantity}</span>
                       <Button
                         variant="outline"
                         size="icon-sm"
@@ -138,11 +137,11 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => removeItem(item.itemId)}
                         className="text-destructive hover:text-destructive"
                       >
-                        <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} />
+                        <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
                       </Button>
                     </div>
                   </div>
@@ -152,8 +151,8 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
           </div>
 
           {items.length > 0 && (
-            <SheetFooter className="flex-col gap-4">
-              <div className="flex items-center justify-between w-full text-lg font-semibold">
+            <SheetFooter className="flex-col gap-4 px-2">
+              <div className="flex items-center justify-between w-full text-base font-semibold">
                 <span>Total:</span>
                 <span
                   style={(accentColor || secondaryColor) ? { color: (accentColor || secondaryColor) || undefined } : undefined}
@@ -165,6 +164,7 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
                 className="w-full"
                 style={primaryColor ? { backgroundColor: primaryColor } : undefined}
                 onClick={handlePlaceOrder}
+                size="lg"
                 disabled={isPlacingOrder}
               >
                 {isPlacingOrder ? "Placing Order..." : "Place Order"}
