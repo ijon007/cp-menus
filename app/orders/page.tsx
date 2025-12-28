@@ -2,7 +2,7 @@
 
 /* Next */
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -12,6 +12,14 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +40,7 @@ import { DEFAULT_IMAGES } from "@/constants/images";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, Tick02Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, Tick02Icon, Delete02Icon, ArrowDown01Icon, ArrowUp01Icon, CircleIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -48,25 +56,22 @@ function OrdersPageContent() {
   const clearTodayOrders = useMutation(api.orders.clearTodayOrders);
   const completeTodayOrders = useMutation(api.orders.completeTodayOrders);
   
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<Id<"orders">>>(new Set());
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
   const [clearTodayDialogOpen, setClearTodayDialogOpen] = useState(false);
 
-  // Clear expanded order if it no longer exists
+  // Clear expanded orders if they no longer exist
   useEffect(() => {
-    if (expandedOrderId && orders) {
-      const orderExists = orders.some((order) => order._id === expandedOrderId);
-      if (!orderExists) {
-        setExpandedOrderId(null);
+    if (expandedOrderIds.size > 0 && orders) {
+      const orderIds = new Set(orders.map((order) => order._id));
+      const validExpandedIds = new Set(
+        Array.from(expandedOrderIds).filter((id) => orderIds.has(id))
+      );
+      if (validExpandedIds.size !== expandedOrderIds.size) {
+        setExpandedOrderIds(validExpandedIds);
       }
     }
-  }, [orders, expandedOrderId]);
-
-  // Lazy load order details when expanded
-  const orderDetails = useQuery(
-    api.orders.getOrderDetails,
-    expandedOrderId ? { orderId: expandedOrderId as Id<"orders"> } : "skip"
-  );
+  }, [orders, expandedOrderIds]);
 
   // Show loading or waiting for approval message
   if (accessStatus === undefined || businessInfo === undefined || orders === undefined) {
@@ -117,9 +122,11 @@ function OrdersPageContent() {
       toast.success("Order deleted");
       setDeleteDialogOpen(null);
       // Clear expanded order if it was the one deleted
-      if (expandedOrderId === orderId) {
-        setExpandedOrderId(null);
-      }
+      setExpandedOrderIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(orderId);
+        return newSet;
+      });
     } catch (error) {
       toast.error("Failed to delete order");
       console.error(error);
@@ -132,8 +139,20 @@ function OrdersPageContent() {
       const count = await clearTodayOrders({ businessInfoId: businessInfo._id });
       toast.success(`Cleared ${count} order${count !== 1 ? "s" : ""} from today`);
       setClearTodayDialogOpen(false);
-      // Clear expanded order if it was cleared
-      setExpandedOrderId(null);
+      // Clear expanded orders if they were cleared
+      if (orders) {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayStartTime = todayStart.getTime();
+        const todayOrderIds = orders
+          .filter((order) => order.createdAt >= todayStartTime)
+          .map((order) => order._id);
+        setExpandedOrderIds((prev) => {
+          const newSet = new Set(prev);
+          todayOrderIds.forEach((id) => newSet.delete(id));
+          return newSet;
+        });
+      }
     } catch (error) {
       toast.error("Failed to clear today's orders");
       console.error(error);
@@ -240,162 +259,176 @@ function OrdersPageContent() {
               </div>
             )}
           </div>
-          <p className="text-muted-foreground mt-2 text-sm md:text-base">
-            View all orders placed by your customers
-          </p>
         </div>
 
         {orders && orders.length > 0 ? (
-          <div className="space-y-4">
-            {orders.map((order) => {
-              const isExpanded = expandedOrderId === order._id;
-              // Use detailed items if expanded and loaded, otherwise use basic items
-              const orderItems = isExpanded && orderDetails && orderDetails._id === order._id 
-                ? orderDetails.items 
-                : order.items.map(item => ({ ...item, imageUrl: null }));
-              
-              return (
-                <Accordion 
-                  key={order._id} 
-                  className="border-border bg-card rounded-lg"
-                >
-                  <AccordionItem className="data-open:bg-card">
-                    <div className="flex items-center justify-between gap-2 px-2">
-                      <AccordionTrigger 
-                        className="flex items-center justify-between hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer flex-1 px-0"
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border hover:bg-card">
+                  <TableHead className="w-[50px] font-semibold"></TableHead>
+                  <TableHead className="font-semibold">Date</TableHead>
+                  <TableHead className="font-semibold">Items</TableHead>
+                  <TableHead className="hidden md:table-cell font-semibold">Status</TableHead>
+                  <TableHead className="text-right font-semibold">Total</TableHead>
+                  <TableHead className="text-right font-semibold">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => {
+                  const isExpanded = expandedOrderIds.has(order._id);
+                  // Items already have imageUrl loaded upfront from backend
+                  const orderItems = order.items;
+                
+                  return (
+                    <React.Fragment key={order._id}>
+                      <TableRow 
+                        className="cursor-pointer border-none transition-colors select-none"
                         onClick={() => {
-                          if (!isExpanded) {
-                            setExpandedOrderId(order._id);
-                          } else {
-                            setExpandedOrderId(null);
-                          }
+                          setExpandedOrderIds((prev) => {
+                            const newSet = new Set(prev);
+                            if (isExpanded) {
+                              newSet.delete(order._id);
+                            } else {
+                              newSet.add(order._id);
+                            }
+                            return newSet;
+                          });
                         }}
                       >
-                        <div className="flex items-center gap-2 flex-1 p-0">
-                          <CardTitle className="text-foreground text-base">
+                        <TableCell className="py-4">
+                          <HugeiconsIcon 
+                            icon={isExpanded ? ArrowUp01Icon : ArrowDown01Icon}
+                            className="text-muted-foreground size-4"
+                            strokeWidth={2}
+                          />
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <div className="font-medium">
                             <span className="md:hidden">{formatOrderDateMobile(order.createdAt)}</span>
                             <span className="hidden md:inline">{formatOrderDateDesktop(order.createdAt)}</span>
-                          </CardTitle>
-                          
-                          <span className="text-sm text-muted-foreground">
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <span className="text-xs text-muted-foreground">
                             {order.items.length} {order.items.length === 1 ? "item" : "items"}
                           </span>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell py-4">
                           <Badge 
                             variant={"outline"}
-                            className={cn("text-xs hidden md:inline-flex", order.status === "completed" ? "text-green-600 bg-green-600/10 border-green-600" : "")}
+                            className={cn("text-xs", order.status === "completed" ? "text-green-600 bg-green-600/10 border-green-600" : "")}
                           >
                             {order.status === "completed" ? "Completed" : "Pending"}
                           </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <div className="flex items-center gap-1">
-                        <Tooltip>
-                          <TooltipTrigger render={
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleToggleComplete(order._id, order.status)}
-                              className="size-7"
-                            >
-                              <HugeiconsIcon 
-                                icon={Tick02Icon} 
-                                strokeWidth={2}
-                                className={order.status === "completed" ? "text-green-600" : "text-muted-foreground"}
-                              />
-                            </Button>
-                          } />
-                          <TooltipContent>
-                            {order.status === "completed" ? "Mark as pending" : "Mark as completed"}
-                          </TooltipContent>
-                        </Tooltip>
-                        <AlertDialog open={deleteDialogOpen === order._id} onOpenChange={(open) => setDeleteDialogOpen(open ? order._id : null)}>
-                          <Tooltip>
-                            <AlertDialogTrigger render={
+                        </TableCell>
+                        <TableCell className="text-right font-medium py-4">
+                          {Math.round(Number(order.totalPrice))} Lek
+                        </TableCell>
+                        <TableCell className="text-right py-4">
+                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                            <Tooltip>
                               <TooltipTrigger render={
                                 <Button
-                                  variant="destructive"
+                                  variant="ghost"
                                   size="icon"
-                                  className="size-7 text-destructive hover:text-destructive"
+                                  onClick={() => handleToggleComplete(order._id, order.status)}
+                                  className="size-7"
                                 >
-                                  <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                                  <HugeiconsIcon 
+                                    icon={order.status === "completed" ? CircleIcon : Tick02Icon} 
+                                    strokeWidth={2}
+                                    className={order.status === "completed" ? "text-destructive" : "text-muted-foreground"}
+                                  />
                                 </Button>
                               } />
-                            } />
-                            <TooltipContent>
-                              Delete order
-                            </TooltipContent>
-                          </Tooltip>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Order</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete this order from {formatOrderDateDesktop(order.createdAt)}? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
-                              <AlertDialogAction 
-                                onClick={() => handleDelete(order._id)} 
-                                variant="destructive"
-                                size="sm"
-                              >
-                                <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                                <span>Delete</span>
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <div className="text-base font-semibold pl-2">
-                          {Math.round(Number(order.totalPrice))} Lek
-                        </div>
-                      </div>
-                    </div>
-                    <AccordionContent className="[&_p:not(:last-child)]:mb-0 px-2">
-                      {orderItems && orderItems.length > 0 ? (
-                        <div className="space-y-2">
-                          {orderItems.map((item, index) => {
-                            const itemPrice = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
-                            const itemTotal = itemPrice * item.quantity;
-                            return (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between pb-2 [&_p:not(:last-child)]:pb-0 py-2 gap-4 border-b border-border/50 last:border-b-0"
-                              >
-                                <div className="flex flex-row items-center gap-3">
-                                  <div className="w-16 h-16 shrink-0 relative overflow-hidden rounded-md">
-                                    <Image
-                                      src={(item as any).imageUrl || DEFAULT_IMAGES.MENU_ITEM}
-                                      alt={item.name}
-                                      fill
-                                      className="object-cover"
-                                    />
-                                  </div>
-                                  <div className="flex flex-col gap-0.5">
-                                    <p className="text-foreground font-medium text-sm">
-                                      {item.name}
-                                    </p>
-                                    <p className="text-foreground font-medium">
-                                      {item.quantity} × {formatPrice(item.price)}
-                                    </p>
-                                  </div>
-                                </div>
-                                <p className="text-foreground text-sm font-medium text-right">
-                                  {Math.round(itemTotal)}
-                                </p>
+                              <TooltipContent>
+                                {order.status === "completed" ? "Mark as pending" : "Mark as completed"}
+                              </TooltipContent>
+                            </Tooltip>
+                            <AlertDialog open={deleteDialogOpen === order._id} onOpenChange={(open) => setDeleteDialogOpen(open ? order._id : null)}>
+                              <Tooltip>
+                                <AlertDialogTrigger render={
+                                  <TooltipTrigger render={
+                                    <Button
+                                      variant="destructive"
+                                      size="icon"
+                                      className="size-7 text-destructive hover:text-destructive"
+                                    >
+                                      <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                                    </Button>
+                                  } />
+                                } />
+                                <TooltipContent>
+                                  Delete order
+                                </TooltipContent>
+                              </Tooltip>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Order</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this order from {formatOrderDateDesktop(order.createdAt)}? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDelete(order._id)} 
+                                    variant="destructive"
+                                    size="sm"
+                                  >
+                                    <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                                    <span>Delete</span>
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {isExpanded && (
+                        <TableRow className="border-b border-border">
+                          <TableCell colSpan={6} className="p-4 hover:bg-card">
+                            {orderItems && orderItems.length > 0 ? (
+                              <div className="space-y-2">
+                                {orderItems.map((item, index) => {
+                                  const itemPrice = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
+                                  const itemTotal = itemPrice * item.quantity;
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex items-center justify-between gap-4 border-b pb-2 last:pb-0 border-border/50 last:border-b-0"
+                                    >
+                                      <div className="flex flex-row items-center gap-3">
+                                        <div className="flex flex-col gap-0.5">
+                                          <p className="text-foreground font-medium text-sm">
+                                            {item.name}
+                                          </p>
+                                          <p className="text-foreground font-medium text-xs">
+                                            {item.quantity} × {formatPrice(item.price)}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <p className="text-foreground text-xs font-medium text-right">
+                                        {Math.round(itemTotal)} Lek
+                                      </p>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-muted-foreground text-sm">
-                          No items in this order.
-                        </p>
+                            ) : (
+                              <p className="text-muted-foreground text-sm">
+                                No items in this order.
+                              </p>
+                            )}
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              );
-            })}
+                    </React.Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         ) : (
           <div className="border border-border bg-card rounded-lg p-12">

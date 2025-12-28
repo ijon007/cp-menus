@@ -104,14 +104,36 @@ export const getByBusinessInfoId = query({
       throw new Error("Unauthorized");
     }
 
-    // Get all orders for this business (without images for lazy loading)
+    // Get all orders for this business
     const orders = await ctx.db
       .query("orders")
       .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
       .collect();
 
+    // Enrich orders with item images upfront (no lazy loading)
+    const ordersWithImages = await Promise.all(
+      orders.map(async (order) => {
+        const itemsWithImages = await Promise.all(
+          order.items.map(async (item) => {
+            const menuItem = await ctx.db.get(item.itemId);
+            const imageUrl = menuItem?.imageStorageId
+              ? await ctx.storage.getUrl(menuItem.imageStorageId)
+              : null;
+            return {
+              ...item,
+              imageUrl,
+            };
+          })
+        );
+        return {
+          ...order,
+          items: itemsWithImages,
+        };
+      })
+    );
+
     // Sort by creation date (newest first)
-    return orders.sort((a, b) => b.createdAt - a.createdAt);
+    return ordersWithImages.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 
