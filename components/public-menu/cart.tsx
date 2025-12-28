@@ -89,8 +89,8 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader className="px-2">
+        <SheetContent side="right" className="w-full py-0 px-0">
+          <SheetHeader className="px-4 py-4 flex-row items-center justify-between">
             <SheetTitle className="font-semibold text-base">Your Cart</SheetTitle>
           </SheetHeader>
 
@@ -151,7 +151,7 @@ export default function Cart({ businessSlug, primaryColor, accentColor, secondar
           </div>
 
           {items.length > 0 && (
-            <SheetFooter className="flex-col gap-4 px-2">
+            <SheetFooter className="flex-col gap-4 px-2 py-3">
               <div className="flex items-center justify-between w-full text-base font-semibold">
                 <span>Total:</span>
                 <span

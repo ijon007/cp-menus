@@ -74,13 +74,15 @@ export const createOrder = mutation({
     }, 0);
 
     // Create order
+    const now = Date.now();
     const orderId = await ctx.db.insert("orders", {
       businessInfoId: business._id,
       items: args.items,
       totalPrice: totalPrice.toFixed(2),
       customerName: args.customerName,
       status: "pending",
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     return orderId;
@@ -187,8 +189,10 @@ export const updateStatus = mutation({
       throw new Error("Invalid status");
     }
 
+    const now = Date.now();
     await ctx.db.patch(args.orderId, {
       status: args.status,
+      updatedAt: now,
     });
 
     return args.orderId;
@@ -259,6 +263,51 @@ export const clearTodayOrders = mutation({
     // Delete all today's orders
     for (const order of todayOrders) {
       await ctx.db.delete(order._id);
+    }
+
+    return todayOrders.length;
+  },
+});
+
+/**
+ * Mutation to mark all today's orders as completed
+ */
+export const completeTodayOrders = mutation({
+  args: {
+    businessInfoId: v.id("businessInfo"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Verify businessInfo belongs to user
+    const businessInfo = await ctx.db.get(args.businessInfoId);
+    if (!businessInfo || businessInfo.userId !== identity.subject) {
+      throw new Error("Unauthorized");
+    }
+
+    // Get start of today in milliseconds
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStart = today.getTime();
+
+    // Get all orders for this business created today
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", args.businessInfoId))
+      .collect();
+
+    const todayOrders = orders.filter((order) => order.createdAt >= todayStart && order.status !== "completed");
+
+    // Mark all today's pending orders as completed
+    const now = Date.now();
+    for (const order of todayOrders) {
+      await ctx.db.patch(order._id, {
+        status: "completed",
+        updatedAt: now,
+      });
     }
 
     return todayOrders.length;

@@ -2,7 +2,7 @@
 
 /* Next */
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -46,10 +46,21 @@ function OrdersPageContent() {
   const updateStatus = useMutation(api.orders.updateStatus);
   const deleteOrder = useMutation(api.orders.deleteOrder);
   const clearTodayOrders = useMutation(api.orders.clearTodayOrders);
+  const completeTodayOrders = useMutation(api.orders.completeTodayOrders);
   
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
   const [clearTodayDialogOpen, setClearTodayDialogOpen] = useState(false);
+
+  // Clear expanded order if it no longer exists
+  useEffect(() => {
+    if (expandedOrderId && orders) {
+      const orderExists = orders.some((order) => order._id === expandedOrderId);
+      if (!orderExists) {
+        setExpandedOrderId(null);
+      }
+    }
+  }, [orders, expandedOrderId]);
 
   // Lazy load order details when expanded
   const orderDetails = useQuery(
@@ -114,6 +125,10 @@ function OrdersPageContent() {
       await deleteOrder({ orderId });
       toast.success("Order deleted");
       setDeleteDialogOpen(null);
+      // Clear expanded order if it was the one deleted
+      if (expandedOrderId === orderId) {
+        setExpandedOrderId(null);
+      }
     } catch (error) {
       toast.error("Failed to delete order");
       console.error(error);
@@ -126,8 +141,21 @@ function OrdersPageContent() {
       const count = await clearTodayOrders({ businessInfoId: businessInfo._id });
       toast.success(`Cleared ${count} order${count !== 1 ? "s" : ""} from today`);
       setClearTodayDialogOpen(false);
+      // Clear expanded order if it was cleared
+      setExpandedOrderId(null);
     } catch (error) {
       toast.error("Failed to clear today's orders");
+      console.error(error);
+    }
+  };
+
+  const handleCompleteToday = async () => {
+    if (!businessInfo) return;
+    try {
+      const count = await completeTodayOrders({ businessInfoId: businessInfo._id });
+      toast.success(`Marked ${count} order${count !== 1 ? "s" : ""} as completed`);
+    } catch (error) {
+      toast.error("Failed to complete today's orders");
       console.error(error);
     }
   };
@@ -162,11 +190,20 @@ function OrdersPageContent() {
               <h2 className="text-2xl font-semibold text-foreground">Orders</h2>
             </div>
             {todayOrdersCount > 0 && (
-              <AlertDialog open={clearTodayDialogOpen} onOpenChange={setClearTodayDialogOpen}>
-                <AlertDialogTrigger render={<Button variant="outline" size="sm" />}>
-                  <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                  Clear Today ({todayOrdersCount})
-                </AlertDialogTrigger>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCompleteToday}
+                >
+                  <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
+                  Complete All
+                </Button>
+                <AlertDialog open={clearTodayDialogOpen} onOpenChange={setClearTodayDialogOpen}>
+                  <AlertDialogTrigger render={<Button variant="outline" size="sm" />}>
+                    <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                    Clear Today ({todayOrdersCount})
+                  </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Clear Today's Orders</AlertDialogTitle>
@@ -183,6 +220,7 @@ function OrdersPageContent() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              </div>
             )}
           </div>
           <p className="text-muted-foreground mt-2">
@@ -230,68 +268,65 @@ function OrdersPageContent() {
                           >
                             {order.status === "completed" ? "Completed" : "Pending"}
                           </Badge>
-                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Tooltip>
-                              <TooltipTrigger render={
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleToggleComplete(order._id, order.status)}
-                                  className="size-7"
-                                >
-                                  <HugeiconsIcon 
-                                    icon={Tick02Icon} 
-                                    strokeWidth={2}
-                                    className={order.status === "completed" ? "text-green-600" : "text-muted-foreground"}
-                                  />
-                                </Button>
-                              } />
-                              <TooltipContent>
-                                {order.status === "completed" ? "Mark as pending" : "Mark as completed"}
-                              </TooltipContent>
-                            </Tooltip>
-                            <AlertDialog open={deleteDialogOpen === order._id} onOpenChange={(open) => setDeleteDialogOpen(open ? order._id : null)}>
-                              <Tooltip>
-                                <AlertDialogTrigger render={
-                                  <TooltipTrigger render={
-                                    <Button
-                                      variant="destructive"
-                                      size="icon"
-                                      className="size-7 text-destructive hover:text-destructive"
-                                    >
-                                      <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                                    </Button>
-                                  } />
-                                } />
-                                <TooltipContent>
-                                  Delete order
-                                </TooltipContent>
-                              </Tooltip>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Order</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this order from {formatDate(order.createdAt)}? This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => handleDelete(order._id)} 
-                                  variant="destructive"
-                                  size="sm"
-                                >
-                                  <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                                  <span>Delete</span>
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          </div>
                         </div>
                       </AccordionTrigger>
-                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        
+                      <div className="flex items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger render={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleComplete(order._id, order.status)}
+                              className="size-7"
+                            >
+                              <HugeiconsIcon 
+                                icon={Tick02Icon} 
+                                strokeWidth={2}
+                                className={order.status === "completed" ? "text-green-600" : "text-muted-foreground"}
+                              />
+                            </Button>
+                          } />
+                          <TooltipContent>
+                            {order.status === "completed" ? "Mark as pending" : "Mark as completed"}
+                          </TooltipContent>
+                        </Tooltip>
+                        <AlertDialog open={deleteDialogOpen === order._id} onOpenChange={(open) => setDeleteDialogOpen(open ? order._id : null)}>
+                          <Tooltip>
+                            <AlertDialogTrigger render={
+                              <TooltipTrigger render={
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="size-7 text-destructive hover:text-destructive"
+                                >
+                                  <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                                </Button>
+                              } />
+                            } />
+                            <TooltipContent>
+                              Delete order
+                            </TooltipContent>
+                          </Tooltip>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Order</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this order from {formatDate(order.createdAt)}? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDelete(order._id)} 
+                                variant="destructive"
+                                size="sm"
+                              >
+                                <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+                                <span>Delete</span>
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                         <div className="text-base font-semibold pl-2">
                           {formatPrice(order.totalPrice)}
                         </div>
