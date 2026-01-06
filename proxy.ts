@@ -11,26 +11,9 @@ const isAdminRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // #region agent log
-  const url = req.url;
-  const pathname = new URL(url).pathname;
-  const searchParams = new URL(url).searchParams.toString();
-  const isOAuthCallback = pathname.includes('oauth') || pathname.includes('callback') || searchParams.includes('code=') || searchParams.includes('state=');
-  const authResult = await auth();
-  const { userId, sessionId } = authResult;
-  fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'proxy.ts:14',message:'Middleware request',data:{url,pathname,searchParams,isOAuthCallback,userId:userId||null,sessionId:sessionId||null,isProtected:isProtectedRoute(req),isAdmin:isAdminRoute(req)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
   // Protect regular routes
   if (isProtectedRoute(req)) {
-    // #region agent log
-    const beforeProtect = {userId:authResult.userId||null,sessionId:authResult.sessionId||null};
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'proxy.ts:28',message:'Before auth.protect()',data:{pathname,...beforeProtect},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     await auth.protect();
-    // #region agent log
-    const afterAuth = await auth();
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'proxy.ts:34',message:'After auth.protect()',data:{pathname,userId:afterAuth.userId||null,sessionId:afterAuth.sessionId||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
   }
 
   // Protect admin route
