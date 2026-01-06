@@ -43,9 +43,9 @@ function SignInContent() {
     // #region agent log
     const currentUrl = typeof window !== 'undefined' ? window.location.href : 'server';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const redirectUrl = typeof window !== 'undefined' ? `${origin}/menu` : "/menu";
-    const redirectUrlComplete = typeof window !== 'undefined' ? `${origin}/menu` : "/menu";
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:41',message:'OAuth sign-in initiated',data:{currentUrl,origin,redirectUrl,redirectUrlComplete,strategy:'oauth_google'},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
+    const redirectUrl = typeof window !== 'undefined' ? `${origin}/` : "/";
+    const redirectUrlComplete = typeof window !== 'undefined' ? `${origin}/` : "/";
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:41',message:'OAuth sign-in initiated',data:{currentUrl,origin,redirectUrl,redirectUrlComplete,strategy:'oauth_google',usingAfterSignInUrl:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
     signIn?.authenticateWithRedirect({
       strategy: "oauth_google",
@@ -53,7 +53,7 @@ function SignInContent() {
       redirectUrlComplete: redirectUrlComplete,
     });
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:52',message:'authenticateWithRedirect called',data:{signInExists:!!signIn,redirectUrl,redirectUrlComplete},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:50',message:'authenticateWithRedirect called',data:{signInExists:!!signIn,redirectUrl,redirectUrlComplete},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
   };
 
