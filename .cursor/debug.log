@@ -1,0 +1,2 @@
+{"location":"app/page.tsx:17","message":"HomePage rendered","data":{"currentUrl":"http://localhost:3000/","hasOAuthParams":false,"code":null,"state":null,"error":null},"timestamp":1767720708201,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"app/page.tsx:17","message":"HomePage rendered","data":{"currentUrl":"http://localhost:3000/","hasOAuthParams":false,"code":null,"state":null,"error":null},"timestamp":1767720708202,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}

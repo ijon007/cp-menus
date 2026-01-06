@@ -15,6 +15,14 @@ import { FLOATING_ICONS } from "@/constants/home-page";
 import { DEFAULT_IMAGES } from "@/constants/images";
 
 export default function HomePage() {
+  // #region agent log
+  if (typeof window !== 'undefined') {
+    const currentUrl = window.location.href;
+    const searchParams = new URLSearchParams(window.location.search);
+    const hasOAuthParams = searchParams.has('code') || searchParams.has('state') || searchParams.has('error');
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  }
+  // #endregion
   return (
     <>
       <SignedOut>
@@ -31,11 +39,20 @@ function SignInContent() {
   const { signIn } = useSignIn();
 
   const handleGoogleSignIn = () => {
+    // #region agent log
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'server';
+    const redirectUrl = "/menu";
+    const redirectUrlComplete = "/menu";
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:33',message:'OAuth sign-in initiated',data:{currentUrl,redirectUrl,redirectUrlComplete,strategy:'oauth_google'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     signIn?.authenticateWithRedirect({
       strategy: "oauth_google",
-      redirectUrl: "/menu",
-      redirectUrlComplete: "/menu",
+      redirectUrl: redirectUrl,
+      redirectUrlComplete: redirectUrlComplete,
     });
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:42',message:'authenticateWithRedirect called',data:{signInExists:!!signIn},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
   };
 
 
@@ -113,6 +130,10 @@ function SignInContent() {
 function RedirectToMenus() {
   const router = useRouter();
   useEffect(() => {
+    // #region agent log
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'server';
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:115',message:'RedirectToMenus - user signed in, redirecting to /menu',data:{currentUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     router.push("/menu");
   }, [router]);
   return null;
