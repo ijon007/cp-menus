@@ -2,11 +2,11 @@
 
 /* Next */
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 /* Components */
-import { SignedIn, SignedOut, useSignIn, useAuth } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useSignIn, useAuth, AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -24,6 +24,26 @@ export default function HomePage() {
     fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null,isSignedIn,userId:userId||null,sessionId:sessionId||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
   }
   // #endregion
+  
+  // Check if this is an OAuth callback - use useEffect to avoid hydration issues
+  const [isOAuthCallback, setIsOAuthCallback] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const hasCallbackParams = searchParams.has('code') || searchParams.has('state');
+      setIsOAuthCallback(hasCallbackParams);
+      if (hasCallbackParams) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:32',message:'OAuth callback detected, rendering AuthenticateWithRedirectCallback',data:{code:searchParams.get('code')||null,state:searchParams.get('state')||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+      }
+    }
+  }, []);
+  
+  if (isOAuthCallback) {
+    return <AuthenticateWithRedirectCallback />;
+  }
+  
   return (
     <>
       <SignedOut>
