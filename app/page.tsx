@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 /* Components */
-import { SignedIn, SignedOut, useSignIn, useAuth, AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useAuth, SignInButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -21,28 +21,9 @@ export default function HomePage() {
     const currentUrl = window.location.href;
     const searchParams = new URLSearchParams(window.location.search);
     const hasOAuthParams = searchParams.has('code') || searchParams.has('state') || searchParams.has('error');
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null,isSignedIn,userId:userId||null,sessionId:sessionId||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null,isSignedIn,userId:userId||null,sessionId:sessionId||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'F'})}).catch(()=>{});
   }
   // #endregion
-  
-  // Check if this is an OAuth callback - use useEffect to avoid hydration issues
-  const [isOAuthCallback, setIsOAuthCallback] = useState(false);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const searchParams = new URLSearchParams(window.location.search);
-      const hasCallbackParams = searchParams.has('code') || searchParams.has('state');
-      setIsOAuthCallback(hasCallbackParams);
-      if (hasCallbackParams) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:32',message:'OAuth callback detected, rendering AuthenticateWithRedirectCallback',data:{code:searchParams.get('code')||null,state:searchParams.get('state')||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
-      }
-    }
-  }, []);
-  
-  if (isOAuthCallback) {
-    return <AuthenticateWithRedirectCallback />;
-  }
   
   return (
     <>
@@ -57,26 +38,11 @@ export default function HomePage() {
 }
 
 function SignInContent() {
-  const { signIn } = useSignIn();
-
-  const handleGoogleSignIn = () => {
-    // #region agent log
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'server';
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const redirectUrl = typeof window !== 'undefined' ? `${origin}/` : "/";
-    const redirectUrlComplete = typeof window !== 'undefined' ? `${origin}/` : "/";
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:41',message:'OAuth sign-in initiated',data:{currentUrl,origin,redirectUrl,redirectUrlComplete,strategy:'oauth_google',usingAfterSignInUrl:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-    signIn?.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: redirectUrl,
-      redirectUrlComplete: redirectUrlComplete,
-    });
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:50',message:'authenticateWithRedirect called',data:{signInExists:!!signIn,redirectUrl,redirectUrlComplete},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-  };
-
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:39',message:'SignInContent rendered with SignInButton',data:{usingClerkSignInButton:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'F'})}).catch(()=>{});
+  }, []);
+  // #endregion
 
   return (
     <div className="flex min-h-screen items-center justify-center overflow-hidden relative bg-linear-to-br from-background via-background to-muted/30">
@@ -137,12 +103,11 @@ function SignInContent() {
         </div>
 
         <div className="animate-slide-up-delayed">
-          <Button
-            onClick={handleGoogleSignIn}
-            className="px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-          >
-            Get Started
-          </Button>
+          <SignInButton mode="modal">
+            <Button className="px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+              Get Started
+            </Button>
+          </SignInButton>
         </div>
       </div>
     </div>
