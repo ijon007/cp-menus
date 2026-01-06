@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 
 /* Components */
-import { SignedIn, SignedOut, useSignIn } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useSignIn, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -15,12 +15,13 @@ import { FLOATING_ICONS } from "@/constants/home-page";
 import { DEFAULT_IMAGES } from "@/constants/images";
 
 export default function HomePage() {
+  const { isSignedIn, userId, sessionId } = useAuth();
   // #region agent log
   if (typeof window !== 'undefined') {
     const currentUrl = window.location.href;
     const searchParams = new URLSearchParams(window.location.search);
     const hasOAuthParams = searchParams.has('code') || searchParams.has('state') || searchParams.has('error');
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:17',message:'HomePage rendered',data:{currentUrl,hasOAuthParams,code:searchParams.get('code')||null,state:searchParams.get('state')||null,error:searchParams.get('error')||null,isSignedIn,userId:userId||null,sessionId:sessionId||null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
   }
   // #endregion
   return (
@@ -41,9 +42,10 @@ function SignInContent() {
   const handleGoogleSignIn = () => {
     // #region agent log
     const currentUrl = typeof window !== 'undefined' ? window.location.href : 'server';
-    const redirectUrl = "/menu";
-    const redirectUrlComplete = "/menu";
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:33',message:'OAuth sign-in initiated',data:{currentUrl,redirectUrl,redirectUrlComplete,strategy:'oauth_google'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const redirectUrl = typeof window !== 'undefined' ? `${origin}/menu` : "/menu";
+    const redirectUrlComplete = typeof window !== 'undefined' ? `${origin}/menu` : "/menu";
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:41',message:'OAuth sign-in initiated',data:{currentUrl,origin,redirectUrl,redirectUrlComplete,strategy:'oauth_google'},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
     signIn?.authenticateWithRedirect({
       strategy: "oauth_google",
@@ -51,7 +53,7 @@ function SignInContent() {
       redirectUrlComplete: redirectUrlComplete,
     });
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:42',message:'authenticateWithRedirect called',data:{signInExists:!!signIn},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/d7e793c3-bec0-41ea-bfdb-7378ab0af892',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:52',message:'authenticateWithRedirect called',data:{signInExists:!!signIn,redirectUrl,redirectUrlComplete},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
   };
 
