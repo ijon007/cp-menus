@@ -14,16 +14,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useUser } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeftIcon } from "@hugeicons/core-free-icons";
+import { ArrowLeftIcon, Logout05Icon } from "@hugeicons/core-free-icons";
 
 function AdminDashboard() {
   const router = useRouter();
   const { user } = useUser();
+  const { signOut } = useClerk();
   const isAdmin = useQuery(api.userAccess.isAdmin);
   // Only fetch users if user is confirmed as admin
   const allUsers = useQuery(
@@ -84,6 +96,11 @@ function AdminDashboard() {
     } finally {
       setProcessingUserId(null);
     }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    router.push("/");
   };
 
   const formatDate = (timestamp: number) => {
@@ -161,6 +178,24 @@ function AdminDashboard() {
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <AlertDialog>
+            <AlertDialogTrigger render={<Button variant="destructive" size="sm" />}>
+              <HugeiconsIcon icon={Logout05Icon} strokeWidth={2} />
+              Log out
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to log out? You will need to sign in again to access the admin dashboard.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+                <AlertDialogAction size="sm" variant="destructive" onClick={handleLogout}>Log out</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         <div className="grid gap-6">
