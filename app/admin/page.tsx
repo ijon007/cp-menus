@@ -212,7 +212,7 @@ function AdminDashboard() {
                   <TabsTrigger value="pending">
                     Pending
                     {pendingUsers.length > 0 && (
-                      <Badge variant="secondary" className="ml-2 size-5 p-0">
+                      <Badge variant="secondary" className="size-4 p-0">
                         {pendingUsers.length}
                       </Badge>
                     )}
@@ -220,7 +220,7 @@ function AdminDashboard() {
                   <TabsTrigger value="approved">
                     Approved
                     {approvedUsers.length > 0 && (
-                      <Badge variant="default" className="ml-2 size-5 p-0">
+                      <Badge variant="default" className="size-4 p-0">
                         {approvedUsers.length}
                       </Badge>
                     )}
@@ -228,7 +228,7 @@ function AdminDashboard() {
                   <TabsTrigger value="rejected">
                     Rejected
                     {rejectedUsers.length > 0 && (
-                      <Badge variant="destructive" className="ml-2 size-5 p-0">
+                      <Badge variant="destructive" className="size-4 p-0">
                         {rejectedUsers.length}
                       </Badge>
                     )}
