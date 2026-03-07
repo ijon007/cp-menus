@@ -26,7 +26,7 @@ interface BasicInformationSectionProps {
   bannerPreviewUrl: string | null;
   setBannerPreviewUrl: (url: string | null) => void;
   bannerInputRef?: RefObject<HTMLInputElement | null>;
-  isSaving: boolean;
+  isUploading: boolean;
 }
 
 export default function BasicInformationSection({
@@ -44,7 +44,7 @@ export default function BasicInformationSection({
   bannerPreviewUrl,
   setBannerPreviewUrl,
   bannerInputRef,
-  isSaving,
+  isUploading,
 }: BasicInformationSectionProps) {
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -92,7 +92,7 @@ export default function BasicInformationSection({
           selectedFile={selectedLogo}
           preview={logoPreviewUrl}
           onFileChange={handleLogoChange}
-          disabled={isSaving}
+          disabled={isUploading}
           aspectRatio="square"
           ref={logoInputRef}
         />
@@ -104,7 +104,7 @@ export default function BasicInformationSection({
           selectedFile={selectedBanner}
           preview={bannerPreviewUrl}
           onFileChange={handleBannerChange}
-          disabled={isSaving}
+          disabled={isUploading}
           aspectRatio="wide"
           ref={bannerInputRef}
         />

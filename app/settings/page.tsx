@@ -1,7 +1,7 @@
 "use client";
 
 /* Next */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 /* Convex */
@@ -22,6 +22,8 @@ import SocialMediaLinksSection from "@/components/settings/social-media-links-se
 import TemplateSelectionSection from "@/components/settings/template-selection-section";
 import ColorPickerSection from "@/components/settings/color-picker-section";
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
+
+const DEBOUNCE_MS = 400;
 
 function SettingsPage() {
   const router = useRouter();
@@ -45,11 +47,30 @@ function SettingsPage() {
   const [secondaryColor, setSecondaryColor] = useState<string | null>(null);
   const [accentColor, setAccentColor] = useState<string | null>(null);
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const formStateRef = useRef({
+    businessName: "",
+    googleReviewUrl: "",
+    tripAdvisorReviewUrl: "",
+    instagramUrl: "",
+    facebookUrl: "",
+  });
+
+  // Keep ref in sync for debounced persist
+  useEffect(() => {
+    formStateRef.current = {
+      businessName,
+      googleReviewUrl,
+      tripAdvisorReviewUrl,
+      instagramUrl,
+      facebookUrl,
+    };
+  }, [businessName, googleReviewUrl, tripAdvisorReviewUrl, instagramUrl, facebookUrl]);
 
   // Initialize form with current business info
   useEffect(() => {
@@ -73,18 +94,122 @@ function SettingsPage() {
     }
   }, [businessInfo]);
 
+  const persistUpdate = useCallback(
+    async (payload: Parameters<typeof updateBusinessInfo>[0]) => {
+      try {
+        await updateBusinessInfo(payload);
+        toast.success("Settings updated");
+      } catch (error) {
+        console.error("Error updating business info:", error);
+        toast.error("Failed to update settings. Please try again.");
+      }
+    },
+    [updateBusinessInfo]
+  );
 
-  const handleSave = async () => {
-    if (!businessInfo) return;
+  const flushDebouncedForm = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    const s = formStateRef.current;
+    persistUpdate({
+      businessName: s.businessName.trim() || undefined,
+      googleReviewUrl: s.googleReviewUrl.trim() || undefined,
+      tripAdvisorReviewUrl: s.tripAdvisorReviewUrl.trim() || undefined,
+      socialLinks: {
+        instagram: s.instagramUrl.trim() || undefined,
+        facebook: s.facebookUrl.trim() || undefined,
+      },
+    });
+  }, [persistUpdate]);
 
-    setIsSaving(true);
+  const schedulePersistForm = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(flushDebouncedForm, DEBOUNCE_MS);
+  }, [flushDebouncedForm]);
 
-    try {
-      let logoStorageId: Id<"_storage"> | undefined;
-      let bannerStorageId: Id<"_storage"> | undefined;
+  // Debounced persist for text/social fields
+  const onBusinessNameChange = useCallback(
+    (v: string) => {
+      setBusinessName(v);
+      schedulePersistForm();
+    },
+    [schedulePersistForm]
+  );
+  const onGoogleReviewUrlChange = useCallback(
+    (v: string) => {
+      setGoogleReviewUrl(v);
+      schedulePersistForm();
+    },
+    [schedulePersistForm]
+  );
+  const onTripAdvisorReviewUrlChange = useCallback(
+    (v: string) => {
+      setTripAdvisorReviewUrl(v);
+      schedulePersistForm();
+    },
+    [schedulePersistForm]
+  );
+  const onInstagramUrlChange = useCallback(
+    (v: string) => {
+      setInstagramUrl(v);
+      schedulePersistForm();
+    },
+    [schedulePersistForm]
+  );
+  const onFacebookUrlChange = useCallback(
+    (v: string) => {
+      setFacebookUrl(v);
+      schedulePersistForm();
+    },
+    [schedulePersistForm]
+  );
 
-      // Upload logo if selected
-      if (selectedLogo) {
+  // Immediate persist for template and colors
+  const onMenuTemplateChange = useCallback(
+    (v: string) => {
+      setMenuTemplate(v);
+      persistUpdate({ menuTemplate: v || undefined });
+    },
+    [persistUpdate]
+  );
+  const onPrimaryColorChange = useCallback(
+    (v: string | null) => {
+      setPrimaryColor(v);
+      persistUpdate({ primaryColor: v ?? "" });
+    },
+    [persistUpdate]
+  );
+  const onSecondaryColorChange = useCallback(
+    (v: string | null) => {
+      setSecondaryColor(v);
+      persistUpdate({ secondaryColor: v ?? "" });
+    },
+    [persistUpdate]
+  );
+  const onAccentColorChange = useCallback(
+    (v: string | null) => {
+      setAccentColor(v);
+      persistUpdate({ accentColor: v ?? "" });
+    },
+    [persistUpdate]
+  );
+  const onBackgroundColorChange = useCallback(
+    (v: string | null) => {
+      setBackgroundColor(v);
+      persistUpdate({ backgroundColor: v ?? "" });
+    },
+    [persistUpdate]
+  );
+
+  // Upload logo when file selected and persist
+  useEffect(() => {
+    if (!selectedLogo || !businessInfo) return;
+    let cancelled = false;
+    setIsUploading(true);
+    (async () => {
+      try {
         const postUrl = await generateUploadUrl();
         const result = await fetch(postUrl, {
           method: "POST",
@@ -92,14 +217,33 @@ function SettingsPage() {
           body: selectedLogo,
         });
         const { storageId } = await result.json();
-        logoStorageId = storageId as Id<"_storage">;
-      } else if (businessInfo.logoStorageId) {
-        // Keep existing logo if no new logo selected
-        logoStorageId = businessInfo.logoStorageId;
+        if (cancelled) return;
+        await updateBusinessInfo({ logoStorageId: storageId as Id<"_storage"> });
+        setSelectedLogo(null);
+        setLogoPreviewUrl(null);
+        if (logoInputRef.current) logoInputRef.current.value = "";
+        toast.success("Logo updated");
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error uploading logo:", error);
+          toast.error("Failed to upload logo. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setIsUploading(false);
       }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedLogo, businessInfo, generateUploadUrl, updateBusinessInfo]);
 
-      // Upload banner if selected
-      if (selectedBanner) {
+  // Upload banner when file selected and persist
+  useEffect(() => {
+    if (!selectedBanner || !businessInfo) return;
+    let cancelled = false;
+    setIsUploading(true);
+    (async () => {
+      try {
         const postUrl = await generateUploadUrl();
         const result = await fetch(postUrl, {
           method: "POST",
@@ -107,46 +251,25 @@ function SettingsPage() {
           body: selectedBanner,
         });
         const { storageId } = await result.json();
-        bannerStorageId = storageId as Id<"_storage">;
-      } else if (businessInfo.bannerStorageId) {
-        // Keep existing banner if no new banner selected
-        bannerStorageId = businessInfo.bannerStorageId;
+        if (cancelled) return;
+        await updateBusinessInfo({ bannerStorageId: storageId as Id<"_storage"> });
+        setSelectedBanner(null);
+        setBannerPreviewUrl(null);
+        if (bannerInputRef.current) bannerInputRef.current.value = "";
+        toast.success("Banner updated");
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error uploading banner:", error);
+          toast.error("Failed to upload banner. Please try again.");
+        }
+      } finally {
+        if (!cancelled) setIsUploading(false);
       }
-
-      // Update business info
-      await updateBusinessInfo({
-        businessName: businessName.trim() || undefined,
-        logoStorageId: logoStorageId,
-        bannerStorageId: bannerStorageId,
-        googleReviewUrl: googleReviewUrl.trim() || undefined,
-        tripAdvisorReviewUrl: tripAdvisorReviewUrl.trim() || undefined,
-        socialLinks: {
-          instagram: instagramUrl.trim() || undefined,
-          facebook: facebookUrl.trim() || undefined,
-        },
-        menuTemplate: menuTemplate || undefined,
-        primaryColor: primaryColor ?? "",
-        secondaryColor: secondaryColor ?? "",
-        accentColor: accentColor ?? "",
-        backgroundColor: backgroundColor ?? "",
-      });
-
-      toast.success("Settings saved successfully!");
-      setSelectedLogo(null);
-      setSelectedBanner(null);
-      if (logoInputRef.current) {
-        logoInputRef.current.value = "";
-      }
-      if (bannerInputRef.current) {
-        bannerInputRef.current.value = "";
-      }
-    } catch (error) {
-      console.error("Error saving business info:", error);
-      toast.error("Failed to save settings. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedBanner, businessInfo, generateUploadUrl, updateBusinessInfo]);
 
   if (businessInfo === undefined) {
     return (
@@ -191,20 +314,13 @@ function SettingsPage() {
             </Button>
             <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
           </div>
-          <div className="flex flex-row gap-2"> 
-            <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={isSaving || !businessName.trim()}>
-                {isSaving ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-            <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
-          </div>
+          <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
         </div>
 
         <div className="space-y-8">
           <BasicInformationSection
             businessName={businessName}
-            onBusinessNameChange={setBusinessName}
+            onBusinessNameChange={onBusinessNameChange}
             logoPreview={logoPreview}
             selectedLogo={selectedLogo}
             setSelectedLogo={setSelectedLogo}
@@ -217,27 +333,26 @@ function SettingsPage() {
             bannerPreviewUrl={bannerPreviewUrl}
             setBannerPreviewUrl={setBannerPreviewUrl}
             bannerInputRef={bannerInputRef}
-            isSaving={isSaving}
+            isUploading={isUploading}
           />
 
           <ReviewLinksSection
             googleReviewUrl={googleReviewUrl}
-            onGoogleReviewUrlChange={setGoogleReviewUrl}
+            onGoogleReviewUrlChange={onGoogleReviewUrlChange}
             tripAdvisorReviewUrl={tripAdvisorReviewUrl}
-            onTripAdvisorReviewUrlChange={setTripAdvisorReviewUrl}
+            onTripAdvisorReviewUrlChange={onTripAdvisorReviewUrlChange}
           />
 
           <SocialMediaLinksSection
             instagramUrl={instagramUrl}
-            onInstagramUrlChange={setInstagramUrl}
+            onInstagramUrlChange={onInstagramUrlChange}
             facebookUrl={facebookUrl}
-            onFacebookUrlChange={setFacebookUrl}
+            onFacebookUrlChange={onFacebookUrlChange}
           />
 
           <TemplateSelectionSection
             selectedTemplate={menuTemplate}
-            onTemplateChange={setMenuTemplate}
-            disabled={isSaving}
+            onTemplateChange={onMenuTemplateChange}
           />
 
           <ColorPickerSection
@@ -245,11 +360,10 @@ function SettingsPage() {
             secondaryColor={secondaryColor}
             accentColor={accentColor}
             backgroundColor={backgroundColor}
-            onPrimaryColorChange={setPrimaryColor}
-            onSecondaryColorChange={setSecondaryColor}
-            onAccentColorChange={setAccentColor}
-            onBackgroundColorChange={setBackgroundColor}
-            disabled={isSaving}
+            onPrimaryColorChange={onPrimaryColorChange}
+            onSecondaryColorChange={onSecondaryColorChange}
+            onAccentColorChange={onAccentColorChange}
+            onBackgroundColorChange={onBackgroundColorChange}
           />
         </div>
       </div>
