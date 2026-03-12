@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 
 /* Utils */
 import { getSectionIcon } from "@/lib/sections";
+import { useLanguage } from "@/app/menu/useLanguage";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -42,6 +43,7 @@ export default function CategorySelector({
   backgroundColor,
 }: CategorySelectorProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(selectedCategory);
+  const { translate } = useLanguage();
 
   const handleCategoryClick = (category: string) => {
     // Toggle: if already selected, unselect it
@@ -80,6 +82,7 @@ export default function CategorySelector({
       {categories.map((category) => {
         const Icon = getSectionIcon(category);
         const isActive = activeCategory === category;
+        const label = translate(category);
         return (
           <Button
             key={category}
@@ -119,7 +122,7 @@ export default function CategorySelector({
             }}
           >
             <HugeiconsIcon icon={Icon} strokeWidth={2} className="w-4 h-4 mr-2" />
-            {category}
+            {label}
           </Button>
         );
       })}

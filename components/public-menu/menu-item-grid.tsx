@@ -8,6 +8,7 @@ import { formatPrice } from "@/utils/formatting";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
+import { useLanguage } from "@/app/menu/useLanguage";
 
 interface MenuItemGridProps {
   name: string;
@@ -28,7 +29,9 @@ export default function MenuItemGrid({
   secondaryColor,
   accentColor,
 }: MenuItemGridProps) {
-
+  const { translate } = useLanguage();
+  const translatedName = translate(name);
+  const translatedDescription = description ? translate(description) : undefined;
   return (
     <div 
       className="flex flex-col gap-2 overflow-hidden rounded-sm"
@@ -40,7 +43,7 @@ export default function MenuItemGrid({
       >
         <Image
           src={image}
-          alt={name}
+          alt={translatedName}
           fill
           className="object-cover"
         />
@@ -50,10 +53,10 @@ export default function MenuItemGrid({
           className="font-semibold"
           style={primaryColor ? { color: primaryColor } : undefined}
         >
-          {name}
+          {translatedName}
         </h4>
-        {description && (
-          <p className="text-muted-foreground text-sm line-clamp-2">{description}</p>
+        {translatedDescription && (
+          <p className="text-muted-foreground text-sm line-clamp-2">{translatedDescription}</p>
         )}
         <div 
           className="font-medium mt-1"
