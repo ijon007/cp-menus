@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useLanguage } from "./useLanguage";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import MenuHeaderActions from "@/components/menu/menu-header-actions";
@@ -42,7 +42,7 @@ interface LiveMenuClientProps {
   sections:
     | {
         _id: Id<"sections">;
-        title: string;
+        name: string;
         order: number;
       }[]
     | null
@@ -53,6 +53,7 @@ interface LiveMenuClientProps {
 export default function LiveMenuClient({ businessInfo, sections }: LiveMenuClientProps) {
   const { language, setLanguage, t, hydrated } = useLanguage();
   const reorderSections = useMutation(api.sections.reorderSections);
+  const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -112,9 +113,15 @@ export default function LiveMenuClient({ businessInfo, sections }: LiveMenuClien
               onChange={(e) => setLanguage(e.target.value as typeof language)}
               className="rounded-md border border-input bg-background px-2 py-1 text-sm text-foreground"
             >
-              <option value="en">{t.languageEnglish}</option>
-              <option value="sq">{t.languageAlbanian}</option>
-              <option value="it">{t.languageItalian}</option>
+              <option value="en" aria-label={t.languageEnglish}>
+                <span aria-hidden="true" className="fi fi-gb fis" />
+              </option>
+              <option value="sq" aria-label={t.languageAlbanian}>
+                <span aria-hidden="true" className="fi fi-al fis" />
+              </option>
+              <option value="it" aria-label={t.languageItalian}>
+                <span aria-hidden="true" className="fi fi-it fis" />
+              </option>
             </select>
             <MenuHeaderActions businessName={businessInfo?.businessName} />
           </div>
@@ -123,7 +130,7 @@ export default function LiveMenuClient({ businessInfo, sections }: LiveMenuClien
       <div className="container mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-foreground">{t.menuTitle}</h2>
-          <AddSectionDialog />
+          <AddSectionDialog open={sectionDialogOpen} onOpenChange={setSectionDialogOpen} />
         </div>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionsDragEnd}>

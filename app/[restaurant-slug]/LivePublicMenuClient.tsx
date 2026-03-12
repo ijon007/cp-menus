@@ -77,15 +77,42 @@ function LivePublicMenuContent({
         actions={
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background/80 px-3 py-1 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex items-center justify-center rounded-md border border-white/20 bg-white/10 px-3 py-1 text-base font-medium text-white hover:bg-white/20"
               aria-label={t.languageSelectorLabel}
             >
-              {language === "en" ? t.languageEnglish : language === "sq" ? t.languageAlbanian : t.languageItalian}
+              <span
+                aria-hidden="true"
+                className={`fi fis ${
+                  language === "en"
+                    ? "fi-gb"
+                    : language === "sq"
+                    ? "fi-al"
+                    : "fi-it"
+                }`}
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-32">
-              <DropdownMenuItem onClick={() => setLanguage("en")}>{t.languageEnglish}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage("sq")}>{t.languageAlbanian}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage("it")}>{t.languageItalian}</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLanguage("en")}
+                aria-label={t.languageEnglish}
+              >
+                <span aria-hidden="true" className="fi fi-gb fis mr-2" />
+                <span>{t.languageEnglish}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLanguage("sq")}
+                aria-label={t.languageAlbanian}
+              >
+                <span aria-hidden="true" className="fi fi-al fis mr-2" />
+                <span>{t.languageAlbanian}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLanguage("it")}
+                aria-label={t.languageItalian}
+              >
+                <span aria-hidden="true" className="fi fi-it fis mr-2" />
+                <span>{t.languageItalian}</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         }
