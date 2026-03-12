@@ -16,41 +16,35 @@ const LANGUAGE_CODES: Record<Language, string> = {
   it: "it",
 };
 
-async function translateWithGoogle(
-  text: string,
-  sourceLang: Language,
-  targetLang: Language
-): Promise<string> {
-  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
-  if (!apiKey) {
-    throw new Error("GOOGLE_TRANSLATE_API_KEY is not configured");
-  }
+async function translateWithGoogle(text: string, targetLang: Language): Promise<string> {
+  const target = LANGUAGE_CODES[targetLang];
 
-  const params = new URLSearchParams({
-    q: text,
-    target: LANGUAGE_CODES[targetLang],
-    source: LANGUAGE_CODES[sourceLang],
-    key: apiKey,
-  });
+  // Use the public Google Translate HTTP endpoint which doesn't require
+  // a Cloud Translation API key. This avoids the 401
+  // "API keys are not supported by this API" error that occurs when
+  // using the Cloud Translation Advanced endpoint with an API key.
+  const url = new URL("https://translate.googleapis.com/translate_a/single");
+  url.searchParams.set("client", "gtx");
+  url.searchParams.set("sl", "auto");
+  url.searchParams.set("tl", target);
+  url.searchParams.set("dt", "t");
+  url.searchParams.set("q", text);
 
-  const res = await fetch(
-    `https://translation.googleapis.com/language/translate/v2?${params.toString()}`,
-    { method: "POST" }
-  );
+  const res = await fetch(url.toString(), { method: "GET" });
 
   if (!res.ok) {
     const body = await res.text();
     throw new Error(
-      `Google Translation API error ${res.status}: ${body.slice(0, 200)}`
+      `Google Translate HTTP error ${res.status}: ${body.slice(0, 200)}`
     );
   }
 
-  const json = (await res.json()) as {
-    data?: { translations?: Array<{ translatedText?: string }> };
-  };
-  const translated =
-    json.data?.translations?.[0]?.translatedText ?? text;
-  return translated;
+  // Response format is a nested array, we only need the first segment.
+  const json = (await res.json()) as any;
+  const translated = json?.[0]?.[0]?.[0];
+  return typeof translated === "string" && translated.trim()
+    ? translated
+    : text;
 }
 
 export const translateToAllLanguages = action({
@@ -64,27 +58,22 @@ export const translateToAllLanguages = action({
     it: v.string(),
   }),
   handler: async (ctx, args): Promise<{ en: string; sq: string; it: string }> => {
-    const { text, sourceLanguage } = args;
+    const { text } = args;
     const trimmed = text.trim();
     if (!trimmed) {
       return { en: "", sq: "", it: "" };
     }
 
-    const targets: Language[] = ["en", "sq", "it"].filter(
-      (l) => l !== sourceLanguage
-    ) as Language[];
-
     const result: { en: string; sq: string; it: string } = {
-      en: sourceLanguage === "en" ? trimmed : "",
-      sq: sourceLanguage === "sq" ? trimmed : "",
-      it: sourceLanguage === "it" ? trimmed : "",
+      en: "",
+      sq: "",
+      it: "",
     };
 
-    for (const target of targets) {
+    for (const target of ["en", "sq", "it"] as Language[]) {
       try {
         const translated = await translateWithGoogle(
           trimmed,
-          sourceLanguage,
           target
         );
         result[target] = translated;

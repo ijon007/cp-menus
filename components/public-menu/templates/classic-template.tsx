@@ -141,7 +141,7 @@ export default function ClassicTemplate({
                       className="text-2xl font-semibold text-foreground"
                       style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
                     >
-                      {section.name}
+                      {sectionName}
                     </h2>
                     <div className="flex items-center gap-2">
                       <CarouselPrevious 

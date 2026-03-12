@@ -5,7 +5,9 @@ export const listSectionsWithoutTranslations = internalQuery({
   args: {},
   handler: async (ctx) => {
     const sections = await ctx.db.query("sections").collect();
-    return sections.filter((s) => !s.nameTranslations);
+    // Backfill all sections, even if they already have translations.
+    // This lets us fix previously generated, low-quality or duplicate translations.
+    return sections;
   },
 });
 
@@ -13,7 +15,8 @@ export const listItemsWithoutTranslations = internalQuery({
   args: {},
   handler: async (ctx) => {
     const items = await ctx.db.query("menuItems").collect();
-    return items.filter((i) => !i.nameTranslations);
+    // Backfill all items, even if they already have translations.
+    return items;
   },
 });
 
