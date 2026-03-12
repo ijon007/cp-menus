@@ -28,7 +28,6 @@ export default function MenuItemGrid({
   secondaryColor,
   accentColor,
 }: MenuItemGridProps) {
-
   return (
     <div 
       className="flex flex-col gap-2 overflow-hidden rounded-sm"

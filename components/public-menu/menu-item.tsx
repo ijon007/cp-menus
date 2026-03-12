@@ -28,7 +28,6 @@ export default function MenuItem({
   secondaryColor,
   accentColor,
 }: MenuItemProps) {
-
   return (
     <div 
       className="flex items-start justify-between py-3 gap-4 border-b border-border/50 last:border-b-0"

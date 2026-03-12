@@ -20,6 +20,7 @@ import { titleToSlug } from "@/utils/slug";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
+import { useLanguage } from "@/app/menu/useLanguage";
 
 interface Item {
   id: string | number;
@@ -44,6 +45,8 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
   if (items.length === 0) return null;
 
   const sectionId = titleToId(title);
+  const { translate } = useLanguage();
+  const translatedTitle = translate(title);
 
   // First section: horizontal scrollable list (mobile) / carousel (desktop)
   if (sectionIndex === 0) {
@@ -73,7 +76,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
       <div id={sectionId} className="mb-8 scroll-mt-20">
         {/* Mobile: touch scrollable, no scrollbar */}
         <div className="md:hidden">
-          <h2 className="text-2xl font-bold text-foreground mb-4">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">{translatedTitle}</h2>
           <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
             <div className="flex gap-4 pb-4">
               {items.map((item) => (
@@ -95,7 +98,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
             className="w-full"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+              <h2 className="text-2xl font-bold text-foreground">{translatedTitle}</h2>
               <div className="flex items-center gap-2">
                 <CarouselPrevious className="relative top-0 left-0 right-0 translate-x-0 translate-y-0" />
                 <CarouselNext className="relative top-0 left-0 right-0 translate-x-0 translate-y-0" />
@@ -119,7 +122,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
     const [firstItem, ...restItems] = items;
     return (
       <div id={sectionId} className="mb-8 scroll-mt-20">
-        <h2 className="text-2xl font-bold text-foreground mb-4">{title}</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">{translatedTitle}</h2>
         <div className="space-y-4">
           {/* First item full-width */}
           {firstItem && (
@@ -167,7 +170,7 @@ export default function MenuSection({ title, items, sectionIndex }: MenuSectionP
   // All other sections: regular list
   return (
     <div id={sectionId} className="mb-8 scroll-mt-20">
-      <h2 className="text-2xl font-bold text-foreground mb-4">{title}</h2>
+      <h2 className="text-2xl font-bold text-foreground mb-4">{translatedTitle}</h2>
       <div className="space-y-0">
         {items.map((item) => (
           <MenuItem

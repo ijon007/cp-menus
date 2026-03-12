@@ -4,18 +4,22 @@ import ClassicTemplate from "./templates/classic-template";
 import ModernTemplate from "./templates/modern-template";
 import MinimalTemplate from "./templates/minimal-template";
 import { DEFAULT_TEMPLATE, TEMPLATE_IDS } from "@/constants/templates";
+import type { TranslationMap } from "@/app/menu/i18n";
 
 interface Item {
   id: string | number;
   name: string;
+  nameTranslations?: TranslationMap;
   price: string;
   description?: string;
+  descriptionTranslations?: TranslationMap;
   image?: string | null;
 }
 
 interface Section {
   id: string;
   name: string;
+  nameTranslations?: TranslationMap;
   items: Item[];
 }
 

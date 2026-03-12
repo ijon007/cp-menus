@@ -6,6 +6,8 @@ import Image from "next/image";
 /* Utils */
 import { formatPrice } from "@/utils/formatting";
 import { titleToSlug } from "@/utils/slug";
+import { useLanguage } from "@/app/menu/useLanguage";
+import { getTranslated } from "@/app/menu/i18n";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
@@ -13,14 +15,17 @@ import { DEFAULT_IMAGES } from "@/constants/images";
 interface Item {
   id: string | number;
   name: string;
+  nameTranslations?: { en: string; sq: string; it: string };
   price: string;
   description?: string;
+  descriptionTranslations?: { en: string; sq: string; it: string };
   image?: string | null;
 }
 
 interface Section {
   id: string;
   name: string;
+  nameTranslations?: { en: string; sq: string; it: string };
   items: Item[];
 }
 
@@ -41,12 +46,15 @@ export default function MinimalTemplate({
   accentColor,
   backgroundColor,
 }: MinimalTemplateProps) {
+  const { language } = useLanguage();
+
   return (
     <>
       {sections.map((section) => {
         if (section.items.length === 0) return null;
 
         const sectionId = titleToSlug(section.name);
+        const sectionName = getTranslated(section.nameTranslations, language, section.name);
 
         const titleColor = primaryColor || undefined;
         const dividerColor = secondaryColor || primaryColor || undefined;
@@ -64,7 +72,7 @@ export default function MinimalTemplate({
                 className="text-2xl font-light text-foreground tracking-wider uppercase"
                 style={titleColor ? { color: titleColor } : undefined}
               >
-                {section.name}
+                {sectionName}
               </h2>
               <div
                 className="w-16 h-px mx-auto mt-1 bg-primary"
@@ -73,7 +81,10 @@ export default function MinimalTemplate({
             </div>
             
             <div className="max-w-2xl mx-auto space-y-8">
-              {section.items.map((item) => (
+              {section.items.map((item) => {
+                const itemName = getTranslated(item.nameTranslations, language, item.name);
+                const itemDesc = getTranslated(item.descriptionTranslations, language, item.description ?? "");
+                return (
                 <div
                   key={item.id}
                   className="flex flex-row gap-6 items-center"
@@ -84,7 +95,7 @@ export default function MinimalTemplate({
                   >
                     <Image
                       src={item.image || DEFAULT_IMAGES.MENU_ITEM}
-                      alt={item.name}
+                      alt={itemName}
                       fill
                       className="object-cover"
                     />
@@ -96,7 +107,7 @@ export default function MinimalTemplate({
                         className="text-lg font-normal tracking-wide"
                         style={primaryColor ? { color: primaryColor } : undefined}
                       >
-                        {item.name}
+                        {itemName}
                       </h3>
                       <div 
                         className="font-light text-lg"
@@ -105,14 +116,15 @@ export default function MinimalTemplate({
                         {formatPrice(item.price)}
                       </div>
                     </div>
-                    {item.description && (
+                    {itemDesc && (
                       <p className="text-muted-foreground text-sm font-light leading-relaxed max-w-xl">
-                        {item.description}
+                        {itemDesc}
                       </p>
                     )}
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
         );

@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 /* Convex */
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -41,6 +41,7 @@ export default function SectionWithItems({
   const updateItem = useMutation(api.menuItems.update);
   const deleteItem = useMutation(api.menuItems.remove);
   const reorderItems = useMutation(api.menuItems.reorderItems);
+  const translateToAllLanguages = useAction(api.translate.translateToAllLanguages);
   const [isLoading, setIsLoading] = useState(false);
 
   const sensors = useSensors(
@@ -52,14 +53,22 @@ export default function SectionWithItems({
 
   const handleAddItem = async (sectionId: Id<"sections">, itemName: string, itemPrice: string, itemDescription: string, storageId?: string) => {
     if (!itemName.trim()) return;
-    
+
     setIsLoading(true);
     try {
+      const [nameTranslations, descriptionTranslations] = await Promise.all([
+        translateToAllLanguages({ text: itemName.trim(), sourceLanguage: "en" }),
+        itemDescription.trim()
+          ? translateToAllLanguages({ text: itemDescription.trim(), sourceLanguage: "en" })
+          : Promise.resolve(null),
+      ]);
       await createItem({
         sectionId,
         name: itemName.trim(),
+        nameTranslations,
         price: itemPrice.trim(),
         description: itemDescription.trim() || undefined,
+        descriptionTranslations: descriptionTranslations ?? undefined,
         storageId: storageId as Id<"_storage"> | undefined,
       });
     } catch (error) {
@@ -72,11 +81,19 @@ export default function SectionWithItems({
   const handleEditItem = async (itemId: Id<"menuItems">, newName: string, newPrice: string, newDescription: string, storageId?: string) => {
     setIsLoading(true);
     try {
+      const [nameTranslations, descriptionTranslations] = await Promise.all([
+        translateToAllLanguages({ text: newName.trim(), sourceLanguage: "en" }),
+        newDescription.trim()
+          ? translateToAllLanguages({ text: newDescription.trim(), sourceLanguage: "en" })
+          : Promise.resolve(null),
+      ]);
       await updateItem({
         itemId,
         name: newName.trim(),
+        nameTranslations,
         price: newPrice.trim(),
         description: newDescription.trim() || undefined,
+        descriptionTranslations: descriptionTranslations ?? undefined,
         storageId: storageId as Id<"_storage"> | undefined,
       });
     } catch (error) {

@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 /* Convex */
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -24,6 +24,7 @@ export default function SortableSection({
 }: SortableSectionProps) {
   const updateSection = useMutation(api.sections.update);
   const deleteSection = useMutation(api.sections.remove);
+  const translateToAllLanguages = useAction(api.translate.translateToAllLanguages);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -43,10 +44,18 @@ export default function SortableSection({
 
   const handleEdit = async (sectionId: Id<"sections">, newName: string) => {
     if (!newName.trim()) return;
-    
+
     setIsLoading(true);
     try {
-      await updateSection({ sectionId, name: newName.trim() });
+      const nameTranslations = await translateToAllLanguages({
+        text: newName.trim(),
+        sourceLanguage: "en",
+      });
+      await updateSection({
+        sectionId,
+        name: newName.trim(),
+        nameTranslations,
+      });
     } catch (error) {
       console.error("Error updating section:", error);
     } finally {

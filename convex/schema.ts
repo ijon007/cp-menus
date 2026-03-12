@@ -1,6 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+const translationMapValidator = v.object({
+  en: v.string(),
+  sq: v.string(),
+  it: v.string(),
+});
+
 export default defineSchema({
   businessInfo: defineTable({
     userId: v.string(), // Clerk user ID
@@ -25,6 +31,7 @@ export default defineSchema({
   sections: defineTable({
     businessInfoId: v.id("businessInfo"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
     order: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -33,8 +40,10 @@ export default defineSchema({
   menuItems: defineTable({
     sectionId: v.id("sections"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
     price: v.string(),
     description: v.optional(v.string()),
+    descriptionTranslations: v.optional(translationMapValidator),
     imageStorageId: v.optional(v.id("_storage")),
     order: v.optional(v.number()),
     createdAt: v.number(),

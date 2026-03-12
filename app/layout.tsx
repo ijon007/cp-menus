@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Poppins } from "next/font/google";
+import "flag-icons/css/flag-icons.min.css";
 import "./globals.css";
 import Providers from "@/providers/providers";
 import { DEFAULT_IMAGES } from "@/constants/images";
