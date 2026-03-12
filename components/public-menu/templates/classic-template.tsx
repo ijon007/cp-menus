@@ -6,6 +6,8 @@ import Image from "next/image";
 /* Components */
 import MenuItem from "../menu-item";
 import MenuItemGrid from "../menu-item-grid";
+import { useLanguage } from "@/app/menu/useLanguage";
+import { getTranslated } from "@/app/menu/i18n";
 import {
   Carousel,
   CarouselContent,
@@ -24,14 +26,17 @@ import { DEFAULT_IMAGES } from "@/constants/images";
 interface Item {
   id: string | number;
   name: string;
+  nameTranslations?: { en: string; sq: string; it: string };
   price: string;
   description?: string;
+  descriptionTranslations?: { en: string; sq: string; it: string };
   image?: string | null;
 }
 
 interface Section {
   id: string;
   name: string;
+  nameTranslations?: { en: string; sq: string; it: string };
   items: Item[];
 }
 
@@ -50,15 +55,21 @@ export default function ClassicTemplate({
   secondaryColor,
   accentColor,
 }: ClassicTemplateProps) {
+  const { language } = useLanguage();
+
   return (
     <>
       {sections.map((section, index) => {
         if (section.items.length === 0) return null;
 
         const sectionId = titleToSlug(section.name);
+        const sectionName = getTranslated(section.nameTranslations, language, section.name);
 
         if (index === 0) {
-          const ItemCard = ({ item }: { item: Item }) => (
+          const ItemCard = ({ item }: { item: Item }) => {
+            const itemName = getTranslated(item.nameTranslations, language, item.name);
+            const itemDesc = getTranslated(item.descriptionTranslations, language, item.description ?? "");
+            return (
             <div 
               className="flex flex-col gap-2 overflow-hidden rounded-sm"
               style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
@@ -69,7 +80,7 @@ export default function ClassicTemplate({
               >
                 <Image
                   src={item.image || DEFAULT_IMAGES.MENU_ITEM}
-                  alt={item.name}
+                  alt={itemName}
                   fill
                   className="object-cover"
                 />
@@ -79,10 +90,10 @@ export default function ClassicTemplate({
                   className="font-semibold"
                   style={primaryColor ? { color: primaryColor } : undefined}
                 >
-                  {item.name}
+                  {itemName}
                 </h4>
-                {item.description && (
-                  <p className="text-muted-foreground text-sm line-clamp-2">{item.description}</p>
+                {itemDesc && (
+                  <p className="text-muted-foreground text-sm line-clamp-2">{itemDesc}</p>
                 )}
                 <div 
                   className="font-medium mt-1"
@@ -93,6 +104,7 @@ export default function ClassicTemplate({
               </div>
             </div>
           );
+          };
 
           const sectionTitleColor = primaryColor || undefined;
           
@@ -103,7 +115,7 @@ export default function ClassicTemplate({
                   className="text-2xl font-bold text-foreground mb-4"
                   style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
                 >
-                  {section.name}
+                  {sectionName}
                 </h2>
                 <div className="overflow-x-auto -mx-4 px-4 scrollbar-hide">
                   <div className="flex gap-4 pb-4">
@@ -170,7 +182,7 @@ export default function ClassicTemplate({
                 className="text-2xl font-semibold text-foreground mb-4"
                 style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
               >
-                {section.name}
+                {sectionName}
               </h2>
               <div className="space-y-4">
                 {firstItem && (
@@ -185,7 +197,7 @@ export default function ClassicTemplate({
                       >
                         <Image
                           src={firstItem.image || DEFAULT_IMAGES.MENU_ITEM}
-                          alt={firstItem.name}
+                          alt={getTranslated(firstItem.nameTranslations, language, firstItem.name)}
                           fill
                           className="object-cover"
                         />
@@ -195,10 +207,10 @@ export default function ClassicTemplate({
                           className="font-semibold"
                           style={primaryColor ? { color: primaryColor } : undefined}
                         >
-                          {firstItem.name}
+                          {getTranslated(firstItem.nameTranslations, language, firstItem.name)}
                         </h4>
-                        {firstItem.description && (
-                          <p className="text-muted-foreground text-sm line-clamp-2">{firstItem.description}</p>
+                        {getTranslated(firstItem.descriptionTranslations, language, firstItem.description ?? "") && (
+                          <p className="text-muted-foreground text-sm line-clamp-2">{getTranslated(firstItem.descriptionTranslations, language, firstItem.description ?? "")}</p>
                         )}
                         <div 
                           className="font-medium mt-1"
@@ -215,9 +227,9 @@ export default function ClassicTemplate({
                     {restItems.map((item) => (
                       <MenuItemGrid
                         key={item.id}
-                        name={item.name}
+                        name={getTranslated(item.nameTranslations, language, item.name)}
                         price={item.price}
-                        description={item.description}
+                        description={getTranslated(item.descriptionTranslations, language, item.description ?? "") || undefined}
                         image={item.image || DEFAULT_IMAGES.MENU_ITEM}
                         primaryColor={primaryColor}
                         secondaryColor={secondaryColor}
@@ -238,15 +250,15 @@ export default function ClassicTemplate({
               className="text-2xl font-semibold text-foreground mb-4"
               style={sectionTitleColor ? { color: sectionTitleColor } : undefined}
             >
-              {section.name}
+              {sectionName}
             </h2>
             <div className="space-y-0">
               {section.items.map((item) => (
                 <MenuItem
                   key={item.id}
-                  name={item.name}
+                  name={getTranslated(item.nameTranslations, language, item.name)}
                   price={item.price}
-                  description={item.description}
+                  description={getTranslated(item.descriptionTranslations, language, item.description ?? "") || undefined}
                   image={item.image || DEFAULT_IMAGES.MENU_ITEM}
                   primaryColor={primaryColor}
                   secondaryColor={secondaryColor}

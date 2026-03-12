@@ -7,17 +7,22 @@ import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+import type { TranslationMap } from "@/app/menu/i18n";
+
 interface Item {
   id: string;
   name: string;
+  nameTranslations?: TranslationMap;
   price: string;
   description?: string;
+  descriptionTranslations?: TranslationMap;
   image?: string | null;
 }
 
 interface Section {
   id: string;
   name: string;
+  nameTranslations?: TranslationMap;
   items: Item[];
 }
 
@@ -48,8 +53,6 @@ function LivePublicMenuContent({
 }: LivePublicMenuClientProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { language, setLanguage, t } = useLanguage();
-
-  const categories = sections.map((section) => section.name);
 
   return (
     <div
@@ -95,9 +98,9 @@ function LivePublicMenuContent({
       />
 
       <div className="container mx-auto px-4 py-6 md:py-8">
-        {categories.length > 0 && (
+        {sections.length > 0 && (
           <CategorySelector
-            categories={categories}
+            sections={sections}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
             primaryColor={businessInfo?.primaryColor}

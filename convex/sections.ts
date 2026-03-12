@@ -1,5 +1,11 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+
+const translationMapValidator = v.object({
+  en: v.string(),
+  sq: v.string(),
+  it: v.string(),
+});
 
 export const getByBusinessInfoId = query({
   args: { businessInfoId: v.id("businessInfo") },
@@ -28,6 +34,7 @@ export const create = mutation({
   args: {
     businessInfoId: v.id("businessInfo"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -51,9 +58,16 @@ export const create = mutation({
       ? Math.max(...sections.map((s) => s.order))
       : -1;
 
+    const nameTranslations = args.nameTranslations ?? {
+      en: args.name.trim(),
+      sq: args.name.trim(),
+      it: args.name.trim(),
+    };
+
     const sectionId = await ctx.db.insert("sections", {
       businessInfoId: args.businessInfoId,
       name: args.name.trim(),
+      nameTranslations,
       order: maxOrder + 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -67,6 +81,7 @@ export const update = mutation({
   args: {
     sectionId: v.id("sections"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -85,11 +100,32 @@ export const update = mutation({
       throw new Error("Unauthorized");
     }
 
+    const nameTranslations = args.nameTranslations ?? {
+      en: args.name.trim(),
+      sq: args.name.trim(),
+      it: args.name.trim(),
+    };
+
     await ctx.db.patch(args.sectionId, {
       name: args.name.trim(),
+      nameTranslations,
       updatedAt: Date.now(),
     });
 
+    return args.sectionId;
+  },
+});
+
+export const patchNameTranslations = internalMutation({
+  args: {
+    sectionId: v.id("sections"),
+    nameTranslations: translationMapValidator,
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.sectionId, {
+      nameTranslations: args.nameTranslations,
+      updatedAt: Date.now(),
+    });
     return args.sectionId;
   },
 });

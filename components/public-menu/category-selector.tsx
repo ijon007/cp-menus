@@ -9,12 +9,19 @@ import { Button } from "@/components/ui/button";
 /* Utils */
 import { getSectionIcon } from "@/lib/sections";
 import { useLanguage } from "@/app/menu/useLanguage";
+import { getTranslated } from "@/app/menu/i18n";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
 
+interface SectionForCategory {
+  id: string;
+  name: string;
+  nameTranslations?: { en: string; sq: string; it: string };
+}
+
 interface CategorySelectorProps {
-  categories: string[];
+  sections: SectionForCategory[];
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
   primaryColor?: string | null;
@@ -33,7 +40,7 @@ const titleToId = (title: string): string => {
 };
 
 export default function CategorySelector({
-  categories,
+  sections,
   selectedCategory,
   onSelectCategory,
   primaryColor,
@@ -43,7 +50,7 @@ export default function CategorySelector({
   backgroundColor,
 }: CategorySelectorProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(selectedCategory);
-  const { translate } = useLanguage();
+  const { language } = useLanguage();
 
   const handleCategoryClick = (category: string) => {
     // Toggle: if already selected, unselect it
@@ -79,10 +86,11 @@ export default function CategorySelector({
       className="sticky top-0 z-10 flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide pt-2 -mt-2 bg-background -mx-4 px-4"
       {...(backgroundColor ? { style: { backgroundColor } } : {})}
     >
-      {categories.map((category) => {
+      {sections.map((section) => {
+        const category = section.name;
         const Icon = getSectionIcon(category);
         const isActive = activeCategory === category;
-        const label = translate(category);
+        const label = getTranslated(section.nameTranslations, language, section.name);
         return (
           <Button
             key={category}

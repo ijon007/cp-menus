@@ -1,5 +1,21 @@
 export type Language = "en" | "sq" | "it";
 
+export interface TranslationMap {
+  en: string;
+  sq: string;
+  it: string;
+}
+
+export function getTranslated(
+  translations: TranslationMap | undefined,
+  language: Language,
+  fallback: string
+): string {
+  if (!translations) return fallback;
+  const text = translations[language];
+  return text?.trim() ? text : fallback;
+}
+
 export interface MenuTranslations {
   menuTitle: string;
   signInPrompt: string;

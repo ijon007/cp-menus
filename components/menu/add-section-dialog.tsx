@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 /* Convex */
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 /* Components */
@@ -39,15 +39,24 @@ export default function AddSectionDialog({
 }: AddSectionDialogProps) {
   const businessInfo = useQuery(api.businessInfo.getByUserId);
   const createSection = useMutation(api.sections.create);
+  const translateToAllLanguages = useAction(api.translate.translateToAllLanguages);
   const [sectionName, setSectionName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAdd = async () => {
     if (!businessInfo || !sectionName.trim()) return;
-    
+
     setIsLoading(true);
     try {
-      await createSection({ businessInfoId: businessInfo._id, name: sectionName.trim() });
+      const nameTranslations = await translateToAllLanguages({
+        text: sectionName.trim(),
+        sourceLanguage: "en",
+      });
+      await createSection({
+        businessInfoId: businessInfo._id,
+        name: sectionName.trim(),
+        nameTranslations,
+      });
       setSectionName("");
       onOpenChange(false);
     } catch (error) {

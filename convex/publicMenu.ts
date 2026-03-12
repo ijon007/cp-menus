@@ -69,8 +69,10 @@ export const getByBusinessSlug = query({
             return {
               id: item._id,
               name: item.name,
+              nameTranslations: item.nameTranslations,
               price: item.price,
               description: item.description,
+              descriptionTranslations: item.descriptionTranslations,
               image,
             };
           })
@@ -79,6 +81,7 @@ export const getByBusinessSlug = query({
         return {
           id: section._id,
           name: section.name,
+          nameTranslations: section.nameTranslations,
           items: itemsWithImages,
         };
       })

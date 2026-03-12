@@ -1,5 +1,11 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+
+const translationMapValidator = v.object({
+  en: v.string(),
+  sq: v.string(),
+  it: v.string(),
+});
 
 export const generateUploadUrl = mutation({
   args: {},
@@ -56,8 +62,10 @@ export const create = mutation({
   args: {
     sectionId: v.id("sections"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
     price: v.string(),
     description: v.optional(v.string()),
+    descriptionTranslations: v.optional(translationMapValidator),
     storageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
@@ -87,11 +95,24 @@ export const create = mutation({
       ? Math.max(...existingItems.map((item) => item.order ?? -1))
       : -1;
 
+    const nameTranslations = args.nameTranslations ?? {
+      en: args.name.trim(),
+      sq: args.name.trim(),
+      it: args.name.trim(),
+    };
+
+    const desc = args.description?.trim() || undefined;
+    const descriptionTranslations = args.descriptionTranslations ?? (desc
+      ? { en: desc, sq: desc, it: desc }
+      : undefined);
+
     const itemId = await ctx.db.insert("menuItems", {
       sectionId: args.sectionId,
       name: args.name.trim(),
+      nameTranslations,
       price: args.price.trim(),
-      description: args.description?.trim() || undefined,
+      description: desc,
+      descriptionTranslations,
       imageStorageId: args.storageId,
       order: maxOrder + 1,
       createdAt: Date.now(),
@@ -106,8 +127,10 @@ export const update = mutation({
   args: {
     itemId: v.id("menuItems"),
     name: v.string(),
+    nameTranslations: v.optional(translationMapValidator),
     price: v.string(),
     description: v.optional(v.string()),
+    descriptionTranslations: v.optional(translationMapValidator),
     storageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
@@ -137,14 +160,42 @@ export const update = mutation({
       await ctx.storage.delete(item.imageStorageId);
     }
 
+    const desc = args.description?.trim() || undefined;
+    const nameTranslations = args.nameTranslations ?? {
+      en: args.name.trim(),
+      sq: args.name.trim(),
+      it: args.name.trim(),
+    };
+    const descriptionTranslations = args.descriptionTranslations ?? (desc
+      ? { en: desc, sq: desc, it: desc }
+      : undefined);
+
     await ctx.db.patch(args.itemId, {
       name: args.name.trim(),
+      nameTranslations,
       price: args.price.trim(),
-      description: args.description?.trim() || undefined,
+      description: desc,
+      descriptionTranslations,
       imageStorageId: args.storageId,
       updatedAt: Date.now(),
     });
 
+    return args.itemId;
+  },
+});
+
+export const patchTranslations = internalMutation({
+  args: {
+    itemId: v.id("menuItems"),
+    nameTranslations: translationMapValidator,
+    descriptionTranslations: v.optional(translationMapValidator),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.itemId, {
+      nameTranslations: args.nameTranslations,
+      ...(args.descriptionTranslations && { descriptionTranslations: args.descriptionTranslations }),
+      updatedAt: Date.now(),
+    });
     return args.itemId;
   },
 });

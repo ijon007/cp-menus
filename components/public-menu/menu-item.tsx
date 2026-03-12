@@ -8,7 +8,6 @@ import { formatPrice } from "@/utils/formatting";
 
 /* Constants */
 import { DEFAULT_IMAGES } from "@/constants/images";
-import { useLanguage } from "@/app/menu/useLanguage";
 
 interface MenuItemProps {
   name: string;
@@ -29,9 +28,6 @@ export default function MenuItem({
   secondaryColor,
   accentColor,
 }: MenuItemProps) {
-  const { translate } = useLanguage();
-  const translatedName = translate(name);
-  const translatedDescription = description ? translate(description) : undefined;
   return (
     <div 
       className="flex items-start justify-between py-3 gap-4 border-b border-border/50 last:border-b-0"
@@ -45,7 +41,7 @@ export default function MenuItem({
       >
         <Image
           src={image}
-          alt={translatedName}
+          alt={name}
           fill
           className="object-cover"
         />
@@ -55,10 +51,10 @@ export default function MenuItem({
           className="font-semibold mb-1"
           style={primaryColor ? { color: primaryColor } : undefined}
         >
-          {translatedName}
+          {name}
         </h4>
-        {translatedDescription && (
-          <p className="text-muted-foreground text-sm mt-1">{translatedDescription}</p>
+        {description && (
+          <p className="text-muted-foreground text-sm mt-1">{description}</p>
         )}
       </div>
       <div 
