@@ -68,9 +68,11 @@ function AdminDashboard() {
     );
   }
 
-  const pendingUsers = allUsers?.filter((user) => user.status === "pending") || [];
-  const approvedUsers = allUsers?.filter((user) => user.status === "approved") || [];
-  const rejectedUsers = allUsers?.filter((user) => user.status === "rejected") || [];
+  type User = NonNullable<typeof allUsers>[number];
+
+  const pendingUsers = allUsers?.filter((user: User) => user.status === "pending") || [];
+  const approvedUsers = allUsers?.filter((user: User) => user.status === "approved") || [];
+  const rejectedUsers = allUsers?.filter((user: User) => user.status === "rejected") || [];
 
   const handleApprove = async (userId: string) => {
     try {
@@ -113,7 +115,7 @@ function AdminDashboard() {
     });
   };
 
-  const UserTable = ({ users, showActions = false }: { users: typeof allUsers; showActions?: boolean }) => {
+  const UserTable = ({ users, showActions = false }: { users: User[]; showActions?: boolean }) => {
     if (!users || users.length === 0) {
       return (
         <div className="text-center py-8 text-muted-foreground">

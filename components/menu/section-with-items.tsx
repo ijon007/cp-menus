@@ -114,6 +114,8 @@ export default function SectionWithItems({
     }
   };
 
+  type Item = NonNullable<typeof items>[number];
+
   const handleItemsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || !items) return;
@@ -123,13 +125,13 @@ export default function SectionWithItems({
 
     if (activeId === overId) return;
 
-    const oldIndex = items.findIndex((item) => item._id === activeId);
-    const newIndex = items.findIndex((item) => item._id === overId);
+    const oldIndex = items.findIndex((item: Item) => item._id === activeId);
+    const newIndex = items.findIndex((item: Item) => item._id === overId);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const newItems = arrayMove(items, oldIndex, newIndex);
-    const itemOrders = newItems.map((item, index) => ({
+    const newItems = arrayMove<Item>(items, oldIndex, newIndex);
+    const itemOrders = newItems.map((item: Item, index) => ({
       itemId: item._id,
       newOrder: index,
     }));
@@ -171,9 +173,9 @@ export default function SectionWithItems({
               collisionDetection={closestCenter}
               onDragEnd={handleItemsDragEnd}
             >
-              <SortableContext items={items.map((item) => item._id)} strategy={verticalListSortingStrategy}>
+              <SortableContext items={items.map((item: Item) => item._id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-2">
-                  {items.map((item) => (
+                  {items.map((item: Item) => (
                     <SortableItemCard
                       key={item._id}
                       itemId={item._id}

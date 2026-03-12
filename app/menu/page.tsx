@@ -80,6 +80,8 @@ function AdminMenuPage() {
     );
   }
 
+  type Section = NonNullable<ReturnType<typeof useQuery<typeof api.sections.getByBusinessInfoId>>>[number];
+
   const handleSectionsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || !businessInfo || !sections) return;
@@ -89,13 +91,13 @@ function AdminMenuPage() {
 
     if (activeId === overId) return;
 
-    const oldIndex = sections.findIndex((s) => s._id === activeId);
-    const newIndex = sections.findIndex((s) => s._id === overId);
+    const oldIndex = sections.findIndex((s: Section) => s._id === activeId);
+    const newIndex = sections.findIndex((s: Section) => s._id === overId);
 
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const newSections = arrayMove(sections, oldIndex, newIndex);
-    const sectionOrders = newSections.map((section, index) => ({
+    const newSections = arrayMove<Section>(sections, oldIndex, newIndex);
+    const sectionOrders = newSections.map((section: Section, index) => ({
       sectionId: section._id,
       newOrder: index,
     }));
@@ -139,10 +141,10 @@ function AdminMenuPage() {
           collisionDetection={closestCenter}
           onDragEnd={handleSectionsDragEnd}
         >
-          <SortableContext items={sections?.map((s) => s._id) || []} strategy={verticalListSortingStrategy}>
+          <SortableContext items={sections?.map((s: Section) => s._id) || []} strategy={verticalListSortingStrategy}>
             <div className="space-y-6">
               {sections && sections.length > 0 ? (
-                sections.map((section) => (
+                sections.map((section: Section) => (
                   <SortableSection
                     key={section._id}
                     section={section}

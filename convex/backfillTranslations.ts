@@ -20,7 +20,7 @@ export const listItemsWithoutTranslations = internalQuery({
   },
 });
 
-export const backfillAll = internalAction({
+export const backfillAll: ReturnType<typeof internalAction> = internalAction({
   args: {},
   handler: async (ctx) => {
     const sections = await ctx.runQuery(internal.backfillTranslations.listSectionsWithoutTranslations);
