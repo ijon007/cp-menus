@@ -1,18 +1,31 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { WaiterHeader } from "./waiter-header";
 import { WaiterToolbar } from "./waiter-toolbar";
 import { WaiterNotificationList } from "./waiter-notification-list";
 import { WaiterEmptyState } from "./waiter-empty-state";
-import { MOCK_NOTIFICATIONS } from "./constants";
 import type { WaiterNotification } from "./types";
 
 export function WaiterDashboard() {
-  const [notifications, setNotifications] =
-    useState<WaiterNotification[]>(MOCK_NOTIFICATIONS);
+  const rawCalls = useQuery(api.waiterCalls.listForCurrentBusiness);
+  const confirmMutation = useMutation(api.waiterCalls.confirmWaiterCall);
+  const clearMutation = useMutation(api.waiterCalls.clearWaiterCall);
   const [search, setSearch] = useState("");
+
+  const notifications: WaiterNotification[] = useMemo(
+    () =>
+      (rawCalls ?? []).map((c) => ({
+        id: c.id,
+        tableNumber: c.tableNumber,
+        triggeredAt: c.triggeredAt,
+      })),
+    [rawCalls]
+  );
 
   const filtered = useMemo(() => {
     if (!search.trim()) return notifications;
@@ -21,18 +34,29 @@ export function WaiterDashboard() {
     );
   }, [notifications, search]);
 
-  const handleConfirm = (id: string, tableNumber: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    toast.success(`Order taken — Table ${tableNumber}`);
+  const handleConfirm = async (id: string, tableNumber: number) => {
+    try {
+      await confirmMutation({ id: id as Id<"waiterCalls"> });
+      toast.success(`Order taken — Table ${tableNumber}`);
+    } catch {
+      toast.error("Failed to confirm. Please try again.");
+    }
   };
 
-  const handleClear = (id: string, tableNumber: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    toast(`Notification cleared — Table ${tableNumber}`);
+  const handleClear = async (id: string, tableNumber: number) => {
+    try {
+      await clearMutation({ id: id as Id<"waiterCalls"> });
+      toast(`Notification cleared — Table ${tableNumber}`);
+    } catch {
+      toast.error("Failed to clear. Please try again.");
+    }
   };
 
-  const handleClearAll = () => {
-    setNotifications([]);
+  const handleClearAll = async () => {
+    const toClear = [...notifications];
+    await Promise.all(
+      toClear.map((n) => clearMutation({ id: n.id as Id<"waiterCalls"> }))
+    );
     toast("All notifications cleared");
   };
 

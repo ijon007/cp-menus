@@ -14,7 +14,7 @@ export function WaiterHeader({ notificationCount }: WaiterHeaderProps) {
 
   const subtitle =
     notificationCount === 0
-      ? "No pending table notifications"
+      ? "No notifications"
       : `${notificationCount} table${notificationCount !== 1 ? "s" : ""} waiting`;
 
   return (

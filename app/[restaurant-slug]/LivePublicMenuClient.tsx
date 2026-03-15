@@ -5,6 +5,7 @@ import { LanguageProvider, useLanguage } from "@/app/menu/useLanguage";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
+import { CallWaiterFAB } from "@/components/public-menu/call-waiter-fab";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 import type { TranslationMap } from "@/app/menu/i18n";
@@ -28,6 +29,8 @@ interface Section {
 
 interface LivePublicMenuClientProps {
   restaurantName: string;
+  restaurantSlug: string;
+  tableNumber: number | null;
   sections: Section[];
   businessInfo: {
     logoUrl?: string | null;
@@ -48,6 +51,8 @@ interface LivePublicMenuClientProps {
 
 function LivePublicMenuContent({
   restaurantName,
+  restaurantSlug,
+  tableNumber,
   sections,
   businessInfo,
 }: LivePublicMenuClientProps) {
@@ -156,6 +161,13 @@ function LivePublicMenuContent({
           )}
         </div>
       </div>
+
+      <CallWaiterFAB
+        restaurantSlug={restaurantSlug}
+        tableNumber={tableNumber}
+        primaryColor={businessInfo?.primaryColor}
+        accentColor={businessInfo?.accentColor}
+      />
     </div>
   );
 }
