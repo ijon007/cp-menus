@@ -2,6 +2,7 @@
 
 /* Next */
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 /* Convex */
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
@@ -11,8 +12,14 @@ import { api } from "@/convex/_generated/api";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import BusinessNameDialog from "@/components/menu/business-name-dialog";
 import AddSectionDialog from "@/components/menu/add-section-dialog";
-import MenuHeaderActions from "@/components/menu/menu-header-actions";
 import EmptySectionsMessage from "@/components/menu/empty-sections-message";
+import { CenteredFabBar } from "@/components/fab";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Notification01Icon, SettingsIcon, LiveStreaming02Icon } from "@hugeicons/core-free-icons";
+
+/* Utils */
+import { titleToSlug } from "@/lib/utils";
 
 /* DnD Kit */
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
@@ -123,7 +130,6 @@ function AdminMenuPage() {
         googleReviewUrl={businessInfo?.googleReviewUrl}
         tripAdvisorReviewUrl={businessInfo?.tripAdvisorReviewUrl}
         socialLinks={businessInfo?.socialLinks}
-        actions={<MenuHeaderActions businessName={businessInfo?.businessName} />}
       />
       <div className="container mx-auto p-6">
         <div className="mb-6 flex items-center justify-between">
@@ -162,6 +168,53 @@ function AdminMenuPage() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
       />
+
+      <CenteredFabBar>
+        {businessInfo?.businessName && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Link
+                  href={`/${titleToSlug(businessInfo.businessName)}`}
+                  aria-label="View live menu"
+                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+                >
+                  <HugeiconsIcon icon={LiveStreaming02Icon} strokeWidth={2} className="size-5" />
+                </Link>
+              }
+            />
+            <TooltipContent side="top">View live menu</TooltipContent>
+          </Tooltip>
+        )}
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href="/waiter"
+                aria-label="Waiter dashboard"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+              >
+                <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} className="size-5" />
+              </Link>
+            }
+          />
+          <TooltipContent side="top">Waiter dashboard</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href="/settings"
+                aria-label="Settings"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+              >
+                <HugeiconsIcon icon={SettingsIcon} strokeWidth={2} className="size-5" />
+              </Link>
+            }
+          />
+          <TooltipContent side="top">Settings</TooltipContent>
+        </Tooltip>
+      </CenteredFabBar>
     </div>
   );
 }

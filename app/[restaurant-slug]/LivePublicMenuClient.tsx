@@ -5,7 +5,7 @@ import { LanguageProvider, useLanguage } from "@/app/menu/useLanguage";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
-import { CallWaiterFAB, LanguageFAB } from "@/components/public-menu/call-waiter-fab";
+import { CallWaiterFAB, LanguageFAB } from "@/components/fab";
 
 import type { TranslationMap } from "@/app/menu/i18n";
 
@@ -122,6 +122,8 @@ function LivePublicMenuContent({
       <CallWaiterFAB
         restaurantSlug={restaurantSlug}
         tableNumber={tableNumber}
+        align="right"
+        translations={t}
         extraButtons={
           <LanguageFAB language={language} setLanguage={setLanguage} t={t} />
         }
