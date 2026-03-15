@@ -68,11 +68,10 @@ function AdminDashboard() {
     );
   }
 
-  type User = NonNullable<typeof allUsers>[number];
-
-  const pendingUsers = allUsers?.filter((user: User) => user.status === "pending") || [];
-  const approvedUsers = allUsers?.filter((user: User) => user.status === "approved") || [];
-  const rejectedUsers = allUsers?.filter((user: User) => user.status === "rejected") || [];
+  type UserAccessRow = NonNullable<typeof allUsers>[number];
+  const pendingUsers = allUsers?.filter((u: UserAccessRow) => u.status === "pending") ?? [];
+  const approvedUsers = allUsers?.filter((u: UserAccessRow) => u.status === "approved") ?? [];
+  const rejectedUsers = allUsers?.filter((u: UserAccessRow) => u.status === "rejected") ?? [];
 
   const handleApprove = async (userId: string) => {
     try {
@@ -115,7 +114,7 @@ function AdminDashboard() {
     });
   };
 
-  const UserTable = ({ users, showActions = false }: { users: User[]; showActions?: boolean }) => {
+  const UserTable = ({ users, showActions = false }: { users: UserAccessRow[]; showActions?: boolean }) => {
     if (!users || users.length === 0) {
       return (
         <div className="text-center py-8 text-muted-foreground">
