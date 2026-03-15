@@ -5,8 +5,7 @@ import { LanguageProvider, useLanguage } from "@/app/menu/useLanguage";
 import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
-import { CallWaiterFAB } from "@/components/public-menu/call-waiter-fab";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CallWaiterFAB, LanguageFAB } from "@/components/public-menu/call-waiter-fab";
 
 import type { TranslationMap } from "@/app/menu/i18n";
 
@@ -79,48 +78,6 @@ function LivePublicMenuContent({
         socialLinks={businessInfo?.socialLinks}
         template={businessInfo?.menuTemplate || ""}
         primaryColor={businessInfo?.primaryColor}
-        actions={
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className="inline-flex items-center justify-center rounded-md border border-white/20 bg-white/10 px-3 py-1 text-base font-medium text-white hover:bg-white/20"
-              aria-label={t.languageSelectorLabel}
-            >
-              <span
-                aria-hidden="true"
-                className={`fi fis ${
-                  language === "en"
-                    ? "fi-gb"
-                    : language === "sq"
-                    ? "fi-al"
-                    : "fi-it"
-                }`}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-32">
-              <DropdownMenuItem
-                onClick={() => setLanguage("en")}
-                aria-label={t.languageEnglish}
-              >
-                <span aria-hidden="true" className="fi fi-gb fis mr-2" />
-                <span>{t.languageEnglish}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setLanguage("sq")}
-                aria-label={t.languageAlbanian}
-              >
-                <span aria-hidden="true" className="fi fi-al fis mr-2" />
-                <span>{t.languageAlbanian}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setLanguage("it")}
-                aria-label={t.languageItalian}
-              >
-                <span aria-hidden="true" className="fi fi-it fis mr-2" />
-                <span>{t.languageItalian}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        }
         reviewLabel={t.giveUsAReview}
         followUsLabel={t.followUs}
         googleLabel={t.googleLabel}
@@ -165,8 +122,9 @@ function LivePublicMenuContent({
       <CallWaiterFAB
         restaurantSlug={restaurantSlug}
         tableNumber={tableNumber}
-        primaryColor={businessInfo?.primaryColor}
-        accentColor={businessInfo?.accentColor}
+        extraButtons={
+          <LanguageFAB language={language} setLanguage={setLanguage} t={t} />
+        }
       />
     </div>
   );
