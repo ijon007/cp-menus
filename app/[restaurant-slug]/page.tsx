@@ -1,7 +1,7 @@
 'use client'
 
 /* Next */
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 /* Convex */
 import { useQuery } from "convex/react";
@@ -31,7 +31,10 @@ interface Section {
 
 function MenuPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const restaurantSlug = params["restaurant-slug"] as string;
+  const tableParam = searchParams.get("table");
+  const tableNumber = tableParam && /^\d+$/.test(tableParam) ? parseInt(tableParam, 10) : null;
 
   const menuData = useQuery(api.publicMenu.getByBusinessSlug, { slug: restaurantSlug });
   const { t } = useLanguage();
@@ -56,6 +59,8 @@ function MenuPage() {
   return (
     <LivePublicMenuClient
       restaurantName={restaurantName}
+      restaurantSlug={restaurantSlug}
+      tableNumber={tableNumber}
       sections={sections}
       businessInfo={{
         logoUrl: menuData.businessInfo?.logoUrl,

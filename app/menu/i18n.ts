@@ -35,6 +35,10 @@ export interface MenuTranslations {
   languageItalian: string;
   loadingMenu: string;
   noMenuItems: string;
+  callWaiterTooltip: string;
+  callWaiterTooltipCalled: string;
+  callWaiterTooltipWait: string;
+  callWaiterTooltipNoTable: string;
 }
 
 const textTranslations: Record<
@@ -102,6 +106,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     languageItalian: "Italiano",
     loadingMenu: "Loading menu...",
     noMenuItems: "No menu items available yet.",
+    callWaiterTooltip: "Call waiter for Table {table}",
+    callWaiterTooltipCalled: "Waiter already called for Table {table}",
+    callWaiterTooltipWait: "Please wait a moment before calling again",
+    callWaiterTooltipNoTable: "Scan your table's QR code to call the waiter",
   },
   sq: {
     menuTitle: "Menu",
@@ -124,6 +132,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     languageItalian: "Italisht",
     loadingMenu: "Duke ngarkuar menunë...",
     noMenuItems: "Ende nuk ka artikuj në menu.",
+    callWaiterTooltip: "Thërrisni kamarierin për Tavolinën {table}",
+    callWaiterTooltipCalled: "Kamarieri u thirr tashmë për Tavolinën {table}",
+    callWaiterTooltipWait: "Ju lutemi prisni një moment para se të thirrni përsëri",
+    callWaiterTooltipNoTable: "Skanoni kodin QR të tavolinës tuaj për të thirrur kamarierin",
   },
   it: {
     menuTitle: "Menù",
@@ -146,6 +158,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     languageItalian: "Italiano",
     loadingMenu: "Caricamento del menù...",
     noMenuItems: "Nessun elemento di menù disponibile.",
+    callWaiterTooltip: "Chiama il cameriere per il Tavolo {table}",
+    callWaiterTooltipCalled: "Cameriere già chiamato per il Tavolo {table}",
+    callWaiterTooltipWait: "Attendi un momento prima di richiamare",
+    callWaiterTooltipNoTable: "Scansiona il QR code del tuo tavolo per chiamare il cameriere",
   },
 };
 

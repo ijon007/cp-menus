@@ -50,6 +50,13 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_sectionId", ["sectionId"]),
+  waiterCalls: defineTable({
+    businessInfoId: v.id("businessInfo"),
+    tableNumber: v.number(),
+    triggeredAt: v.number(),
+  })
+    .index("by_businessInfoId", ["businessInfoId"])
+    .index("by_businessInfoId_triggeredAt", ["businessInfoId", "triggeredAt"]),
   userAccess: defineTable({
     userId: v.string(), // Clerk user ID
     email: v.optional(v.string()), // User email from Clerk

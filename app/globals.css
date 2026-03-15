@@ -188,7 +188,15 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
+  /* Force dropdown enter animation to run on mobile (avoids first-frame skip when portaled) */
+  @media (max-width: 768px) {
+    [data-slot="dropdown-menu-content"][data-open] {
+      animation-fill-mode: backwards;
+      animation-delay: 0.02s;
+    }
+  }
+
   [data-sonner-toast][data-type="success"],
   .success-toast {
     background-color: oklch(0.85 0.10 150) !important;

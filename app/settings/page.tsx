@@ -3,6 +3,7 @@
 /* Next */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 /* Convex */
 import { useQuery, useMutation, Authenticated, Unauthenticated } from "convex/react";
@@ -15,7 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { Menu01Icon, Notification01Icon } from "@hugeicons/core-free-icons";
 import LogoutDialog from "@/components/settings/logout-dialog";
+import { CenteredFabBar } from "@/components/fab";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import BasicInformationSection from "@/components/settings/basic-information-section";
 import ReviewLinksSection from "@/components/settings/review-links-section";
 import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
@@ -362,6 +366,37 @@ function SettingsPage() {
           />
         </div>
       </div>
+
+      <CenteredFabBar>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href="/menu"
+                aria-label="Menu"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+              >
+                <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} className="size-5" />
+              </Link>
+            }
+          />
+          <TooltipContent side="top">Menu</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href="/waiter"
+                aria-label="Waiter dashboard"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+              >
+                <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} className="size-5" />
+              </Link>
+            }
+          />
+          <TooltipContent side="top">Waiter dashboard</TooltipContent>
+        </Tooltip>
+      </CenteredFabBar>
     </div>
   );
 }
