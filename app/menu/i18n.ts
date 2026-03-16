@@ -39,6 +39,9 @@ export interface MenuTranslations {
   callWaiterTooltipCalled: string;
   callWaiterTooltipWait: string;
   callWaiterTooltipNoTable: string;
+  waiterCallLimitReached: string;
+  waiterCalledSuccess: string;
+  waiterCallError: string;
 }
 
 const textTranslations: Record<
@@ -110,6 +113,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     callWaiterTooltipCalled: "Waiter already called for Table {table}",
     callWaiterTooltipWait: "Please wait a moment before calling again",
     callWaiterTooltipNoTable: "Scan your table's QR code to call the waiter",
+    waiterCallLimitReached:
+      "You've reached the waiter call limit for this visit. Please rescan your table QR to call again.",
+    waiterCalledSuccess: "Waiter called for Table {table}",
+    waiterCallError: "Could not call waiter. Please try again.",
   },
   sq: {
     menuTitle: "Menu",
@@ -136,6 +143,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     callWaiterTooltipCalled: "Kamarieri u thirr tashmë për Tavolinën {table}",
     callWaiterTooltipWait: "Ju lutemi prisni një moment para se të thirrni përsëri",
     callWaiterTooltipNoTable: "Skanoni kodin QR të tavolinës tuaj për të thirrur kamarierin",
+    waiterCallLimitReached:
+      "Keni arritur kufirin e thirrjeve për këtë vizitë. Ju lutemi skanoni përsëri kodin QR të tavolinës për të thirrur sërish.",
+    waiterCalledSuccess: "Kamarieri u thirr për Tavolinën {table}",
+    waiterCallError: "Nuk mund të thërritet kamarieri. Ju lutemi provoni përsëri.",
   },
   it: {
     menuTitle: "Menù",
@@ -162,6 +173,10 @@ export const menuTranslations: Record<Language, MenuTranslations> = {
     callWaiterTooltipCalled: "Cameriere già chiamato per il Tavolo {table}",
     callWaiterTooltipWait: "Attendi un momento prima di richiamare",
     callWaiterTooltipNoTable: "Scansiona il QR code del tuo tavolo per chiamare il cameriere",
+    waiterCallLimitReached:
+      "Hai raggiunto il limite di chiamate al cameriere per questa visita. Scansiona di nuovo il QR del tavolo per chiamare ancora.",
+    waiterCalledSuccess: "Cameriere chiamato per il Tavolo {table}",
+    waiterCallError: "Impossibile chiamare il cameriere. Riprova.",
   },
 };
 

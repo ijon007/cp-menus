@@ -26,6 +26,7 @@ import SocialMediaLinksSection from "@/components/settings/social-media-links-se
 import TemplateSelectionSection from "@/components/settings/template-selection-section";
 import ColorPickerSection from "@/components/settings/color-picker-section";
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
+import { Input } from "@/components/ui/input";
 
 const DEBOUNCE_MS = 400;
 
@@ -383,36 +384,33 @@ function SettingsPage() {
             onBackgroundColorChange={onBackgroundColorChange}
           />
 
-          <Card>
-            <CardContent className="space-y-4 pt-6">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">
-                  Waiter call session
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Control how long a table session stays active for waiter calls.
-                  Each session can call the waiter up to 3 times.
-                </p>
-              </div>
-              <div className="flex max-w-xs flex-col gap-2">
-                <label className="text-sm font-medium text-foreground">
-                  Session duration (minutes)
-                </label>
-                <input
-                  type="number"
-                  min={5}
-                  max={240}
-                  value={waiterSessionDurationMinutes === "" ? "" : waiterSessionDurationMinutes}
-                  onChange={(e) => onWaiterSessionDurationChange(e.target.value)}
-                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  placeholder="e.g. 120"
-                />
-                <p className="text-xs text-muted-foreground">
-                  After this time, a new session ID should be used for new waiter calls.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                Waiter call session
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Control how long a table session stays active for waiter calls. Each
+                session can call the waiter up to 3 times.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Session duration (minutes)
+              </label>
+              <Input
+                type="number"
+                min={5}
+                max={240}
+                value={waiterSessionDurationMinutes === "" ? "" : waiterSessionDurationMinutes}
+                onChange={(e) => onWaiterSessionDurationChange(e.target.value)}
+                placeholder="60"
+              />
+              <p className="text-xs text-muted-foreground">
+                After this time, a new session ID should be used for new waiter calls.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

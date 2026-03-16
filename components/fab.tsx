@@ -121,15 +121,29 @@ export function CallWaiterFAB({
         sessionId,
       });
       if (result && result.limitReached) {
-        toast.error(
-          "You've reached the waiter call limit for this visit. Please rescan your table QR to call again."
-        );
+        if (t?.waiterCallLimitReached) {
+          toast.error(t.waiterCallLimitReached);
+        } else {
+          toast.error(
+            "You've reached the waiter call limit for this visit. Please rescan your table QR to call again."
+          );
+        }
       } else {
         setCalled(true);
-        toast.success(`Waiter called for Table ${tableNumber}`);
+        if (t?.waiterCalledSuccess) {
+          toast.success(
+            t.waiterCalledSuccess.replace("{table}", String(tableNumber))
+          );
+        } else {
+          toast.success(`Waiter called for Table ${tableNumber}`);
+        }
       }
     } catch {
-      toast.error("Could not call waiter. Please try again.");
+      if (t?.waiterCallError) {
+        toast.error(t.waiterCallError);
+      } else {
+        toast.error("Could not call waiter. Please try again.");
+      }
     } finally {
       setCalling(false);
       inFlightRef.current = false;
