@@ -13,10 +13,15 @@ export const callWaiter = mutation({
   args: {
     slug: v.string(),
     tableNumber: v.number(),
+    sessionId: v.string(),
   },
   handler: async (ctx, args) => {
     if (!Number.isInteger(args.tableNumber) || args.tableNumber < 1) {
       throw new Error("tableNumber must be a positive integer");
+    }
+
+    if (!args.sessionId || args.sessionId.trim().length === 0) {
+      throw new Error("sessionId is required");
     }
 
     const allBusinesses = await ctx.db.query("businessInfo").collect();
@@ -28,29 +33,41 @@ export const callWaiter = mutation({
       throw new Error("Business not found");
     }
 
-    const existingCall = await ctx.db
-      .query("waiterCalls")
-      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", business._id))
-      .filter((q) => q.eq(q.field("tableNumber"), args.tableNumber))
-      .first();
+    const now = Date.now();
+    const fifteenMinutesMs = 15 * 60 * 1000;
 
-    if (existingCall) {
-      return { id: existingCall._id };
+    const activeCalls = await ctx.db
+      .query("waiterCalls")
+      .withIndex("by_businessInfoId_tableNumber_sessionId", (q) =>
+        q
+          .eq("businessInfoId", business._id)
+          .eq("tableNumber", args.tableNumber)
+          .eq("sessionId", args.sessionId)
+      )
+      .collect();
+
+    const nonExpiredCalls = activeCalls.filter(
+      (c) => now - c.triggeredAt < fifteenMinutesMs
+    );
+
+    if (nonExpiredCalls.length >= 3) {
+      return { id: null, limitReached: true as const };
     }
 
     const id = await ctx.db.insert("waiterCalls", {
       businessInfoId: business._id,
       tableNumber: args.tableNumber,
-      triggeredAt: Date.now(),
+      sessionId: args.sessionId,
+      triggeredAt: now,
     });
 
     await ctx.scheduler.runAt(
-      Date.now() + 60 * 60 * 1000,
+      now + fifteenMinutesMs,
       internal.waiterCalls.expireWaiterCall,
       { id }
     );
 
-    return { id };
+    return { id, limitReached: false as const };
   },
 });
 
@@ -94,6 +111,7 @@ export const listForCurrentBusiness = query({
     return calls.map((c) => ({
       id: c._id,
       tableNumber: c.tableNumber,
+      sessionId: c.sessionId,
       triggeredAt: c.triggeredAt,
     }));
   },

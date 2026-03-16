@@ -51,6 +51,9 @@ function SettingsPage() {
   const [secondaryColor, setSecondaryColor] = useState<string | null>(null);
   const [accentColor, setAccentColor] = useState<string | null>(null);
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
+  const [waiterSessionDurationMinutes, setWaiterSessionDurationMinutes] = useState<
+    number | ""
+  >("");
   const [isUploading, setIsUploading] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -88,6 +91,9 @@ function SettingsPage() {
       setSecondaryColor(businessInfo.secondaryColor || null);
       setAccentColor(businessInfo.accentColor || null);
       setBackgroundColor(businessInfo.backgroundColor || null);
+      setWaiterSessionDurationMinutes(
+        businessInfo.waiterSessionDurationMinutes ?? ""
+      );
       if (businessInfo.logoUrl) {
         setLogoPreview(businessInfo.logoUrl);
       }
@@ -204,6 +210,18 @@ function SettingsPage() {
     [persistUpdate]
   );
 
+  const onWaiterSessionDurationChange = useCallback(
+    (value: string) => {
+      const parsed = Number.parseInt(value, 10);
+      const next: number | "" = Number.isNaN(parsed) ? "" : parsed;
+      setWaiterSessionDurationMinutes(next);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        persistUpdate({ waiterSessionDurationMinutes: parsed });
+      }
+    },
+    [persistUpdate]
+  );
+
   useEffect(() => {
     if (!selectedLogo || !businessInfo) return;
     let cancelled = false;
@@ -273,7 +291,7 @@ function SettingsPage() {
   if (businessInfo === undefined) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 space-y-8">
           <div className="text-center">
             <p className="text-muted-foreground">Loading settings...</p>
           </div>
@@ -285,7 +303,7 @@ function SettingsPage() {
   if (businessInfo === null) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 space-y-8">
           <Card>
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground">
@@ -364,6 +382,37 @@ function SettingsPage() {
             onAccentColorChange={onAccentColorChange}
             onBackgroundColorChange={onBackgroundColorChange}
           />
+
+          <Card>
+            <CardContent className="space-y-4 pt-6">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">
+                  Waiter call session
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Control how long a table session stays active for waiter calls.
+                  Each session can call the waiter up to 3 times.
+                </p>
+              </div>
+              <div className="flex max-w-xs flex-col gap-2">
+                <label className="text-sm font-medium text-foreground">
+                  Session duration (minutes)
+                </label>
+                <input
+                  type="number"
+                  min={5}
+                  max={240}
+                  value={waiterSessionDurationMinutes === "" ? "" : waiterSessionDurationMinutes}
+                  onChange={(e) => onWaiterSessionDurationChange(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  placeholder="e.g. 120"
+                />
+                <p className="text-xs text-muted-foreground">
+                  After this time, a new session ID should be used for new waiter calls.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 

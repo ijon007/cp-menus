@@ -30,6 +30,7 @@ interface LivePublicMenuClientProps {
   restaurantName: string;
   restaurantSlug: string;
   tableNumber: number | null;
+  sessionId: string | null;
   sections: Section[];
   businessInfo: {
     logoUrl?: string | null;
@@ -52,6 +53,7 @@ function LivePublicMenuContent({
   restaurantName,
   restaurantSlug,
   tableNumber,
+  sessionId,
   sections,
   businessInfo,
 }: LivePublicMenuClientProps) {
@@ -122,6 +124,7 @@ function LivePublicMenuContent({
       <CallWaiterFAB
         restaurantSlug={restaurantSlug}
         tableNumber={tableNumber}
+        sessionId={sessionId}
         align="right"
         translations={t}
         showTooltipOnMount

@@ -15,15 +15,18 @@ export default defineSchema({
     bannerStorageId: v.optional(v.id("_storage")),
     googleReviewUrl: v.optional(v.string()),
     tripAdvisorReviewUrl: v.optional(v.string()),
-    socialLinks: v.optional(v.object({
-      instagram: v.optional(v.string()),
-      facebook: v.optional(v.string()),
-    })),
+    socialLinks: v.optional(
+      v.object({
+        instagram: v.optional(v.string()),
+        facebook: v.optional(v.string()),
+      })
+    ),
     menuTemplate: v.optional(v.string()),
     primaryColor: v.optional(v.string()),
     secondaryColor: v.optional(v.string()),
     accentColor: v.optional(v.string()),
     backgroundColor: v.optional(v.string()),
+    waiterSessionDurationMinutes: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -53,10 +56,16 @@ export default defineSchema({
   waiterCalls: defineTable({
     businessInfoId: v.id("businessInfo"),
     tableNumber: v.number(),
+    sessionId: v.string(),
     triggeredAt: v.number(),
   })
     .index("by_businessInfoId", ["businessInfoId"])
-    .index("by_businessInfoId_triggeredAt", ["businessInfoId", "triggeredAt"]),
+    .index("by_businessInfoId_triggeredAt", ["businessInfoId", "triggeredAt"])
+    .index("by_businessInfoId_tableNumber_sessionId", [
+      "businessInfoId",
+      "tableNumber",
+      "sessionId",
+    ]),
   userAccess: defineTable({
     userId: v.string(), // Clerk user ID
     email: v.optional(v.string()), // User email from Clerk

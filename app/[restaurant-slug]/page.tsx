@@ -1,7 +1,9 @@
 'use client'
 
+import { useEffect } from "react";
+
 /* Next */
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 /* Convex */
 import { useQuery } from "convex/react";
@@ -32,9 +34,29 @@ interface Section {
 function MenuPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const restaurantSlug = params["restaurant-slug"] as string;
   const tableParam = searchParams.get("table");
-  const tableNumber = tableParam && /^\d+$/.test(tableParam) ? parseInt(tableParam, 10) : null;
+
+  let tableNumber: number | null = null;
+  let sessionId: string | null = null;
+
+  if (tableParam) {
+    const [tablePart, sessionPart] = tableParam.split("_");
+    if (tablePart && /^\d+$/.test(tablePart)) {
+      tableNumber = parseInt(tablePart, 10);
+    }
+    if (sessionPart && sessionPart.trim().length > 0) {
+      sessionId = sessionPart.trim();
+    }
+  }
+  useEffect(() => {
+    if (!tableNumber || sessionId) return;
+    const randomSession = Math.random().toString(36).slice(2, 8);
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set("table", `${tableNumber}_${randomSession}`);
+    router.replace(`?${newSearchParams.toString()}`);
+  }, [tableNumber, sessionId, searchParams, router]);
 
   const menuData = useQuery(api.publicMenu.getByBusinessSlug, { slug: restaurantSlug });
   const { t } = useLanguage();
@@ -61,6 +83,7 @@ function MenuPage() {
       restaurantName={restaurantName}
       restaurantSlug={restaurantSlug}
       tableNumber={tableNumber}
+      sessionId={sessionId}
       sections={sections}
       businessInfo={{
         logoUrl: menuData.businessInfo?.logoUrl,

@@ -128,6 +128,7 @@ export const update = mutation({
     secondaryColor: v.optional(v.string()),
     accentColor: v.optional(v.string()),
     backgroundColor: v.optional(v.string()),
+    waiterSessionDurationMinutes: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -168,6 +169,7 @@ export const update = mutation({
       secondaryColor?: string;
       accentColor?: string;
       backgroundColor?: string;
+      waiterSessionDurationMinutes?: number;
       updatedAt: number;
     } = {
       updatedAt: Date.now(),
@@ -212,6 +214,13 @@ export const update = mutation({
     if (args.backgroundColor !== undefined) {
       const trimmed = args.backgroundColor.trim();
       updateData.backgroundColor = trimmed || undefined;
+    }
+    if (args.waiterSessionDurationMinutes !== undefined) {
+      const raw = args.waiterSessionDurationMinutes;
+      if (!Number.isFinite(raw) || raw <= 0) {
+        throw new Error("waiterSessionDurationMinutes must be a positive number");
+      }
+      updateData.waiterSessionDurationMinutes = raw;
     }
 
     await ctx.db.patch(businessInfo._id, updateData);

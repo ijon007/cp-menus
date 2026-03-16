@@ -73,6 +73,7 @@ export function CenteredFabBar({ children }: { children: React.ReactNode }) {
 interface CallWaiterFABProps {
   restaurantSlug: string;
   tableNumber: number | null;
+  sessionId: string | null;
   /** Rendered next to the call-waiter button in the same FAB group (e.g. language selector). */
   extraButtons?: React.ReactNode;
   /** Horizontal alignment of the FAB bar. Default "right" (LiveMenu style); use "center" for menu/restaurant pages. */
@@ -86,6 +87,7 @@ interface CallWaiterFABProps {
 export function CallWaiterFAB({
   restaurantSlug,
   tableNumber,
+  sessionId,
   extraButtons,
   align = "right",
   translations: t,
@@ -93,7 +95,6 @@ export function CallWaiterFAB({
 }: CallWaiterFABProps) {
   const [calling, setCalling] = useState(false);
   const [called, setCalled] = useState(false);
-  const hasCalledRef = useRef(false);
   const inFlightRef = useRef(false);
   const [tooltipOpen, setTooltipOpen] = useState(showTooltipOnMount);
   const callWaiter = useMutation(api.waiterCalls.callWaiter);
@@ -109,15 +110,24 @@ export function CallWaiterFAB({
   }, [showTooltipOnMount, tooltipOpen]);
 
   const handleCall = async () => {
-    if (!tableNumber || inFlightRef.current || hasCalledRef.current) return;
+    if (!tableNumber || !sessionId || inFlightRef.current) return;
 
     inFlightRef.current = true;
     setCalling(true);
     try {
-      await callWaiter({ slug: restaurantSlug, tableNumber });
-      setCalled(true);
-      hasCalledRef.current = true;
-      toast.success(`Waiter called for Table ${tableNumber}`);
+      const result = await callWaiter({
+        slug: restaurantSlug,
+        tableNumber,
+        sessionId,
+      });
+      if (result && result.limitReached) {
+        toast.error(
+          "You've reached the waiter call limit for this visit. Please rescan your table QR to call again."
+        );
+      } else {
+        setCalled(true);
+        toast.success(`Waiter called for Table ${tableNumber}`);
+      }
     } catch {
       toast.error("Could not call waiter. Please try again.");
     } finally {
