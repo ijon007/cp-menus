@@ -1,4 +1,5 @@
-import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 function slugifyName(name: string): string {
@@ -43,7 +44,25 @@ export const callWaiter = mutation({
       triggeredAt: Date.now(),
     });
 
+    await ctx.scheduler.runAt(
+      Date.now() + 60 * 60 * 1000,
+      internal.waiterCalls.expireWaiterCall,
+      { id }
+    );
+
     return { id };
+  },
+});
+
+export const expireWaiterCall = internalMutation({
+  args: { id: v.id("waiterCalls") },
+  handler: async (ctx, args) => {
+    const call = await ctx.db.get(args.id);
+    if (!call) {
+      return;
+    }
+
+    await ctx.db.delete(args.id);
   },
 });
 
