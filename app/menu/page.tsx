@@ -175,7 +175,7 @@ function AdminMenuPage() {
             <TooltipTrigger
               render={
                 <Link
-                  href={`/${titleToSlug(businessInfo.businessName)}`}
+                  href={`/${titleToSlug(businessInfo.businessName)}?table=1`}
                   aria-label="View live menu"
                   className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
                 >

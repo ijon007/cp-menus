@@ -27,9 +27,26 @@ function formatTime(timestamp: number): string {
 function formatElapsed(timestamp: number): string {
   const diffMs = Date.now() - timestamp;
   const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
   if (diffMins < 1) return "Just now";
-  if (diffMins === 1) return "1 min ago";
-  return `${diffMins} min ago`;
+
+  if (diffHours < 1) {
+    // Under 1 hour: keep minutes granularity
+    if (diffMins === 1) return "1 min ago";
+    return `${diffMins} min ago`;
+  }
+
+  if (diffDays < 1) {
+    // Under 1 day: show hours
+    if (diffHours === 1) return "1 hr ago";
+    return `${diffHours} hrs ago`;
+  }
+
+  // 1 day or more: show days
+  if (diffDays === 1) return "1 day ago";
+  return `${diffDays} days ago`;
 }
 
 function getUrgencyVariant(

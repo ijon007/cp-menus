@@ -27,6 +27,16 @@ export const callWaiter = mutation({
       throw new Error("Business not found");
     }
 
+    const existingCall = await ctx.db
+      .query("waiterCalls")
+      .withIndex("by_businessInfoId", (q) => q.eq("businessInfoId", business._id))
+      .filter((q) => q.eq(q.field("tableNumber"), args.tableNumber))
+      .first();
+
+    if (existingCall) {
+      return { id: existingCall._id };
+    }
+
     const id = await ctx.db.insert("waiterCalls", {
       businessInfoId: business._id,
       tableNumber: args.tableNumber,

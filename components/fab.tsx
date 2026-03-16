@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
@@ -79,6 +79,8 @@ interface CallWaiterFABProps {
   align?: "center" | "right";
   /** When provided (e.g. from public menu), tooltip and aria-label use these translations. */
   translations?: MenuTranslations;
+  /** When true, show the tooltip briefly on initial mount (e.g. on public menu load). */
+  showTooltipOnMount?: boolean;
 }
 
 export function CallWaiterFAB({
@@ -87,66 +89,62 @@ export function CallWaiterFAB({
   extraButtons,
   align = "right",
   translations: t,
+  showTooltipOnMount = false,
 }: CallWaiterFABProps) {
   const [calling, setCalling] = useState(false);
   const [called, setCalled] = useState(false);
-  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
+  const hasCalledRef = useRef(false);
+  const inFlightRef = useRef(false);
+  const [tooltipOpen, setTooltipOpen] = useState(showTooltipOnMount);
   const callWaiter = useMutation(api.waiterCalls.callWaiter);
 
   useEffect(() => {
-    if (cooldownUntil == null) return;
-    const remaining = cooldownUntil - Date.now();
-    if (remaining <= 0) {
-      setCooldownUntil(null);
-      return;
-    }
-    const timeoutId = setTimeout(() => setCooldownUntil(null), remaining);
+    if (!showTooltipOnMount || !tooltipOpen) return;
+
+    const timeoutId = setTimeout(() => {
+      setTooltipOpen(false);
+    }, 4000);
+
     return () => clearTimeout(timeoutId);
-  }, [cooldownUntil]);
+  }, [showTooltipOnMount, tooltipOpen]);
 
   const handleCall = async () => {
-    if (!tableNumber || calling || called || cooldownUntil != null) return;
+    if (!tableNumber || inFlightRef.current || hasCalledRef.current) return;
 
+    inFlightRef.current = true;
     setCalling(true);
     try {
       await callWaiter({ slug: restaurantSlug, tableNumber });
       setCalled(true);
-      setCooldownUntil(Date.now() + 3000);
+      hasCalledRef.current = true;
       toast.success(`Waiter called for Table ${tableNumber}`);
-      setTimeout(() => setCalled(false), 30000);
     } catch {
       toast.error("Could not call waiter. Please try again.");
     } finally {
       setCalling(false);
+      inFlightRef.current = false;
     }
   };
 
-  const inCooldown = cooldownUntil != null && Date.now() < cooldownUntil;
-  const disabled = !tableNumber || calling || called || inCooldown;
+  const disabled = !tableNumber || calling;
   const callWaiterTooltip = t
-    ? inCooldown
-      ? t.callWaiterTooltipWait
-      : tableNumber
-        ? called
-          ? t.callWaiterTooltipCalled.replace("{table}", String(tableNumber))
-          : t.callWaiterTooltip.replace("{table}", String(tableNumber))
-        : t.callWaiterTooltipNoTable
-    : inCooldown
-      ? "Please wait a moment before calling again"
-      : tableNumber
-        ? called
-          ? `Waiter already called for Table ${tableNumber}`
-          : `Call waiter for Table ${tableNumber}`
-        : "Scan your table's QR code to call the waiter";
+    ? tableNumber
+      ? called
+        ? t.callWaiterTooltipCalled.replace("{table}", String(tableNumber))
+        : t.callWaiterTooltip.replace("{table}", String(tableNumber))
+      : t.callWaiterTooltipNoTable
+    : tableNumber
+      ? called
+        ? `Waiter already called for Table ${tableNumber}`
+        : `Call waiter for Table ${tableNumber}`
+      : "Scan your table's QR code to call the waiter";
   const ariaLabel = t
     ? callWaiterTooltip
-    : inCooldown
-      ? "Please wait before calling again"
-      : tableNumber
-        ? called
-          ? `Waiter called for Table ${tableNumber}`
-          : `Call waiter for Table ${tableNumber}`
-        : "Open from your table's QR code to call the waiter";
+    : tableNumber
+      ? called
+        ? `Waiter called for Table ${tableNumber}`
+        : `Call waiter for Table ${tableNumber}`
+      : "Open from your table's QR code to call the waiter";
 
   return (
     <div
@@ -155,13 +153,13 @@ export function CallWaiterFAB({
     >
       <div className="flex flex-row items-center justify-center gap-0.5 rounded-full bg-secondary/95 p-1 shadow-lg ring-1 ring-black/5 backdrop-blur-sm">
         {extraButtons}
-        <Tooltip>
+        <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
           <TooltipTrigger
             render={
               <Button
                 variant="ghost"
                 size="icon"
-                className={`size-9 rounded-full text-foreground hover:bg-black/10 transition-opacity ${inCooldown ? "opacity-60 cursor-wait" : ""}`}
+                className="size-9 rounded-full text-foreground hover:bg-black/10 transition-opacity"
                 onClick={handleCall}
                 disabled={disabled}
                 aria-label={ariaLabel}

@@ -124,6 +124,7 @@ function LivePublicMenuContent({
         tableNumber={tableNumber}
         align="right"
         translations={t}
+        showTooltipOnMount
         extraButtons={
           <LanguageFAB language={language} setLanguage={setLanguage} t={t} />
         }
