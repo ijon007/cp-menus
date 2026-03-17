@@ -30,14 +30,14 @@ export const backfillAllSessions: ReturnType<typeof internalAction> = internalAc
     let processed = 0;
     for (const call of calls) {
       try {
-        const legacySessionId = `legacy-${call._id.id}`;
+        const legacySessionId = `legacy-${call._id}`;
         await ctx.runMutation(internal.backfillWaiterSessions.setCallSessionId, {
           id: call._id,
           sessionId: legacySessionId,
         });
         processed += 1;
       } catch (err) {
-        console.error(`Backfill failed for waiterCall ${call._id.id}:`, err);
+        console.error(`Backfill failed for waiterCall ${call._id}:`, err);
       }
     }
 
