@@ -9,6 +9,7 @@
  */
 
 import type * as backfillTranslations from "../backfillTranslations.js";
+import type * as backfillWaiterSessions from "../backfillWaiterSessions.js";
 import type * as businessInfo from "../businessInfo.js";
 import type * as http from "../http.js";
 import type * as menuItems from "../menuItems.js";
@@ -26,6 +27,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   backfillTranslations: typeof backfillTranslations;
+  backfillWaiterSessions: typeof backfillWaiterSessions;
   businessInfo: typeof businessInfo;
   http: typeof http;
   menuItems: typeof menuItems;
