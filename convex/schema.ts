@@ -56,7 +56,7 @@ export default defineSchema({
   waiterCalls: defineTable({
     businessInfoId: v.id("businessInfo"),
     tableNumber: v.number(),
-    sessionId: v.string(),
+    sessionId: v.optional(v.string()),
     triggeredAt: v.number(),
   })
     .index("by_businessInfoId", ["businessInfoId"])
