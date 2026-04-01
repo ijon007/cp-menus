@@ -26,9 +26,6 @@ import SocialMediaLinksSection from "@/components/settings/social-media-links-se
 import TemplateSelectionSection from "@/components/settings/template-selection-section";
 import ColorPickerSection from "@/components/settings/color-picker-section";
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
-import { Input } from "@/components/ui/input";
-
-const DEBOUNCE_MS = 400;
 
 function SettingsPage() {
   const router = useRouter();
@@ -52,32 +49,12 @@ function SettingsPage() {
   const [secondaryColor, setSecondaryColor] = useState<string | null>(null);
   const [accentColor, setAccentColor] = useState<string | null>(null);
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
-  const [waiterSessionDurationMinutes, setWaiterSessionDurationMinutes] = useState<
-    number | ""
-  >("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const formStateRef = useRef({
-    businessName: "",
-    googleReviewUrl: "",
-    tripAdvisorReviewUrl: "",
-    instagramUrl: "",
-    facebookUrl: "",
-  });
-
-  useEffect(() => {
-    formStateRef.current = {
-      businessName,
-      googleReviewUrl,
-      tripAdvisorReviewUrl,
-      instagramUrl,
-      facebookUrl,
-    };
-  }, [businessName, googleReviewUrl, tripAdvisorReviewUrl, instagramUrl, facebookUrl]);
 
   // Initialize form with current business info
   useEffect(() => {
@@ -92,9 +69,6 @@ function SettingsPage() {
       setSecondaryColor(businessInfo.secondaryColor || null);
       setAccentColor(businessInfo.accentColor || null);
       setBackgroundColor(businessInfo.backgroundColor || null);
-      setWaiterSessionDurationMinutes(
-        businessInfo.waiterSessionDurationMinutes ?? ""
-      );
       if (businessInfo.logoUrl) {
         setLogoPreview(businessInfo.logoUrl);
       }
@@ -104,124 +78,59 @@ function SettingsPage() {
     }
   }, [businessInfo]);
 
-  const persistUpdate = useCallback(
-    async (payload: Parameters<typeof updateBusinessInfo>[0]) => {
-      try {
-        await updateBusinessInfo(payload);
-        toast.success("Settings updated");
-      } catch (error) {
-        console.error("Error updating business info:", error);
-        toast.error("Failed to update settings. Please try again.");
-      }
-    },
-    [updateBusinessInfo]
-  );
-
-  const flushDebouncedForm = useCallback(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-      debounceRef.current = null;
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      await updateBusinessInfo({
+        businessName: businessName.trim() || undefined,
+        googleReviewUrl: googleReviewUrl.trim() || undefined,
+        tripAdvisorReviewUrl: tripAdvisorReviewUrl.trim() || undefined,
+        socialLinks: {
+          instagram: instagramUrl.trim() || undefined,
+          facebook: facebookUrl.trim() || undefined,
+        },
+        menuTemplate: menuTemplate || undefined,
+        primaryColor: primaryColor ?? "",
+        secondaryColor: secondaryColor ?? "",
+        accentColor: accentColor ?? "",
+        backgroundColor: backgroundColor ?? "",
+      });
+      toast.success("Settings saved");
+    } catch (error) {
+      console.error("Error updating business info:", error);
+      toast.error("Failed to save settings. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
-    const s = formStateRef.current;
-    persistUpdate({
-      businessName: s.businessName.trim() || undefined,
-      googleReviewUrl: s.googleReviewUrl.trim() || undefined,
-      tripAdvisorReviewUrl: s.tripAdvisorReviewUrl.trim() || undefined,
-      socialLinks: {
-        instagram: s.instagramUrl.trim() || undefined,
-        facebook: s.facebookUrl.trim() || undefined,
-      },
-    });
-  }, [persistUpdate]);
+  }, [
+    updateBusinessInfo,
+    businessName,
+    googleReviewUrl,
+    tripAdvisorReviewUrl,
+    instagramUrl,
+    facebookUrl,
+    menuTemplate,
+    primaryColor,
+    secondaryColor,
+    accentColor,
+    backgroundColor,
+  ]);
 
-  const schedulePersistForm = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(flushDebouncedForm, DEBOUNCE_MS);
-  }, [flushDebouncedForm]);
-
-  const onBusinessNameChange = useCallback(
-    (v: string) => {
-      setBusinessName(v);
-      schedulePersistForm();
-    },
-    [schedulePersistForm]
-  );
-  const onGoogleReviewUrlChange = useCallback(
-    (v: string) => {
-      setGoogleReviewUrl(v);
-      schedulePersistForm();
-    },
-    [schedulePersistForm]
-  );
-  const onTripAdvisorReviewUrlChange = useCallback(
-    (v: string) => {
-      setTripAdvisorReviewUrl(v);
-      schedulePersistForm();
-    },
-    [schedulePersistForm]
-  );
-  const onInstagramUrlChange = useCallback(
-    (v: string) => {
-      setInstagramUrl(v);
-      schedulePersistForm();
-    },
-    [schedulePersistForm]
-  );
-  const onFacebookUrlChange = useCallback(
-    (v: string) => {
-      setFacebookUrl(v);
-      schedulePersistForm();
-    },
-    [schedulePersistForm]
-  );
-
-  const onMenuTemplateChange = useCallback(
-    (v: string) => {
-      setMenuTemplate(v);
-      persistUpdate({ menuTemplate: v || undefined });
-    },
-    [persistUpdate]
-  );
-  const onPrimaryColorChange = useCallback(
-    (v: string | null) => {
-      setPrimaryColor(v);
-      persistUpdate({ primaryColor: v ?? "" });
-    },
-    [persistUpdate]
-  );
-  const onSecondaryColorChange = useCallback(
-    (v: string | null) => {
-      setSecondaryColor(v);
-      persistUpdate({ secondaryColor: v ?? "" });
-    },
-    [persistUpdate]
-  );
-  const onAccentColorChange = useCallback(
-    (v: string | null) => {
-      setAccentColor(v);
-      persistUpdate({ accentColor: v ?? "" });
-    },
-    [persistUpdate]
-  );
-  const onBackgroundColorChange = useCallback(
-    (v: string | null) => {
-      setBackgroundColor(v);
-      persistUpdate({ backgroundColor: v ?? "" });
-    },
-    [persistUpdate]
-  );
-
-  const onWaiterSessionDurationChange = useCallback(
-    (value: string) => {
-      const parsed = Number.parseInt(value, 10);
-      const next: number | "" = Number.isNaN(parsed) ? "" : parsed;
-      setWaiterSessionDurationMinutes(next);
-      if (!Number.isNaN(parsed) && parsed > 0) {
-        persistUpdate({ waiterSessionDurationMinutes: parsed });
-      }
-    },
-    [persistUpdate]
-  );
+  const onMenuTemplateChange = useCallback((v: string) => {
+    setMenuTemplate(v);
+  }, []);
+  const onPrimaryColorChange = useCallback((v: string | null) => {
+    setPrimaryColor(v);
+  }, []);
+  const onSecondaryColorChange = useCallback((v: string | null) => {
+    setSecondaryColor(v);
+  }, []);
+  const onAccentColorChange = useCallback((v: string | null) => {
+    setAccentColor(v);
+  }, []);
+  const onBackgroundColorChange = useCallback((v: string | null) => {
+    setBackgroundColor(v);
+  }, []);
 
   useEffect(() => {
     if (!selectedLogo || !businessInfo) return;
@@ -332,13 +241,22 @@ function SettingsPage() {
             </Button>
             <h2 className="text-2xl font-semibold text-foreground">Settings</h2>
           </div>
-          <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving || isUploading}
+            >
+              {isSaving ? "Saving…" : "Save"}
+            </Button>
+            <LogoutDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} />
+          </div>
         </div>
 
         <div className="space-y-8">
           <BasicInformationSection
             businessName={businessName}
-            onBusinessNameChange={onBusinessNameChange}
+            onBusinessNameChange={setBusinessName}
             logoPreview={logoPreview}
             selectedLogo={selectedLogo}
             setSelectedLogo={setSelectedLogo}
@@ -356,16 +274,16 @@ function SettingsPage() {
 
           <ReviewLinksSection
             googleReviewUrl={googleReviewUrl}
-            onGoogleReviewUrlChange={onGoogleReviewUrlChange}
+            onGoogleReviewUrlChange={setGoogleReviewUrl}
             tripAdvisorReviewUrl={tripAdvisorReviewUrl}
-            onTripAdvisorReviewUrlChange={onTripAdvisorReviewUrlChange}
+            onTripAdvisorReviewUrlChange={setTripAdvisorReviewUrl}
           />
 
           <SocialMediaLinksSection
             instagramUrl={instagramUrl}
-            onInstagramUrlChange={onInstagramUrlChange}
+            onInstagramUrlChange={setInstagramUrl}
             facebookUrl={facebookUrl}
-            onFacebookUrlChange={onFacebookUrlChange}
+            onFacebookUrlChange={setFacebookUrl}
           />
 
           <TemplateSelectionSection
@@ -383,34 +301,6 @@ function SettingsPage() {
             onAccentColorChange={onAccentColorChange}
             onBackgroundColorChange={onBackgroundColorChange}
           />
-
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">
-                Waiter call session
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Control how long a table session stays active for waiter calls. Each
-                session can call the waiter up to 3 times.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Session duration (minutes)
-              </label>
-              <Input
-                type="number"
-                min={5}
-                max={240}
-                value={waiterSessionDurationMinutes === "" ? "" : waiterSessionDurationMinutes}
-                onChange={(e) => onWaiterSessionDurationChange(e.target.value)}
-                placeholder="60"
-              />
-              <p className="text-xs text-muted-foreground">
-                After this time, a new session ID should be used for new waiter calls.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
