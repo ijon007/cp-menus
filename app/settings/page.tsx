@@ -25,6 +25,7 @@ import ReviewLinksSection from "@/components/settings/review-links-section";
 import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
 import TemplateSelectionSection from "@/components/settings/template-selection-section";
 import ColorPickerSection from "@/components/settings/color-picker-section";
+import WaiterSessionSection from "@/components/settings/waiter-session-section";
 import { DEFAULT_TEMPLATE } from "@/constants/templates";
 
 function SettingsPage() {
@@ -52,6 +53,7 @@ function SettingsPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [waiterSessionDurationMinutes, setWaiterSessionDurationMinutes] = useState(15);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -75,6 +77,15 @@ function SettingsPage() {
       if (businessInfo.bannerUrl) {
         setBannerPreview(businessInfo.bannerUrl);
       }
+      const sessionMins = businessInfo.waiterSessionDurationMinutes;
+      setWaiterSessionDurationMinutes(
+        typeof sessionMins === "number" &&
+          Number.isFinite(sessionMins) &&
+          sessionMins >= 5 &&
+          sessionMins <= 480
+          ? Math.round(sessionMins)
+          : 15
+      );
     }
   }, [businessInfo]);
 
@@ -94,6 +105,7 @@ function SettingsPage() {
         secondaryColor: secondaryColor ?? "",
         accentColor: accentColor ?? "",
         backgroundColor: backgroundColor ?? "",
+        waiterSessionDurationMinutes,
       });
       toast.success("Settings saved");
     } catch (error) {
@@ -114,6 +126,7 @@ function SettingsPage() {
     secondaryColor,
     accentColor,
     backgroundColor,
+    waiterSessionDurationMinutes,
   ]);
 
   const onMenuTemplateChange = useCallback((v: string) => {
@@ -253,7 +266,7 @@ function SettingsPage() {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 pb-10">
           <BasicInformationSection
             businessName={businessName}
             onBusinessNameChange={setBusinessName}
@@ -300,6 +313,11 @@ function SettingsPage() {
             onSecondaryColorChange={onSecondaryColorChange}
             onAccentColorChange={onAccentColorChange}
             onBackgroundColorChange={onBackgroundColorChange}
+          />
+
+          <WaiterSessionSection
+            sessionDurationMinutes={waiterSessionDurationMinutes}
+            onSessionDurationMinutesChange={setWaiterSessionDurationMinutes}
           />
         </div>
       </div>

@@ -34,7 +34,15 @@ export const callWaiter = mutation({
     }
 
     const now = Date.now();
-    const fifteenMinutesMs = 15 * 60 * 1000;
+    const configured = business.waiterSessionDurationMinutes;
+    const sessionMinutes =
+      typeof configured === "number" &&
+      Number.isFinite(configured) &&
+      configured >= 5 &&
+      configured <= 480
+        ? Math.round(configured)
+        : 15;
+    const sessionWindowMs = sessionMinutes * 60 * 1000;
 
     const activeCalls = await ctx.db
       .query("waiterCalls")
@@ -47,7 +55,7 @@ export const callWaiter = mutation({
       .collect();
 
     const nonExpiredCalls = activeCalls.filter(
-      (c) => now - c.triggeredAt < fifteenMinutesMs
+      (c) => now - c.triggeredAt < sessionWindowMs
     );
 
     if (nonExpiredCalls.length >= 3) {
@@ -62,7 +70,7 @@ export const callWaiter = mutation({
     });
 
     await ctx.scheduler.runAt(
-      now + fifteenMinutesMs,
+      now + sessionWindowMs,
       internal.waiterCalls.expireWaiterCall,
       { id }
     );
