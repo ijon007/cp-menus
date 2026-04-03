@@ -149,13 +149,13 @@ export default function SectionWithItems({
   return (
     <Accordion className="border-border bg-card rounded-lg">
       <AccordionItem className="data-open:bg-card">
-        <div className="flex items-center justify-between gap-2 px-2">
-          <AccordionTrigger className="hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer flex-1 px-0">
-            <div className="flex items-center gap-2 flex-1 p-0">
-              <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing touch-none">
+        <div className="flex min-w-0 items-center justify-between gap-2 px-2">
+          <AccordionTrigger className="hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer min-w-0 flex-1 px-0">
+            <div className="flex min-w-0 flex-1 items-center gap-2 p-0">
+              <div {...dragHandleProps} className="shrink-0 cursor-grab touch-none active:cursor-grabbing">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg>
               </div>
-              <CardTitle className="text-foreground text-base">{section.name}</CardTitle>
+              <CardTitle className="text-foreground truncate text-base">{section.name}</CardTitle>
             </div>
           </AccordionTrigger>
           <SectionActions

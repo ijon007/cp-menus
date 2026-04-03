@@ -10,6 +10,7 @@ import { api } from "@/convex/_generated/api";
 
 /* Components */
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -129,12 +130,25 @@ export default function SectionActions({
     }
   };
 
+  const triggerButtonClass = cn(
+    "shrink-0 max-[480px]:h-6 max-[480px]:w-6 max-[480px]:min-w-6 max-[480px]:justify-center max-[480px]:px-0 max-[480px]:gap-0"
+  );
+
   return (
-    <div className="flex gap-2">
+    <div className="flex shrink-0 gap-2 max-[480px]:gap-1">
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogTrigger render={<Button variant="outline" size="sm" />}>
+        <DialogTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className={triggerButtonClass}
+              aria-label={`Edit section ${sectionName}`}
+            />
+          }
+        >
           <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
-          Edit
+          <span className="max-[480px]:hidden">Edit</span>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -168,9 +182,18 @@ export default function SectionActions({
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogTrigger render={<Button variant="destructive" size="sm" />}>
-         <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-          Delete
+        <DialogTrigger
+          render={
+            <Button
+              variant="destructive"
+              size="sm"
+              className={triggerButtonClass}
+              aria-label={`Delete section ${sectionName}`}
+            />
+          }
+        >
+          <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+          <span className="max-[480px]:hidden">Delete</span>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -193,7 +216,7 @@ export default function SectionActions({
       </Dialog>
 
       <Dialog open={addItemDialogOpen} onOpenChange={setAddItemDialogOpen}>
-        <DialogTrigger render={<Button variant="outline" size="sm" />}>
+        <DialogTrigger render={<Button variant="outline" size="sm" className="shrink-0" />}>
           <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
           Add Item
         </DialogTrigger>
