@@ -1,7 +1,7 @@
 "use client";
 
 /* Next */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -15,11 +15,20 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
-import { Menu01Icon, Notification01Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon,Menu01Icon, Notification01Icon } from "@hugeicons/core-free-icons";
 import LogoutDialog from "@/components/settings/logout-dialog";
 import { CenteredFabBar } from "@/components/fab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import BasicInformationSection from "@/components/settings/basic-information-section";
 import ReviewLinksSection from "@/components/settings/review-links-section";
 import SocialMediaLinksSection from "@/components/settings/social-media-links-section";
@@ -54,9 +63,12 @@ function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [waiterSessionDurationMinutes, setWaiterSessionDurationMinutes] = useState(15);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+  const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const pendingNavigationRef = useRef<null | (() => void)>(null);
 
   // Initialize form with current business info
   useEffect(() => {
@@ -108,9 +120,11 @@ function SettingsPage() {
         waiterSessionDurationMinutes,
       });
       toast.success("Settings saved");
+      return true;
     } catch (error) {
       console.error("Error updating business info:", error);
       toast.error("Failed to save settings. Please try again.");
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -128,6 +142,87 @@ function SettingsPage() {
     backgroundColor,
     waiterSessionDurationMinutes,
   ]);
+
+  const normalizeOptionalString = useCallback((value: string | null | undefined) => {
+    const normalized = (value ?? "").trim();
+    return normalized === "" ? null : normalized;
+  }, []);
+
+  const hasUnsavedChanges = useMemo(() => {
+    if (!businessInfo) return false;
+
+    return (
+      normalizeOptionalString(businessName) !== normalizeOptionalString(businessInfo.businessName) ||
+      normalizeOptionalString(googleReviewUrl) !==
+        normalizeOptionalString(businessInfo.googleReviewUrl) ||
+      normalizeOptionalString(tripAdvisorReviewUrl) !==
+        normalizeOptionalString(businessInfo.tripAdvisorReviewUrl) ||
+      normalizeOptionalString(instagramUrl) !==
+        normalizeOptionalString(businessInfo.socialLinks?.instagram) ||
+      normalizeOptionalString(facebookUrl) !== normalizeOptionalString(businessInfo.socialLinks?.facebook) ||
+      normalizeOptionalString(menuTemplate) !== normalizeOptionalString(businessInfo.menuTemplate) ||
+      (primaryColor ?? null) !== (businessInfo.primaryColor ?? null) ||
+      (secondaryColor ?? null) !== (businessInfo.secondaryColor ?? null) ||
+      (accentColor ?? null) !== (businessInfo.accentColor ?? null) ||
+      (backgroundColor ?? null) !== (businessInfo.backgroundColor ?? null) ||
+      waiterSessionDurationMinutes !==
+        (typeof businessInfo.waiterSessionDurationMinutes === "number" &&
+        Number.isFinite(businessInfo.waiterSessionDurationMinutes) &&
+        businessInfo.waiterSessionDurationMinutes >= 5 &&
+        businessInfo.waiterSessionDurationMinutes <= 480
+          ? Math.round(businessInfo.waiterSessionDurationMinutes)
+          : 15)
+    );
+  }, [
+    businessInfo,
+    businessName,
+    googleReviewUrl,
+    tripAdvisorReviewUrl,
+    instagramUrl,
+    facebookUrl,
+    menuTemplate,
+    primaryColor,
+    secondaryColor,
+    accentColor,
+    backgroundColor,
+    waiterSessionDurationMinutes,
+    normalizeOptionalString,
+  ]);
+
+  const requestLeave = useCallback(
+    (navigate: () => void) => {
+      if (!hasUnsavedChanges || isSaving || isUploading) {
+        navigate();
+        return;
+      }
+      pendingNavigationRef.current = navigate;
+      setLeaveDialogOpen(true);
+    },
+    [hasUnsavedChanges, isSaving, isUploading]
+  );
+
+  const handleSaveAndLeave = useCallback(async () => {
+    setIsSavingBeforeLeave(true);
+    const didSave = await handleSave();
+    setIsSavingBeforeLeave(false);
+    if (!didSave) return;
+    setLeaveDialogOpen(false);
+    const pendingNavigate = pendingNavigationRef.current;
+    pendingNavigationRef.current = null;
+    pendingNavigate?.();
+  }, [handleSave]);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   const onMenuTemplateChange = useCallback((v: string) => {
     setMenuTemplate(v);
@@ -247,7 +342,7 @@ function SettingsPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => router.back()}
+              onClick={() => requestLeave(() => router.back())}
               className="hover:bg-accent"
             >
               <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} />
@@ -257,7 +352,9 @@ function SettingsPage() {
           <div className="flex shrink-0 items-center gap-2">
             <Button
               type="button"
-              onClick={handleSave}
+              onClick={() => {
+                void handleSave();
+              }}
               disabled={isSaving || isUploading}
             >
               {isSaving ? "Saving…" : "Save"}
@@ -328,6 +425,10 @@ function SettingsPage() {
             render={
               <Link
                 href="/menu"
+                onClick={(e) => {
+                  e.preventDefault();
+                  requestLeave(() => router.push("/menu"));
+                }}
                 aria-label="Menu"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
               >
@@ -342,6 +443,10 @@ function SettingsPage() {
             render={
               <Link
                 href="/waiter"
+                onClick={(e) => {
+                  e.preventDefault();
+                  requestLeave(() => router.push("/waiter"));
+                }}
                 aria-label="Waiter dashboard"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
               >
@@ -352,6 +457,34 @@ function SettingsPage() {
           <TooltipContent side="top">Waiter dashboard</TooltipContent>
         </Tooltip>
       </CenteredFabBar>
+      <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved settings</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. If you leave now, your updates will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                pendingNavigationRef.current = null;
+                setLeaveDialogOpen(false);
+              }}
+            >
+              Leave Anyway
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                void handleSaveAndLeave();
+              }}
+              disabled={isSavingBeforeLeave || isSaving || isUploading}
+            >
+              {isSavingBeforeLeave || isSaving ? "Saving..." : "Save Changes"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
