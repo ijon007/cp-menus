@@ -4,6 +4,7 @@
 import Image from "next/image";
 
 /* Utils */
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/formatting";
 
 /* Constants */
@@ -17,6 +18,7 @@ interface MenuItemProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  onSelect?: () => void;
 }
 
 export default function MenuItem({ 
@@ -27,10 +29,27 @@ export default function MenuItem({
   primaryColor,
   secondaryColor,
   accentColor,
+  onSelect,
 }: MenuItemProps) {
   return (
     <div 
-      className="flex items-start justify-between py-3 gap-4 border-b border-border/50 last:border-b-0"
+      className={cn(
+        "flex items-start justify-between gap-4 border-b border-border/50 py-3 last:border-b-0",
+        onSelect && "cursor-pointer"
+      )}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect();
+              }
+            }
+          : undefined
+      }
       style={secondaryColor ? { 
         borderColor: `${secondaryColor}20`
       } : undefined}

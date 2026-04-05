@@ -3,7 +3,11 @@
 /* Next */
 import Image from "next/image";
 
+/* Components */
+import { useMenuItemPreview } from "../menu-item-preview";
+
 /* Utils */
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/formatting";
 import { titleToSlug } from "@/utils/slug";
 import { useLanguage } from "@/app/menu/useLanguage";
@@ -47,6 +51,7 @@ export default function MinimalTemplate({
   backgroundColor,
 }: MinimalTemplateProps) {
   const { language } = useLanguage();
+  const { previewProps } = useMenuItemPreview();
 
   return (
     <>
@@ -87,7 +92,16 @@ export default function MinimalTemplate({
                 return (
                 <div
                   key={item.id}
-                  className="flex flex-row gap-6 items-center"
+                  className={cn(
+                    "flex flex-row items-center gap-6",
+                    "cursor-pointer"
+                  )}
+                  {...previewProps({
+                    name: itemName,
+                    price: item.price,
+                    description: itemDesc || undefined,
+                    image: item.image || DEFAULT_IMAGES.MENU_ITEM,
+                  })}
                 >
                   <div 
                     className="w-24 h-24 md:w-32 md:h-32 shrink-0 relative overflow-hidden rounded-sm bg-muted border"

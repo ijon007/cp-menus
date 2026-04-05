@@ -4,6 +4,7 @@
 import Image from "next/image";
 
 /* Utils */
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/formatting";
 
 /* Constants */
@@ -17,6 +18,7 @@ interface MenuItemGridProps {
   primaryColor?: string | null;
   secondaryColor?: string | null;
   accentColor?: string | null;
+  onSelect?: () => void;
 }
 
 export default function MenuItemGrid({
@@ -27,10 +29,27 @@ export default function MenuItemGrid({
   primaryColor,
   secondaryColor,
   accentColor,
+  onSelect,
 }: MenuItemGridProps) {
   return (
     <div 
-      className="flex flex-col gap-2 overflow-hidden rounded-sm"
+      className={cn(
+        "flex flex-col gap-2 overflow-hidden rounded-sm",
+        onSelect && "cursor-pointer"
+      )}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect();
+              }
+            }
+          : undefined
+      }
       style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
     >
       <div 
