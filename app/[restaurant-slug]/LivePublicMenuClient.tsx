@@ -6,6 +6,7 @@ import RestaurantHeader from "@/components/public-menu/restaurant-header";
 import CategorySelector from "@/components/public-menu/category-selector";
 import TemplateRenderer from "@/components/public-menu/template-renderer";
 import { CallWaiterFAB, LanguageFAB } from "@/components/fab";
+import { MenuItemPreviewProvider } from "@/components/public-menu/menu-item-preview";
 
 import type { TranslationMap } from "@/app/menu/i18n";
 
@@ -139,7 +140,9 @@ function LivePublicMenuContent({
 export function LivePublicMenuClient(props: LivePublicMenuClientProps) {
   return (
     <LanguageProvider>
-      <LivePublicMenuContent {...props} />
+      <MenuItemPreviewProvider>
+        <LivePublicMenuContent {...props} />
+      </MenuItemPreviewProvider>
     </LanguageProvider>
   );
 }

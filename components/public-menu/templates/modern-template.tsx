@@ -1,9 +1,15 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 /* Next */
 import Image from "next/image";
 
+/* Components */
+import { useMenuItemPreview } from "../menu-item-preview";
+
 /* Utils */
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/formatting";
 import { titleToSlug } from "@/utils/slug";
 import { useLanguage } from "@/app/menu/useLanguage";
@@ -45,6 +51,7 @@ export default function ModernTemplate({
   accentColor,
 }: ModernTemplateProps) {
   const { language } = useLanguage();
+  const { previewProps } = useMenuItemPreview();
 
   return (
     <>
@@ -80,11 +87,20 @@ export default function ModernTemplate({
                 return (
                 <div
                   key={item.id}
-                  className="group relative bg-card border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                  className={cn(
+                    "group relative flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
+                    "cursor-pointer"
+                  )}
+                  {...previewProps({
+                    name: itemName,
+                    price: item.price,
+                    description: itemDesc || undefined,
+                    image: item.image || DEFAULT_IMAGES.MENU_ITEM,
+                  })}
                   style={secondaryColor ? { 
                     borderColor: `${secondaryColor}40`,
                     '--hover-border': `${secondaryColor}60`
-                  } as React.CSSProperties & { '--hover-border': string } : undefined}
+                  } as CSSProperties & { '--hover-border': string } : undefined}
                   onMouseEnter={(e) => {
                     if (secondaryColor) {
                       e.currentTarget.style.borderColor = `${secondaryColor}60`;

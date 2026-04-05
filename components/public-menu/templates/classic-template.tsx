@@ -6,6 +6,7 @@ import Image from "next/image";
 /* Components */
 import MenuItem from "../menu-item";
 import MenuItemGrid from "../menu-item-grid";
+import { useMenuItemPreview } from "../menu-item-preview";
 import { useLanguage } from "@/app/menu/useLanguage";
 import { getTranslated } from "@/app/menu/i18n";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/carousel";
 
 /* Utils */
+import { cn } from "@/lib/utils";
 import { formatPrice } from "@/utils/formatting";
 import { titleToSlug } from "@/utils/slug";
 
@@ -56,6 +58,7 @@ export default function ClassicTemplate({
   accentColor,
 }: ClassicTemplateProps) {
   const { language } = useLanguage();
+  const { openPreview, previewProps } = useMenuItemPreview();
 
   return (
     <>
@@ -71,7 +74,15 @@ export default function ClassicTemplate({
             const itemDesc = getTranslated(item.descriptionTranslations, language, item.description ?? "");
             return (
             <div 
-              className="flex flex-col gap-2 overflow-hidden rounded-sm"
+              className={cn(
+                "flex cursor-pointer flex-col gap-2 overflow-hidden rounded-sm"
+              )}
+              {...previewProps({
+                name: itemName,
+                price: item.price,
+                description: itemDesc || undefined,
+                image: item.image || DEFAULT_IMAGES.MENU_ITEM,
+              })}
               style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
             >
               <div 
@@ -188,7 +199,18 @@ export default function ClassicTemplate({
                 {firstItem && (
                   <div className="w-full">
                     <div 
-                      className="flex flex-col gap-2 overflow-hidden rounded-sm"
+                      className="flex cursor-pointer flex-col gap-2 overflow-hidden rounded-sm"
+                      {...previewProps({
+                        name: getTranslated(firstItem.nameTranslations, language, firstItem.name),
+                        price: firstItem.price,
+                        description:
+                          getTranslated(
+                            firstItem.descriptionTranslations,
+                            language,
+                            firstItem.description ?? ""
+                          ) || undefined,
+                        image: firstItem.image || DEFAULT_IMAGES.MENU_ITEM,
+                      })}
                       style={secondaryColor ? { backgroundColor: `${secondaryColor}50` } : undefined}
                     >
                       <div 
@@ -234,6 +256,19 @@ export default function ClassicTemplate({
                         primaryColor={primaryColor}
                         secondaryColor={secondaryColor}
                         accentColor={accentColor}
+                        onSelect={() =>
+                          openPreview({
+                            name: getTranslated(item.nameTranslations, language, item.name),
+                            price: item.price,
+                            description:
+                              getTranslated(
+                                item.descriptionTranslations,
+                                language,
+                                item.description ?? ""
+                              ) || undefined,
+                            image: item.image || DEFAULT_IMAGES.MENU_ITEM,
+                          })
+                        }
                       />
                     ))}
                   </div>
@@ -263,6 +298,19 @@ export default function ClassicTemplate({
                   primaryColor={primaryColor}
                   secondaryColor={secondaryColor}
                   accentColor={accentColor}
+                  onSelect={() =>
+                    openPreview({
+                      name: getTranslated(item.nameTranslations, language, item.name),
+                      price: item.price,
+                      description:
+                        getTranslated(
+                          item.descriptionTranslations,
+                          language,
+                          item.description ?? ""
+                        ) || undefined,
+                      image: item.image || DEFAULT_IMAGES.MENU_ITEM,
+                    })
+                  }
                 />
               ))}
             </div>
