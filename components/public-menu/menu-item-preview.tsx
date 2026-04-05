@@ -46,7 +46,7 @@ function MenuItemDetailDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-background">
         {item ? (
-          <DrawerHeader className="text-left">
+          <DrawerHeader className="flex flex-col items-start justify-center text-left">
             <div className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-lg bg-muted">
               <Image
                 src={item.image}
@@ -56,7 +56,7 @@ function MenuItemDetailDrawer({
                 sizes="(max-width: 768px) 100vw, 32rem"
               />
             </div>
-            <DrawerTitle className="pt-3 text-base font-semibold">
+            <DrawerTitle className="text-lg font-semibold">
               {item.name}
             </DrawerTitle>
             {item.description ? (
@@ -64,7 +64,7 @@ function MenuItemDetailDrawer({
                 {item.description}
               </DrawerDescription>
             ) : null}
-            <p className="text-foreground pt-1 text-sm font-medium">
+            <p className="text-foreground text-sm font-medium">
               {formatPrice(item.price)}
             </p>
           </DrawerHeader>
