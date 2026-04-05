@@ -47,7 +47,7 @@ function MenuItemDetailDrawer({
       <DrawerContent className="bg-background">
         {item ? (
           <DrawerHeader className="text-left">
-            <div className="relative mx-auto aspect-video w-full max-w-lg overflow-hidden rounded-lg bg-muted">
+            <div className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-lg bg-muted">
               <Image
                 src={item.image}
                 alt={item.name}
