@@ -26,11 +26,11 @@ export function WaiterHeader({
 
   const subtitle =
     openNoteCount === 0
-      ? "No open notes"
-      : `${openNoteCount} open note${openNoteCount !== 1 ? "s" : ""}`;
+      ? "No notes"
+      : `${openNoteCount} note${openNoteCount !== 1 ? "s" : ""}`;
 
   return (
-    <div className="mb-4 flex items-center">
+    <div className="mb-3 flex items-center">
       <Button
         variant="ghost"
         size="icon-sm"

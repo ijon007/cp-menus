@@ -10,7 +10,7 @@ interface WaiterNotesBoardProps {
 
 export function WaiterNotesBoard({ groups, onOpenTable }: WaiterNotesBoardProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-2 sm:grid-cols-2">
       {groups.map((group) => (
         <WaiterTableNotesCard
           key={group.tableNumber}

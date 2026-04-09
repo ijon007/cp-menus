@@ -14,7 +14,7 @@ export function WaiterToolbar({
   onSearchChange,
 }: WaiterToolbarProps) {
   return (
-    <div className="mb-5 flex items-center gap-2">
+    <div className="mb-3 flex items-center gap-2">
       <div className="relative flex-1">
         <HugeiconsIcon
           icon={SearchIcon}
