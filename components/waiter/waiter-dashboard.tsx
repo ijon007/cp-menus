@@ -5,7 +5,6 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -13,8 +12,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Delete02Icon } from "@hugeicons/core-free-icons";
 import { WaiterHeader } from "./waiter-header";
 import { WaiterToolbar } from "./waiter-toolbar";
 import { WaiterEmptyState } from "./waiter-empty-state";
@@ -31,7 +28,6 @@ export function WaiterDashboard() {
   const clearMutation = useMutation(api.waiterCalls.clearWaiterCall);
   const addNoteMutation = useMutation(api.waiterNotes.addNote);
   const toggleNoteMutation = useMutation(api.waiterNotes.toggleNoteComplete);
-  const clearCompletedMutation = useMutation(api.waiterNotes.clearCompletedByTable);
   const deleteNoteMutation = useMutation(api.waiterNotes.deleteNote);
 
   const [search, setSearch] = useState("");
@@ -190,15 +186,6 @@ export function WaiterDashboard() {
     }
   };
 
-  const handleClearCompleted = async (tableNumber: number) => {
-    try {
-      const result = await clearCompletedMutation({ tableNumber });
-      toast(`Cleared ${result.deleted} completed note${result.deleted === 1 ? "" : "s"}`);
-    } catch {
-      toast.error("Failed to clear completed notes.");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 max-w-4xl">
@@ -253,45 +240,58 @@ export function WaiterDashboard() {
           }
         }}
       >
-        <SheetContent side="bottom" className="h-[90vh] max-h-[90vh] p-0">
+        <SheetContent
+          side="bottom"
+          className="data-[side=bottom]:h-[90vh] data-[side=bottom]:max-h-[90vh] p-0"
+        >
           {activeTableGroup && (
             <>
               <SheetHeader className="shrink-0 px-4 pt-4 pb-3">
-                <SheetTitle>Table {activeTableGroup.tableNumber}</SheetTitle>
+                <SheetTitle className="text-lg">Table {activeTableGroup.tableNumber}</SheetTitle>
                 <SheetDescription>
                   {activeTableGroup.pendingCount} open / {activeTableGroup.completedCount} completed
                 </SheetDescription>
               </SheetHeader>
 
               <div className="flex min-h-0 flex-1 flex-col">
-                <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
                   {activeTableGroup.notes.length > 0 ? (
-                    activeTableGroup.notes.map((note) => (
-                      <WaiterNoteItem
-                        key={note.id}
-                        note={note}
-                        justAdded={flashNoteId === note.id}
-                        onToggle={handleToggleNote}
-                        onDelete={handleDeleteNote}
+                    <>
+                      {activeTableGroup.notes.map((note) => (
+                        <WaiterNoteItem
+                          key={note.id}
+                          note={note}
+                          justAdded={flashNoteId === note.id}
+                          onToggle={handleToggleNote}
+                          onDelete={handleDeleteNote}
+                        />
+                      ))}
+                      <div className="pointer-events-none border-t border-border/60" />
+                      <div
+                        className="pointer-events-none min-h-0 flex-1"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(to bottom, transparent 0 31px, hsl(var(--border) / 0.6) 31px 32px)",
+                        }}
                       />
-                    ))
+                    </>
                   ) : (
-                    <p className="text-sm text-muted-foreground py-6 text-center">
-                      No notes yet for this table.
-                    </p>
+                    <div className="flex h-full min-h-[12rem] flex-col">
+                      <p className="py-6 text-center text-sm text-muted-foreground">
+                        No notes yet for this table.
+                      </p>
+                      <div className="pointer-events-none border-t border-border/60" />
+                      <div
+                        className="pointer-events-none min-h-0 flex-1"
+                        style={{
+                          backgroundImage:
+                            "repeating-linear-gradient(to bottom, transparent 0 31px, hsl(var(--border) / 0.6) 31px 32px)",
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
-                <div className="shrink-0 space-y-2 bg-background px-4 py-3">
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleClearCompleted(activeTableGroup.tableNumber)}
-                    >
-                      <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
-                      Clear completed
-                    </Button>
-                  </div>
+                <div className="shrink-0 bg-background px-4 pt-2 pb-4">
                   <WaiterNoteComposer
                     tableNumber={activeTableGroup.tableNumber}
                     onAdd={handleAddNote}

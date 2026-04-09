@@ -9,18 +9,23 @@ import type { WaiterNote } from "./types";
 
 interface WaiterNoteItemProps {
   note: WaiterNote;
+  justAdded?: boolean;
   onToggle: (id: string, isCompleted: boolean) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-export function WaiterNoteItem({ note, onToggle, onDelete }: WaiterNoteItemProps) {
+export function WaiterNoteItem({
+  note,
+  justAdded,
+  onToggle,
+  onDelete,
+}: WaiterNoteItemProps) {
   return (
     <div
-      className="flex items-center gap-2 min-h-8 px-2"
-      style={{
-        backgroundImage:
-          "linear-gradient(to bottom, transparent calc(100% - 1px), hsl(var(--border) / 0.3) 1px)",
-      }}
+      className={cn(
+        "flex h-8 items-center gap-2 border-t border-border/60 px-2",
+        justAdded && "animate-waiter-note-enter"
+      )}
     >
       <Checkbox
         checked={note.isCompleted}

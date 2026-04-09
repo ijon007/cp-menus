@@ -33,14 +33,14 @@ export function WaiterNoteComposer({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 pb-2">
       <Input
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Add note..."
         className="h-8 text-sm"
       />
-      <Button type="submit" size="sm" disabled={isSubmitting || !value.trim()}>
+      <Button type="submit" className="h-8 px-3" disabled={isSubmitting || !value.trim()}>
         <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
         Send
       </Button>
