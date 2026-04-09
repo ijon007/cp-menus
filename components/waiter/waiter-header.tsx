@@ -43,7 +43,6 @@ export function WaiterHeader({
           <h1 className="text-lg font-semibold text-foreground tracking-tight">
             Waiter Notes
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
         </div>
         <div className="flex items-center gap-1.5">
           <WaiterNewNoteDialog
@@ -53,7 +52,10 @@ export function WaiterHeader({
           <Button variant="outline" size="sm" onClick={onOpenCalls}>
             <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} />
             Calls
-            <Badge variant={callCount > 0 ? "secondary" : "outline"}>
+            <Badge
+              variant={callCount > 0 ? "secondary" : "outline"}
+              className="h-4 min-w-4 rounded-full px-1 text-[10px] leading-none"
+            >
               {callCount}
             </Badge>
           </Button>
