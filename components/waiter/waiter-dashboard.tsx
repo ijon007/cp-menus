@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -37,6 +37,7 @@ export function WaiterDashboard() {
   const [search, setSearch] = useState("");
   const [isCallsOpen, setIsCallsOpen] = useState(false);
   const [activeTableNumber, setActiveTableNumber] = useState<number | null>(null);
+  const [flashNoteId, setFlashNoteId] = useState<string | null>(null);
 
   const notifications: WaiterNotification[] = useMemo(
     () =>
@@ -72,20 +73,25 @@ export function WaiterDashboard() {
 
     return [...byTable.entries()]
       .map(([tableNumber, tableNotes]) => {
-        const sorted = [...tableNotes].sort((a, b) => b.updatedAt - a.updatedAt);
-        const pendingCount = sorted.filter((n) => !n.isCompleted).length;
+        const byCreatedDesc = [...tableNotes].sort((a, b) => b.createdAt - a.createdAt);
+        const pendingCount = tableNotes.filter((n) => !n.isCompleted).length;
+        const mostRecentlyTouched = tableNotes.reduce<WaiterNote | null>(
+          (best, n) => (!best || n.updatedAt > best.updatedAt ? n : best),
+          null
+        );
         return {
           tableNumber,
-          totalCount: sorted.length,
+          totalCount: tableNotes.length,
           pendingCount,
-          completedCount: sorted.length - pendingCount,
-          latestUpdatedAt: sorted[0]?.updatedAt ?? 0,
-          preview: sorted[0]?.content ?? null,
-          notes: sorted,
+          completedCount: tableNotes.length - pendingCount,
+          latestUpdatedAt: mostRecentlyTouched?.updatedAt ?? 0,
+          preview: mostRecentlyTouched?.content ?? null,
+          notes: byCreatedDesc,
         };
       })
       .sort((a, b) => b.latestUpdatedAt - a.latestUpdatedAt);
   }, [notes]);
+
 
   const filteredGroups = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -105,6 +111,22 @@ export function WaiterDashboard() {
     () => notes.filter((note) => !note.isCompleted).length,
     [notes]
   );
+
+  const suggestedTables = useMemo(() => {
+    const seen = new Set<number>();
+
+    for (const group of groups) {
+      seen.add(group.tableNumber);
+    }
+    for (const notification of notifications) {
+      seen.add(notification.tableNumber);
+    }
+    for (let i = 1; i <= 20; i += 1) {
+      seen.add(i);
+    }
+
+    return [...seen].sort((a, b) => a - b);
+  }, [groups, notifications]);
 
   const handleConfirm = async (id: string, tableNumber: number) => {
     try {
@@ -134,12 +156,19 @@ export function WaiterDashboard() {
 
   const handleAddNote = async (tableNumber: number, content: string) => {
     try {
-      await addNoteMutation({ tableNumber, content });
+      const id = await addNoteMutation({ tableNumber, content });
+      setFlashNoteId(String(id));
       toast.success(`Added note for Table ${tableNumber}`);
     } catch {
       toast.error("Failed to add note. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (!flashNoteId) return;
+    const t = window.setTimeout(() => setFlashNoteId(null), 550);
+    return () => window.clearTimeout(t);
+  }, [flashNoteId]);
 
   const handleToggleNote = async (id: string, isCompleted: boolean) => {
     try {
@@ -177,6 +206,11 @@ export function WaiterDashboard() {
           openNoteCount={openNotesCount}
           callCount={notifications.length}
           onOpenCalls={() => setIsCallsOpen(true)}
+          suggestedTables={suggestedTables}
+          onCreateNote={async (tableNumber, content) => {
+            await handleAddNote(tableNumber, content);
+            setActiveTableNumber(tableNumber);
+          }}
         />
         <WaiterToolbar
           search={search}
@@ -219,23 +253,24 @@ export function WaiterDashboard() {
           }
         }}
       >
-        <SheetContent side="bottom" className="h-[82vh] sm:h-[75vh] p-0">
+        <SheetContent side="bottom" className="h-[90vh] max-h-[90vh] p-0">
           {activeTableGroup && (
             <>
-              <SheetHeader className="border-b">
+              <SheetHeader className="shrink-0 px-4 pt-4 pb-3">
                 <SheetTitle>Table {activeTableGroup.tableNumber}</SheetTitle>
                 <SheetDescription>
                   {activeTableGroup.pendingCount} open / {activeTableGroup.completedCount} completed
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="h-full flex flex-col">
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1">
+              <div className="flex min-h-0 flex-1 flex-col">
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
                   {activeTableGroup.notes.length > 0 ? (
                     activeTableGroup.notes.map((note) => (
                       <WaiterNoteItem
                         key={note.id}
                         note={note}
+                        justAdded={flashNoteId === note.id}
                         onToggle={handleToggleNote}
                         onDelete={handleDeleteNote}
                       />
@@ -246,7 +281,7 @@ export function WaiterDashboard() {
                     </p>
                   )}
                 </div>
-                <div className="border-t bg-background px-4 py-3 space-y-2">
+                <div className="shrink-0 space-y-2 bg-background px-4 py-3">
                   <div className="flex justify-end">
                     <Button
                       size="sm"

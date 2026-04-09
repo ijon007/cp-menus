@@ -5,17 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeftIcon, Notification01Icon } from "@hugeicons/core-free-icons";
+import { WaiterNewNoteDialog } from "./waiter-new-note-dialog";
 
 interface WaiterHeaderProps {
   openNoteCount: number;
   callCount: number;
   onOpenCalls: () => void;
+  suggestedTables: number[];
+  onCreateNote: (tableNumber: number, content: string) => Promise<void>;
 }
 
 export function WaiterHeader({
   openNoteCount,
   callCount,
   onOpenCalls,
+  suggestedTables,
+  onCreateNote,
 }: WaiterHeaderProps) {
   const router = useRouter();
 
@@ -40,13 +45,19 @@ export function WaiterHeader({
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={onOpenCalls}>
-          <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} />
-          Calls
-          <Badge variant={callCount > 0 ? "secondary" : "outline"}>
-            {callCount}
-          </Badge>
-        </Button>
+        <div className="flex items-center gap-1.5">
+          <WaiterNewNoteDialog
+            suggestedTables={suggestedTables}
+            onCreate={onCreateNote}
+          />
+          <Button variant="outline" size="sm" onClick={onOpenCalls}>
+            <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} />
+            Calls
+            <Badge variant={callCount > 0 ? "secondary" : "outline"}>
+              {callCount}
+            </Badge>
+          </Button>
+        </div>
       </div>
     </div>
   );
