@@ -16,13 +16,24 @@ interface WaiterEmptyStateProps {
   hasSearch: boolean;
   searchValue: string;
   onClearSearch: () => void;
+  title?: string;
+  description?: string;
 }
 
 export function WaiterEmptyState({
   hasSearch,
   searchValue,
   onClearSearch,
+  title,
+  description,
 }: WaiterEmptyStateProps) {
+  const resolvedTitle = title ?? (hasSearch ? "No tables match your search" : "All clear");
+  const resolvedDescription =
+    description ??
+    (hasSearch
+      ? `No table number contains "${searchValue}". Try a different number.`
+      : "No pending table notifications. New requests will appear here.");
+
   return (
     <Empty className="border mt-8">
       <EmptyContent>
@@ -33,14 +44,8 @@ export function WaiterEmptyState({
               strokeWidth={2}
             />
           </EmptyMedia>
-          <EmptyTitle>
-            {hasSearch ? "No tables match your search" : "All clear"}
-          </EmptyTitle>
-          <EmptyDescription>
-            {hasSearch
-              ? `No table number contains "${searchValue}". Try a different number.`
-              : "No pending table notifications. New requests will appear here."}
-          </EmptyDescription>
+          <EmptyTitle>{resolvedTitle}</EmptyTitle>
+          <EmptyDescription>{resolvedDescription}</EmptyDescription>
         </EmptyHeader>
         {hasSearch && (
           <Button size="sm" variant="outline" onClick={onClearSearch}>

@@ -66,6 +66,26 @@ export default defineSchema({
       "tableNumber",
       "sessionId",
     ]),
+  waiterNotes: defineTable({
+    businessInfoId: v.id("businessInfo"),
+    tableNumber: v.number(),
+    content: v.string(),
+    isCompleted: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    createdBy: v.optional(v.string()),
+  })
+    .index("by_businessInfoId_tableNumber_updatedAt", [
+      "businessInfoId",
+      "tableNumber",
+      "updatedAt",
+    ])
+    .index("by_businessInfoId_isCompleted_updatedAt", [
+      "businessInfoId",
+      "isCompleted",
+      "updatedAt",
+    ]),
   userAccess: defineTable({
     userId: v.string(), // Clerk user ID
     email: v.optional(v.string()), // User email from Clerk

@@ -150,6 +150,16 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  @keyframes waiter-note-enter {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
   @keyframes pulse-slow {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 0.5; }
@@ -173,6 +183,9 @@
   }
   .animate-slide-up {
     animation: slide-up 0.8s ease-out 0.2s both;
+  }
+  .animate-waiter-note-enter {
+    animation: waiter-note-enter 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .animate-slide-up-delayed {
     animation: slide-up 0.8s ease-out 0.4s both;

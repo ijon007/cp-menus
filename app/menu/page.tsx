@@ -16,7 +16,7 @@ import EmptySectionsMessage from "@/components/menu/empty-sections-message";
 import { CenteredFabBar } from "@/components/fab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Notification01Icon, SettingsIcon, LiveStreaming02Icon } from "@hugeicons/core-free-icons";
+import { ServingFoodIcon, SettingsIcon, LiveStreaming02Icon } from "@hugeicons/core-free-icons";
 
 /* Utils */
 import { titleToSlug } from "@/lib/utils";
@@ -194,7 +194,7 @@ function AdminMenuPage() {
                 aria-label="Waiter dashboard"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
               >
-                <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} className="size-5" />
+                <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
               </Link>
             }
           />

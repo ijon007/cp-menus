@@ -18,6 +18,7 @@ import type * as sections from "../sections.js";
 import type * as translate from "../translate.js";
 import type * as userAccess from "../userAccess.js";
 import type * as waiterCalls from "../waiterCalls.js";
+import type * as waiterNotes from "../waiterNotes.js";
 
 import type {
   ApiFromModules,
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   translate: typeof translate;
   userAccess: typeof userAccess;
   waiterCalls: typeof waiterCalls;
+  waiterNotes: typeof waiterNotes;
 }>;
 
 /**

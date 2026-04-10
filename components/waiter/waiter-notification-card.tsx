@@ -62,14 +62,50 @@ interface WaiterNotificationCardProps {
   notification: WaiterNotification;
   onConfirm: (id: string, tableNumber: number) => void;
   onClear: (id: string, tableNumber: number) => void;
+  compact?: boolean;
 }
 
 export function WaiterNotificationCard({
   notification,
   onConfirm,
   onClear,
+  compact = false,
 }: WaiterNotificationCardProps) {
   const urgency = getUrgencyVariant(notification.triggeredAt);
+
+  if (compact) {
+    return (
+      <div className="rounded-md border bg-card p-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <p className="text-sm font-semibold">Table {notification.tableNumber}</p>
+            <p className="text-xs text-muted-foreground">
+              Called {formatElapsed(notification.triggeredAt)}
+            </p>
+          </div>
+          <Badge variant={urgency}>{formatTime(notification.triggeredAt)}</Badge>
+        </div>
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <Button
+            size="sm"
+            className="flex-1"
+            onClick={() => onConfirm(notification.id, notification.tableNumber)}
+          >
+            <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
+            Confirm
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onClear(notification.id, notification.tableNumber)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+            Clear
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card size="sm">
