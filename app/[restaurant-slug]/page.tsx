@@ -96,6 +96,7 @@ function MenuPage() {
         secondaryColor: menuData.businessInfo?.secondaryColor,
         accentColor: menuData.businessInfo?.accentColor,
         backgroundColor: menuData.businessInfo?.backgroundColor,
+        waiterEnabled: menuData.businessInfo?.waiterEnabled,
       }}
     />
   );

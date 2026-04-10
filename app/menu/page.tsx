@@ -89,6 +89,9 @@ function AdminMenuPage() {
 
   type Section = NonNullable<ReturnType<typeof useQuery<typeof api.sections.getByBusinessInfoId>>>[number];
 
+  const showWaiterSurfaces =
+    businessInfo == null || businessInfo.waiterEnabled !== false;
+
   const handleSectionsDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || !businessInfo || !sections) return;
@@ -186,20 +189,22 @@ function AdminMenuPage() {
             <TooltipContent side="top">View live menu</TooltipContent>
           </Tooltip>
         )}
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Link
-                href="/waiter"
-                aria-label="Waiter dashboard"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
-              >
-                <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
-              </Link>
-            }
-          />
-          <TooltipContent side="top">Waiter dashboard</TooltipContent>
-        </Tooltip>
+        {showWaiterSurfaces ? (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Link
+                  href="/waiter"
+                  aria-label="Waiter dashboard"
+                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+                >
+                  <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
+                </Link>
+              }
+            />
+            <TooltipContent side="top">Waiter dashboard</TooltipContent>
+          </Tooltip>
+        ) : null}
         <Tooltip>
           <TooltipTrigger
             render={

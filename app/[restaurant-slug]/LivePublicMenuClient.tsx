@@ -47,6 +47,7 @@ interface LivePublicMenuClientProps {
     secondaryColor?: string | null;
     accentColor?: string | null;
     backgroundColor?: string | null;
+    waiterEnabled?: boolean;
   } | null;
 }
 
@@ -129,6 +130,9 @@ function LivePublicMenuContent({
         align="right"
         translations={t}
         showTooltipOnMount
+        showWaiterButton={
+          Boolean(businessInfo && businessInfo.waiterEnabled !== false)
+        }
         extraButtons={
           <LanguageFAB language={language} setLanguage={setLanguage} t={t} />
         }

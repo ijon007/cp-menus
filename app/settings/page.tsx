@@ -334,6 +334,8 @@ function SettingsPage() {
     );
   }
 
+  const showWaiterSurfaces = businessInfo.waiterEnabled !== false;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -412,10 +414,12 @@ function SettingsPage() {
             onBackgroundColorChange={onBackgroundColorChange}
           />
 
-          <WaiterSessionSection
-            sessionDurationMinutes={waiterSessionDurationMinutes}
-            onSessionDurationMinutesChange={setWaiterSessionDurationMinutes}
-          />
+          {showWaiterSurfaces ? (
+            <WaiterSessionSection
+              sessionDurationMinutes={waiterSessionDurationMinutes}
+              onSessionDurationMinutesChange={setWaiterSessionDurationMinutes}
+            />
+          ) : null}
         </div>
       </div>
 
@@ -438,24 +442,26 @@ function SettingsPage() {
           />
           <TooltipContent side="top">Menu</TooltipContent>
         </Tooltip>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Link
-                href="/waiter"
-                onClick={(e) => {
-                  e.preventDefault();
-                  requestLeave(() => router.push("/waiter"));
-                }}
-                aria-label="Waiter dashboard"
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
-              >
-                <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
-              </Link>
-            }
-          />
-          <TooltipContent side="top">Waiter dashboard</TooltipContent>
-        </Tooltip>
+        {showWaiterSurfaces ? (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Link
+                  href="/waiter"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    requestLeave(() => router.push("/waiter"));
+                  }}
+                  aria-label="Waiter dashboard"
+                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
+                >
+                  <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
+                </Link>
+              }
+            />
+            <TooltipContent side="top">Waiter dashboard</TooltipContent>
+          </Tooltip>
+        ) : null}
       </CenteredFabBar>
       <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
         <AlertDialogContent>

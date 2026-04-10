@@ -1,5 +1,6 @@
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
+import { isWaiterEnabled } from "./waiterFeatureGuard";
 
 async function requireCurrentBusiness(ctx: QueryCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
@@ -26,6 +27,10 @@ export const listByBusiness = query({
   },
   handler: async (ctx, args) => {
     const { business } = await requireCurrentBusiness(ctx);
+
+    if (!isWaiterEnabled(business)) {
+      return [];
+    }
 
     if (
       args.tableNumber !== undefined &&
@@ -75,6 +80,10 @@ export const addNote = mutation({
   handler: async (ctx, args) => {
     const { business, identity } = await requireCurrentBusiness(ctx);
 
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
+    }
+
     if (!Number.isInteger(args.tableNumber) || args.tableNumber < 1) {
       throw new Error("tableNumber must be a positive integer");
     }
@@ -104,6 +113,10 @@ export const toggleNoteComplete = mutation({
   },
   handler: async (ctx, args) => {
     const { business } = await requireCurrentBusiness(ctx);
+
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
+    }
 
     const note = await ctx.db.get(args.id);
     if (!note) {
@@ -138,6 +151,10 @@ export const clearCompletedByTable = mutation({
   handler: async (ctx, args) => {
     const { business } = await requireCurrentBusiness(ctx);
 
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
+    }
+
     if (
       args.tableNumber !== undefined &&
       (!Number.isInteger(args.tableNumber) || args.tableNumber < 1)
@@ -166,6 +183,10 @@ export const deleteNote = mutation({
   args: { id: v.id("waiterNotes") },
   handler: async (ctx, args) => {
     const { business } = await requireCurrentBusiness(ctx);
+
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
+    }
 
     const note = await ctx.db.get(args.id);
     if (!note) {

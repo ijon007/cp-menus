@@ -27,6 +27,8 @@ export default defineSchema({
     accentColor: v.optional(v.string()),
     backgroundColor: v.optional(v.string()),
     waiterSessionDurationMinutes: v.optional(v.number()),
+    /** When false, menu-only: no waiter dashboard, guest call-waiter, or waiter settings. Undefined/true = enabled (legacy default). */
+    waiterEnabled: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

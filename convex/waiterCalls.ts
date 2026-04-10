@@ -1,6 +1,7 @@
 import { internal } from "./_generated/api";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { isWaiterEnabled } from "./waiterFeatureGuard";
 
 function slugifyName(name: string): string {
   return name
@@ -31,6 +32,10 @@ export const callWaiter = mutation({
 
     if (!business) {
       throw new Error("Business not found");
+    }
+
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter calls are not enabled for this restaurant.");
     }
 
     const now = Date.now();
@@ -108,6 +113,10 @@ export const listForCurrentBusiness = query({
       return [];
     }
 
+    if (!isWaiterEnabled(business)) {
+      return [];
+    }
+
     const calls = await ctx.db
       .query("waiterCalls")
       .withIndex("by_businessInfoId_triggeredAt", (q) =>
@@ -147,6 +156,10 @@ export const confirmWaiterCall = mutation({
       throw new Error("Not authorized");
     }
 
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
+    }
+
     await ctx.db.delete(args.id);
   },
 });
@@ -171,6 +184,10 @@ export const clearWaiterCall = mutation({
 
     if (!business || business._id !== call.businessInfoId) {
       throw new Error("Not authorized");
+    }
+
+    if (!isWaiterEnabled(business)) {
+      throw new Error("Waiter features are not enabled for this business");
     }
 
     await ctx.db.delete(args.id);

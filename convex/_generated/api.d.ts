@@ -8,6 +8,8 @@
  * @module
  */
 
+import type * as adminAuth from "../adminAuth.js";
+import type * as adminEntitlements from "../adminEntitlements.js";
 import type * as backfillTranslations from "../backfillTranslations.js";
 import type * as backfillWaiterSessions from "../backfillWaiterSessions.js";
 import type * as businessInfo from "../businessInfo.js";
@@ -18,6 +20,7 @@ import type * as sections from "../sections.js";
 import type * as translate from "../translate.js";
 import type * as userAccess from "../userAccess.js";
 import type * as waiterCalls from "../waiterCalls.js";
+import type * as waiterFeatureGuard from "../waiterFeatureGuard.js";
 import type * as waiterNotes from "../waiterNotes.js";
 
 import type {
@@ -27,6 +30,8 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  adminAuth: typeof adminAuth;
+  adminEntitlements: typeof adminEntitlements;
   backfillTranslations: typeof backfillTranslations;
   backfillWaiterSessions: typeof backfillWaiterSessions;
   businessInfo: typeof businessInfo;
@@ -37,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   translate: typeof translate;
   userAccess: typeof userAccess;
   waiterCalls: typeof waiterCalls;
+  waiterFeatureGuard: typeof waiterFeatureGuard;
   waiterNotes: typeof waiterNotes;
 }>;
 

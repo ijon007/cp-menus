@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { isWaiterEnabled } from "./waiterFeatureGuard";
 
 export const getByBusinessSlug = query({
   args: { slug: v.string() },
@@ -45,6 +46,7 @@ export const getByBusinessSlug = query({
       backgroundColor: business.backgroundColor,
       logoUrl,
       bannerUrl,
+      waiterEnabled: isWaiterEnabled(business),
     };
 
     // Get all sections for this businessInfo

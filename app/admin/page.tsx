@@ -14,6 +14,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,15 +29,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 
 /* Icons */
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeftIcon, Logout05Icon } from "@hugeicons/core-free-icons";
+import { Logout05Icon } from "@hugeicons/core-free-icons";
 
 function AdminDashboard() {
   const router = useRouter();
-  const { user } = useUser();
   const { signOut } = useClerk();
   const isAdmin = useQuery(api.userAccess.isAdmin);
   // Only fetch users if user is confirmed as admin
@@ -44,8 +46,14 @@ function AdminDashboard() {
   );
   const approveUserMutation = useMutation(api.userAccess.approveUser);
   const rejectUserMutation = useMutation(api.userAccess.rejectUser);
+  const entitlements = useQuery(
+    api.adminEntitlements.listApprovedWithBusiness,
+    isAdmin === true ? {} : "skip"
+  );
+  const setWaiterEnabledMutation = useMutation(api.adminEntitlements.setWaiterEnabled);
 
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
+  const [togglingBusinessId, setTogglingBusinessId] = useState<string | null>(null);
 
   // Show loading or unauthorized message
   if (isAdmin === undefined) {
@@ -102,6 +110,25 @@ function AdminDashboard() {
   const handleLogout = async () => {
     await signOut();
     router.push("/");
+  };
+
+  type EntitlementRow = NonNullable<typeof entitlements>[number];
+
+  const handleWaiterToggle = async (row: EntitlementRow, enabled: boolean) => {
+    if (!row.business) return;
+    try {
+      setTogglingBusinessId(row.business._id);
+      await setWaiterEnabledMutation({
+        businessInfoId: row.business._id,
+        enabled,
+      });
+      toast.success(enabled ? "Waiter features enabled" : "Waiter features disabled");
+    } catch (error) {
+      toast.error("Failed to update feature");
+      console.error(error);
+    } finally {
+      setTogglingBusinessId(null);
+    }
   };
 
   const formatDate = (timestamp: number) => {
@@ -199,55 +226,141 @@ function AdminDashboard() {
           </AlertDialog>
         </div>
 
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Access Management</CardTitle>
-              <CardDescription>
-                Review and manage user access requests
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="pending">
-                <TabsList>
-                  <TabsTrigger value="pending">
-                    Pending
-                    {pendingUsers.length > 0 && (
-                      <Badge variant="secondary" className="size-4 p-0">
-                        {pendingUsers.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger value="approved">
-                    Approved
-                    {approvedUsers.length > 0 && (
-                      <Badge variant="default" className="size-4 p-0">
-                        {approvedUsers.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                  <TabsTrigger value="rejected">
-                    Rejected
-                    {rejectedUsers.length > 0 && (
-                      <Badge variant="destructive" className="size-4 p-0">
-                        {rejectedUsers.length}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="pending" className="mt-4">
-                  <UserTable users={pendingUsers} showActions={true} />
-                </TabsContent>
-                <TabsContent value="approved" className="mt-4">
-                  <UserTable users={approvedUsers} showActions={false} />
-                </TabsContent>
-                <TabsContent value="rejected" className="mt-4">
-                  <UserTable users={rejectedUsers} showActions={false} />
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs defaultValue="access" className="grid gap-6">
+          <TabsList className="w-full max-w-md justify-start">
+            <TabsTrigger value="access">Access requests</TabsTrigger>
+            <TabsTrigger value="features">Features</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="access" className="mt-0">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Access Management</CardTitle>
+                <CardDescription>
+                  Review and manage user access requests
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="pending">
+                  <TabsList>
+                    <TabsTrigger value="pending">
+                      Pending
+                      {pendingUsers.length > 0 && (
+                        <Badge variant="secondary" className="size-4 p-0">
+                          {pendingUsers.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="approved">
+                      Approved
+                      {approvedUsers.length > 0 && (
+                        <Badge variant="default" className="size-4 p-0">
+                          {approvedUsers.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="rejected">
+                      Rejected
+                      {rejectedUsers.length > 0 && (
+                        <Badge variant="destructive" className="size-4 p-0">
+                          {rejectedUsers.length}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="pending" className="mt-4">
+                    <UserTable users={pendingUsers} showActions={true} />
+                  </TabsContent>
+                  <TabsContent value="approved" className="mt-4">
+                    <UserTable users={approvedUsers} showActions={false} />
+                  </TabsContent>
+                  <TabsContent value="rejected" className="mt-4">
+                    <UserTable users={rejectedUsers} showActions={false} />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="features" className="mt-0">
+            <Card>
+              <CardHeader>
+                <CardTitle>Product features</CardTitle>
+                <CardDescription>
+                  Turn waiter tools and guest call-waiter on or off per approved restaurant. Menu-only accounts stay on the public menu without waiter surfaces.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!entitlements || entitlements.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No approved users yet
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Business</TableHead>
+                        <TableHead className="text-right">Waiter</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {entitlements.map((row: EntitlementRow) => {
+                        const canToggle = row.business !== null;
+                        const checked = row.business?.waiterEnabled ?? false;
+                        const switchEl = (
+                          <div className="flex items-center justify-end gap-2">
+                            <Label htmlFor={`waiter-${row.userId}`} className="sr-only">
+                              Waiter features for {row.name || row.email || row.userId}
+                            </Label>
+                            <Switch
+                              id={`waiter-${row.userId}`}
+                              checked={checked}
+                              disabled={!canToggle || togglingBusinessId === row.business?._id}
+                              onCheckedChange={(next: boolean) => {
+                                void handleWaiterToggle(row, next);
+                              }}
+                            />
+                          </div>
+                        );
+                        return (
+                          <TableRow key={row.userId}>
+                            <TableCell className="font-medium">
+                              {row.name || "N/A"}
+                            </TableCell>
+                            <TableCell>{row.email || row.userId}</TableCell>
+                            <TableCell>
+                              {row.business ? (
+                                row.business.businessName
+                              ) : (
+                                <span className="text-muted-foreground">Not set up yet</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {!canToggle ? (
+                                <Tooltip>
+                                  <TooltipTrigger
+                                    render={<span className="inline-flex justify-end">{switchEl}</span>}
+                                  />
+                                  <TooltipContent side="left">
+                                    This user has not created a restaurant yet. Features apply after they set up their menu.
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                switchEl
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

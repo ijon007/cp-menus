@@ -82,6 +82,8 @@ interface CallWaiterFABProps {
   translations?: MenuTranslations;
   /** When true, show the tooltip briefly on initial mount (e.g. on public menu load). */
   showTooltipOnMount?: boolean;
+  /** When false, only extra buttons (e.g. language) are shown — no guest call-waiter action. */
+  showWaiterButton?: boolean;
 }
 
 export function CallWaiterFAB({
@@ -92,6 +94,7 @@ export function CallWaiterFAB({
   align = "right",
   translations: t,
   showTooltipOnMount = false,
+  showWaiterButton = true,
 }: CallWaiterFABProps) {
   const [calling, setCalling] = useState(false);
   const [called, setCalled] = useState(false);
@@ -177,27 +180,29 @@ export function CallWaiterFAB({
     >
       <div className="flex flex-row items-center justify-center gap-0.5 rounded-full bg-secondary/95 p-1 shadow-lg ring-1 ring-black/5 backdrop-blur-sm">
         {extraButtons}
-        <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-          <TooltipTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-9 rounded-full text-foreground hover:bg-black/10 transition-opacity"
-                onClick={handleCall}
-                disabled={disabled}
-                aria-label={ariaLabel}
-              >
-                <HugeiconsIcon
-                  icon={ServingFoodIcon}
-                  strokeWidth={2}
-                  className="size-5"
-                />
-              </Button>
-            }
-          />
-          <TooltipContent side="top">{callWaiterTooltip}</TooltipContent>
-        </Tooltip>
+        {showWaiterButton ? (
+          <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-9 rounded-full text-foreground hover:bg-black/10 transition-opacity"
+                  onClick={handleCall}
+                  disabled={disabled}
+                  aria-label={ariaLabel}
+                >
+                  <HugeiconsIcon
+                    icon={ServingFoodIcon}
+                    strokeWidth={2}
+                    className="size-5"
+                  />
+                </Button>
+              }
+            />
+            <TooltipContent side="top">{callWaiterTooltip}</TooltipContent>
+          </Tooltip>
+        ) : null}
       </div>
     </div>
   );
