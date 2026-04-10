@@ -25,7 +25,7 @@ export function WaiterToolbar({
           placeholder="Search by table or note…"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-7 text-sm"
+          className="h-9 pl-7 text-base md:h-7 md:text-sm"
         />
       </div>
     </div>

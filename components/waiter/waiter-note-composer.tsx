@@ -38,9 +38,9 @@ export function WaiterNoteComposer({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Add note..."
-        className="h-8 text-sm"
+        className="h-9 text-base md:h-8 md:text-sm"
       />
-      <Button type="submit" className="h-8 px-3" disabled={isSubmitting || !value.trim()}>
+      <Button type="submit" className="h-9 px-3 md:h-8" disabled={isSubmitting || !value.trim()}>
         <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />
         Send
       </Button>

@@ -66,7 +66,7 @@ export function WaiterNewNoteDialog({
             <select
               value={String(tableNumber)}
               onChange={(event) => setTableNumber(Number(event.target.value))}
-              className="bg-input/20 dark:bg-input/30 border-input h-7 w-full rounded-md border px-2 text-sm outline-none"
+              className="bg-input/20 dark:bg-input/30 border-input h-9 w-full rounded-md border px-2 text-base outline-none md:h-7 md:text-sm"
             >
               {tableOptions.map((table) => (
                 <option key={table} value={table}>
@@ -82,7 +82,7 @@ export function WaiterNewNoteDialog({
               value={content}
               onChange={(event) => setContent(event.target.value)}
               placeholder="Add note..."
-              className="h-8 text-sm"
+              className="h-9 text-base md:h-8 md:text-sm"
             />
           </div>
 
