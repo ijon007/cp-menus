@@ -5,7 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Notification01Icon } from "@hugeicons/core-free-icons";
+import { ServingFoodIcon } from "@hugeicons/core-free-icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -189,7 +189,7 @@ export function CallWaiterFAB({
                 aria-label={ariaLabel}
               >
                 <HugeiconsIcon
-                  icon={Notification01Icon}
+                  icon={ServingFoodIcon}
                   strokeWidth={2}
                   className="size-5"
                 />

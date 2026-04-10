@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon,Menu01Icon, Notification01Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, Menu01Icon, ServingFoodIcon } from "@hugeicons/core-free-icons";
 import LogoutDialog from "@/components/settings/logout-dialog";
 import { CenteredFabBar } from "@/components/fab";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -450,7 +450,7 @@ function SettingsPage() {
                 aria-label="Waiter dashboard"
                 className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-black/10 transition-colors"
               >
-                <HugeiconsIcon icon={Notification01Icon} strokeWidth={2} className="size-5" />
+                <HugeiconsIcon icon={ServingFoodIcon} strokeWidth={2} className="size-5" />
               </Link>
             }
           />
