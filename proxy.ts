@@ -20,36 +20,37 @@ export default clerkMiddleware(async (auth, req) => {
   // Protect admin route
   if (isAdminRoute(req)) {
     await auth.protect();
-    
-    const { userId } = await auth();
-    
-    if (!userId) {
-      console.log('[Admin Route] No userId found');
-      return NextResponse.redirect(new URL('/menu', req.url));
-    }
 
-    // Check if user is admin
-    const adminUserIds = process.env.ADMIN_USER_IDS;
-    console.log('[Admin Route] Checking admin access:', {
-      userId,
-      adminUserIds: adminUserIds ? 'SET' : 'NOT SET',
-      adminIds: adminUserIds ? adminUserIds.split(',').map((id) => id.trim()) : [],
-    });
-    
-    if (!adminUserIds) {
-      // If no admin IDs configured, deny access
-      console.log('[Admin Route] ADMIN_USER_IDS not configured');
-      return NextResponse.redirect(new URL('/menu', req.url));
-    }
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Admin Route] Dev environment — skipping admin check');
+    } else {
+      const { userId } = await auth();
 
-    const adminIds = adminUserIds.split(',').map((id) => id.trim());
-    if (!adminIds.includes(userId)) {
-      // User is not an admin, redirect to menu
-      console.log('[Admin Route] User not in admin list:', userId);
-      return NextResponse.redirect(new URL('/menu', req.url));
+      if (!userId) {
+        console.log('[Admin Route] No userId found');
+        return NextResponse.redirect(new URL('/menu', req.url));
+      }
+
+      const adminUserIds = process.env.ADMIN_USER_IDS;
+      console.log('[Admin Route] Checking admin access:', {
+        userId,
+        adminUserIds: adminUserIds ? 'SET' : 'NOT SET',
+        adminIds: adminUserIds ? adminUserIds.split(',').map((id) => id.trim()) : [],
+      });
+
+      if (!adminUserIds) {
+        console.log('[Admin Route] ADMIN_USER_IDS not configured');
+        return NextResponse.redirect(new URL('/menu', req.url));
+      }
+
+      const adminIds = adminUserIds.split(',').map((id) => id.trim());
+      if (!adminIds.includes(userId)) {
+        console.log('[Admin Route] User not in admin list:', userId);
+        return NextResponse.redirect(new URL('/menu', req.url));
+      }
+
+      console.log('[Admin Route] Admin access granted');
     }
-    
-    console.log('[Admin Route] Admin access granted');
   }
 });
 

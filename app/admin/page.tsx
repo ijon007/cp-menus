@@ -35,28 +35,29 @@ import { useClerk } from "@clerk/nextjs";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Logout05Icon } from "@hugeicons/core-free-icons";
 
+const isDev = process.env.NODE_ENV === "development";
+
 function AdminDashboard() {
   const router = useRouter();
   const { signOut } = useClerk();
   const isAdmin = useQuery(api.userAccess.isAdmin);
-  // Only fetch users if user is confirmed as admin
+  const effectiveIsAdmin = isDev || isAdmin === true;
   const allUsers = useQuery(
     api.userAccess.getAllUsers,
-    isAdmin === true ? {} : "skip"
+    effectiveIsAdmin ? {} : "skip"
   );
   const approveUserMutation = useMutation(api.userAccess.approveUser);
   const rejectUserMutation = useMutation(api.userAccess.rejectUser);
   const entitlements = useQuery(
     api.adminEntitlements.listApprovedWithBusiness,
-    isAdmin === true ? {} : "skip"
+    effectiveIsAdmin ? {} : "skip"
   );
   const setWaiterEnabledMutation = useMutation(api.adminEntitlements.setWaiterEnabled);
 
   const [processingUserId, setProcessingUserId] = useState<string | null>(null);
   const [togglingBusinessId, setTogglingBusinessId] = useState<string | null>(null);
 
-  // Show loading or unauthorized message
-  if (isAdmin === undefined) {
+  if (!isDev && isAdmin === undefined) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading...</p>
@@ -64,7 +65,7 @@ function AdminDashboard() {
     );
   }
 
-  if (isAdmin === false) {
+  if (!isDev && isAdmin === false) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center space-y-4 max-w-md">
