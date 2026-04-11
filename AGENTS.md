@@ -30,7 +30,8 @@ Without valid Clerk keys, the dev server starts but all pages return 500 ("Publi
 ### Gotchas
 
 - The lockfile is `bun.lock` — always use `bun install`, not npm/yarn/pnpm.
-- There is no middleware file; Clerk auth is enforced via `ClerkProvider` in the root layout (`providers/providers.tsx`).
+- Middleware lives in `proxy.ts` (not the conventional `middleware.ts`). Next.js 16 picks it up. Clerk auth runs there for route protection.
 - The Convex backend runs in the cloud (`npx convex dev` syncs local schema/functions); there is no local DB to start.
 - ESLint exits with code 1 due to pre-existing warnings/errors in the codebase — this is the baseline, not a setup issue.
 - The `convex/_generated/` directory is auto-generated and should not be manually edited.
+- Turbopack may occasionally crash with a panic during hot-reload after `.env.local` changes. Fix: `rm -rf .next` and restart `bun run dev`.
